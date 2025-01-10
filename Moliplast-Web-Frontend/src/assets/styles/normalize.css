@@ -1,0 +1,125 @@
+@import url('https://necolas.github.io/normalize.css/8.0.1/normalize.css');
+/*@import url("../fonts/fuente_open_sans.css");*/
+
+/* Eric Meyer's Reset */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  text-decoration: none;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+button {
+  all: unset; /* Elimina todos los estilos predeterminados */
+  cursor: pointer; /* Añade el cursor de puntero para mantener la interactividad */
+  display: inline-block; /* Asegura que el botón siga siendo un elemento de bloque en línea */
+}
+
+input {
+  /* Quita todos los estilos por defecto */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  /* Reset de bordes y outline */
+  border: none;
+  outline: none;
+  
+  /* Reset de padding y margin */
+  padding: 0;
+  margin: 0;
+  
+  /* Reset de background */
+  background: none;
+  background-color: white;
+  
+  /* Reset de font */
+  font: inherit;
+  
+  /* Reset de colores */
+  color: black;
+}
+
+/* Para quitar el outline al hacer focus */
+input:focus {
+  outline: none;
+}
+
+/* Para quitar la 'x' de limpiar en inputs type="search" */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+
+/* Para quitar las flechas en inputs type="number" */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input::placeholder {
+  color: #999; /* Color del placeholder */
+}
+
+
+a {
+  text-decoration: none; /* Elimina el subrayado */
+  color: inherit; /* Inherit para usar el color del texto del contenedor */
+  background-color: transparent; /* Fondo transparente */
+  cursor: pointer; /* Asegura que el cursor se mantenga como pointer */
+  /* Puedes agregar más estilos personalizados aquí */
+}
+
+*{
+  box-sizing: border-box;
+}
