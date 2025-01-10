@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+:root{   
+    --fuente_regular:400;
+    --fuente_semibold:700;
+    --fuente_bold:900;
+
+    --fuente_tamanio_titulo_1:32px;
+    --fuente_tamanio_titulo_2:28px;
+    --fuente_tamanio_titulo_3:22px;
+    --fuente_tamanio_titulo_4:18px;
+    --fuente_tamanio_titulo_5:15px;
+
+    --color_azul_1:#162A4E;
+    --color_azul_0:#284B8C;
+    --color_azul_-1:#547FCE;
+    --color_azul_-2:#8DA9DE;
+
+    --color_amarillo_1:#5D461B;
+    --color_amarillo_0:#8C6928;
+    --color_amarillo_-1:#CEA354;
+    --color_amarillo_-2:#DEC28D;
+
+    --color_negro:#1A1A1E;
+    --color_gris_1:#60606F;
+    --color_gris_0:#AEAEB9;
+    --color_gris_-1:#E4E4E8;
+    --color_blanco:#F3F3F5;
+
+
+    --height_header:100px;
+    --height_nav:50px;
+
+    --height_footer:300px;
+}
+
+    
+html{
+    font-family: 'Lato', sans-serif;
+    font-size: var(--fuente_tamanio_titulo_5);
+}
+
+*{
+    box-sizing: border-box;
+}
+
+h2{
+    font-size: var(--fuente_tamanio_titulo_2);
+    font-weight: var(--fuente_semibold);
+}
+
+body, html { /*Solo se puso por el slider de productos que era por un hover de trasnfoprm que lo desaparecia*/
+    overflow-x: hidden;
+}
+
+@media only screen and (max-width: 1000px){
+    :root{
+        --height_header:80px;
+    }
+}
