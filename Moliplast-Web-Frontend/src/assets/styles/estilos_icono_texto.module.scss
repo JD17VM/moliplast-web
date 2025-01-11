@@ -1,0 +1,66 @@
+.cont_listados{
+    /*background-color: greenyellow;*/
+    color: inherit;
+}
+
+    $alto_ancho_icono: 1.5em;
+    .cont_listados > div, .cont_titulo_icono{
+        display: flex;
+        align-items: center;
+        column-gap: 5px;
+        height: $alto_ancho_icono;   
+    }
+
+        .cont_listados > div > img, .cont_titulo_icono > img{
+            height: 100% ;
+        }
+
+        .cont_listados > div > svg, .cont_titulo_icono > svg{
+            height: 100%;
+        }
+
+        .cont_listados > div > svg.react_icon, .cont_titulo_icono > svg.react_icon{
+            height: 100% !important;
+            width: $alto_ancho_icono !important;
+            aspect-ratio: 1/1 !important;
+            transform: scale(1.2);
+        }
+
+    .cont_listados > ul{
+        margin-top: 0.7rem;
+        list-style-type: disc;
+        list-style-position: inside;
+        margin-left: 2rem;
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.7rem;
+    }
+
+        .cont_listados > ul > li{
+            line-height: 1.3;
+            position: relative;
+           
+        }
+
+        .cont_listados > ul > li::marker {
+            content: "• "; /* Define el carácter a mostrar, por defecto es un disco */
+            font-size: 1em; /* Ajusta el tamaño del marcador */
+            /* Cambia el color del marcador */
+            
+        }
+        
+
+    
+
+
+@media only screen and (max-width: 900px){
+
+    .cont_listados > ul{
+        margin-left: 0.1rem;
+    }
+
+        .cont_listados > ul > li{
+            text-overflow: ellipsis;
+        }
+    
+}
