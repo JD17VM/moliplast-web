@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Navegador from './widgets/Navegador'
+import Footer from './widgets/Footer'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -15,6 +16,8 @@ function App() {
       <Routes>
 
       </Routes>
+
+      <Footer data={data}/>
     </BrowserRouter>
   )
 }

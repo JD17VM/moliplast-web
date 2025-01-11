@@ -1,0 +1,135 @@
+footer{
+    background-color: #0F0F0F;
+    height: auto;
+    display: grid;
+    grid-template-areas: 
+    "logo_blanco secciones_importantes canales_comunicacion"
+    "direccion_horarios secciones_importantes canales_comunicacion"
+    ;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    padding: 2rem 3rem;
+    column-gap: 4rem;
+    row-gap: 1rem;
+    color: rgb(107, 107, 107);
+}
+
+
+footer > .cont_logo_blanco{
+    /*background-color: green;*/
+    grid-area: logo_blanco;
+}
+
+    footer > .cont_logo_blanco > img{
+        height: 50px;
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+    }footer > .cont_logo_blanco > img:hover{
+        opacity: 1;
+    }
+
+
+footer > .cont_direccion_horarios{
+    /*background-color: yellow;*/
+    grid-area: direccion_horarios;
+}
+
+
+footer > .cont_secciones_importantes{
+    /*background-color: red;*/
+    grid-area: secciones_importantes;
+    align-items: center;
+}
+
+footer > .cont_canales_comunicacion{
+    /*background-color: blue;*/
+    grid-area: canales_comunicacion;
+    justify-self: end;
+}
+
+footer > div:not(:first-child){
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    
+}
+
+
+.hover_efect > a, .hover_efect > div > ul > li, .hover_efect > div > div{
+    transition: color 0.3s ease;
+}
+
+.hover_efect > a:hover, .hover_efect > div > ul > li:hover{
+    color:var(--color_blanco);
+}
+
+.hovered{
+    color:var(--color_blanco);
+}
+
+/* 
+const Seccion_Hover_Footer = styled.div`
+  .hovered{
+    color:white;
+  }
+`;
+*/
+
+.cont_secciones_importantes > div:nth-child(2){
+    width: 9.9rem;
+    margin-top: 0.4rem;
+}
+
+.cont_secciones_importantes > div:nth-child(2) input{
+    padding: 0 0.4rem 0 0.6rem
+}
+
+.cont_secciones_importantes > div:nth-child(2) button{
+    color: var(--color_amarillo_-1);
+    background-color: rgb(39, 39, 39);
+}
+
+@media only screen and (max-width: 1200px){
+    footer{
+        column-gap: 2rem;
+    }
+
+    .cont_secciones_importantes > div:nth-child(2){
+        width: 9.9rem;
+    }
+    
+}
+
+@media only screen and (max-width: 900px){
+    footer{
+        column-gap: 2rem;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas: 
+        "canales_comunicacion secciones_importantes"
+        "direccion_horarios direccion_horarios"
+        "logo_blanco logo_blanco"
+        ;
+        row-gap: 2.5rem;
+        padding: 2rem 1rem;
+    }
+
+    footer > .cont_canales_comunicacion{
+        justify-self: start;
+    }
+
+        footer > .cont_canales_comunicacion li{
+            white-space: nowrap;
+        }
+
+    footer > .cont_secciones_importantes{
+        align-items: end;
+    }
+
+    footer > .cont_logo_blanco{
+        justify-self: center;
+    }
+
+
+}
+
