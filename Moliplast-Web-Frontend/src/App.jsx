@@ -1,7 +1,13 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import React, { useEffect } from 'react';
+
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 import Navegador from './widgets/Navegador'
 import Footer from './widgets/Footer'
+
+import Inicio from './Inicio'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -9,12 +15,17 @@ const data = dataPaginas.data
 
 function App() {
 
+  useEffect(() => {
+    AOS.init();
+    AOS.refresh();
+  }, []);
+
   return (
     <BrowserRouter>
       <Navegador data={data}/>
 
       <Routes>
-
+        <Route path="/" element={<Inicio />} />
       </Routes>
 
       <Footer data={data}/>
