@@ -8,6 +8,7 @@ import Navegador from './widgets/Navegador'
 import Footer from './widgets/Footer'
 
 import Inicio from './Inicio'
+import Nosotros from './Nosotros'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -26,6 +27,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Inicio />} />
+        <Route path="/nosotros" element={<Nosotros />} />
       </Routes>
 
       <Footer data={data}/>

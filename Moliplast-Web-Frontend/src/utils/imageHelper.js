@@ -33,6 +33,7 @@ import ImagenDemoProducto2 from '../assets/imgs/demos/Producto_Electrobomba_demo
 import ImagenDemoProducto3 from '../assets/imgs/demos/Producto_Rotoplas_demo.webp'
 import ImagenDemoProducto4 from '../assets/imgs/demos/Producto_Valvula_demo.webp'
 
+import Fachada_Moliplast from '../assets/imgs/Fachada_Moliplast.webp'
 
 const imageHelper = {
     logo_moliplast_blanco,
@@ -69,6 +70,8 @@ const imageHelper = {
     ImagenDemoProducto2,
     ImagenDemoProducto3,
     ImagenDemoProducto4,
+
+    Fachada_Moliplast,
 }
 
 export default imageHelper;
