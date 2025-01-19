@@ -9,6 +9,7 @@ import Footer from './widgets/Footer'
 
 import Inicio from './Inicio'
 import Nosotros from './Nosotros'
+import Contacto from './Contacto'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -28,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/contacto" element={<Contacto />} />
       </Routes>
 
       <Footer data={data}/>

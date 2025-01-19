@@ -1,0 +1,142 @@
+.contenedor_contacto{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 45px;
+    background-color: #EBEBEB;
+    row-gap: 1.5rem;
+
+    & > h1{
+        font-size: var(--fuente_tamanio_titulo_1);
+        font-weight: var(--fuente_semibold);
+        align-self: flex-start;
+    }
+
+    & > div{
+        display: flex;
+        padding: 40px;
+        background-color: white;
+        //font-size: var(--fuente_tamanio_titulo_4);
+        column-gap: 2rem;
+        width: 100%;
+        align-items: flex-start;
+        font-size: var(--fuente_tamanio_titulo_5);
+        color:var(--color_negro);
+
+        & > .contenedor_direcciones{
+            //background-color: red;
+            max-width: 500px;
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            row-gap: 1rem;
+
+            & > .contenedor_map{
+                background-color: black;
+                width: 90%;
+                height: 90%;
+                aspect-ratio: 1/1;
+
+                /* Add these to ensure interactivity */
+                pointer-events: auto; /* Make sure it's not 'none' */
+                overflow: visible; 
+                z-index: 10; /* Adjust if needed */ 
+            }
+
+            & > .direcciones{
+                //background-color: green;
+                width: 90%;
+                
+                display: flex;
+                flex-direction: column;
+                row-gap: 0.5rem;
+
+                & > button{
+
+                    //background-color: var(--color_amarillo_-1);
+                    padding: 0.5rem 1rem;
+                    border-radius: 1rem;
+
+                    &.seleccionado{
+                        border: 2px solid var(--color_amarillo_-1);
+                    }
+
+                    &.no_seleccionado{
+                        border: 2px solid rgba(0, 0, 0, 0);
+
+                        &:hover{
+                            border: 2px solid rgb(181, 181, 181);
+                        }
+                    }
+
+                    & > div {
+                        ul {
+                            margin-top: 0.5rem;
+                            row-gap: 0.3rem;
+                        }
+                    }
+                }
+            }
+        }
+
+        & > .contenedor_redes_contacto{
+            //background-color: green;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            row-gap: 1.5rem;
+
+            & > div {
+                ul {
+                    margin-top: 0.5rem;
+                    row-gap: 0.3rem;
+                }
+            }
+        }
+
+    }
+}
+
+@media only screen and (max-width: 900px){
+    
+.contenedor_contacto{
+        
+    & > div{
+        flex-direction: column;
+        row-gap: 1.5rem;
+        align-items: center;
+
+        & > .contenedor_direcciones{
+            width: 100%;
+            max-width: 100%;
+        }
+
+        & > .contenedor_redes_contacto{
+            width: 90%;
+        }
+    }
+}
+    
+}
+
+
+@media only screen and (max-width: 600px){
+    
+    .contenedor_contacto{
+        padding: 20px 1.2rem;   
+        
+    }
+        
+}
+
+
+@media only screen and (max-width: 400px){
+.contenedor_contacto{
+    & > div{
+        padding: 20px;
+    }
+}
+
+}
