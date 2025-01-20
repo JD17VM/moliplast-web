@@ -5,4 +5,10 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
+
+  Redirect 301 /servicios.htm https://www.moliplast.com/servicios
+  Redirect 301 /productos_03.htm https://www.moliplast.com
+  Redirect 301 /proveedores.htm https://www.moliplast.com/nosotros
+  Redirect 301 /productos_02.htm https://www.moliplast.com
+  Redirect 301 /contactenos.htm https://www.moliplast.com/contacto
 </IfModule>
