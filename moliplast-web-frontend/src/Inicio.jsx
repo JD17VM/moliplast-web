@@ -39,7 +39,7 @@ const TipoProducto = ({imagen, texto}) => {
                 backgroundImage: `url(${imagen})`,
             }}
         >
-            <p>{texto}</p>
+            <p>{convertirATitulo(texto)}</p>
         </Link>
     )
 }
@@ -92,7 +92,7 @@ const LineaDeProductos = () => {
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">
                 {categorias.map((categoria,index) => (
-                    <TipoProducto imagen={getFullUrl(categoria.enlace_imagen) || imageHelper.defaultImg} texto={convertirATitulo(categoria.nombre)} key={index}/>
+                    <TipoProducto imagen={getFullUrl(categoria.enlace_imagen) || imageHelper.defaultImg} texto={categoria.nombre} key={index}/>
                 ))}   
             </div>
         </ContenedorSeccion>
