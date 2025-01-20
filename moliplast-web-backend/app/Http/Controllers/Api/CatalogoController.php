@@ -20,8 +20,8 @@ class CatalogoController extends Controller
         if ($catalogos->isEmpty()){
             return response()->json([
                 'message' => 'No hay catalogos registrados',
-                'status' => 404
-            ], 404);
+                'status' => 200
+            ], 200);
         }
 
         return response()->json($catalogos, 200);
@@ -35,8 +35,8 @@ class CatalogoController extends Controller
         if ($catalogos->isEmpty()){
             return response()->json([
                 'message' => 'No hay catalogos registrados',
-                'status' => 404
-            ], 404);
+                'status' => 200
+            ], 200);
         }
 
         return response()->json($catalogos, 200);

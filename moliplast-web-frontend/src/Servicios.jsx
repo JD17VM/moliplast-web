@@ -32,7 +32,7 @@ const Servicios = () => {
         try {
             const response = await fetch(`${BASE_URL_API}/api/servicios`);
             
-            if (response.status === 404) {
+            if (response.status === 200) {
                 console.log('No hay servicios disponibles');
                 setServicios([]);
                 setLoading(false);

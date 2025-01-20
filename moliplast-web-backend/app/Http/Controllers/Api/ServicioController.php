@@ -19,8 +19,8 @@ class ServicioController extends Controller
         if ($servicios->isEmpty()){
             return response()->json([
                 'message' => 'No hay servicios registrados',
-                'status' => 404
-            ], 404);
+                'status' => 200
+            ], 200);
         }
 
         return response()->json($servicios, 200);
@@ -33,8 +33,8 @@ class ServicioController extends Controller
         if ($servicios->isEmpty()){
             return response()->json([
                 'message' => 'No hay servicios registrados',
-                'status' => 404
-            ], 404);
+                'status' => 200
+            ], 200);
         }
 
         return response()->json($servicios, 200);
