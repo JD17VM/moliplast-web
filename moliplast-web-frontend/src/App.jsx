@@ -28,6 +28,8 @@ import dataPaginas from './data/data_paginas.js'
 import AdminLogin from './AdminLogin';
 import AdminRoute from './AdminRoute';
 
+import ScrollToTop from './utils/ScrollToTop'; // Importa el componente ScrollToTop
+
 const data = dataPaginas.data
 
 function App() {
@@ -48,6 +50,7 @@ function App() {
     <BrowserRouter>
       <Navegador isAdmin={isAdmin} setIsAdmin={setIsAdmin}/>
 
+      <ScrollToTop>
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/nosotros" element={<Nosotros />} />
@@ -72,7 +75,7 @@ function App() {
 
         <Route path="/admin/login" element={<AdminLogin />} />
       </Routes>
-
+      </ScrollToTop>
       <Footer data={data} onAdminLogin={handleAdminLogin}/>
     </BrowserRouter>
   )
