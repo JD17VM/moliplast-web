@@ -338,6 +338,34 @@ class ProductoController extends Controller
         return response()->json($producto, 200);
     }
 
+    public function showSoftlink($id)
+    {
+        // Obtener producto de la base de datos local
+        $producto = Producto::where('id', $id)->where('estatus', true)->first();
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        // Formatear el código para la consulta a la base de datos externa
+        $codigoExterno = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+
+        // Consulta a la base de datos externa para obtener el precio
+        $precioExterno = DB::connection('externa')
+            ->table('precios') // Reemplaza 'precios' con el nombre de tu tabla de precios
+            ->where('cod_prod', $codigoExterno)
+            ->value('precio_venta'); // Reemplaza 'precio' con el nombre de la columna de precio
+
+        // Agregar el precio al objeto del producto
+        if ($precioExterno !== null) {
+            $producto->precio_externo = $precioExterno;
+        } else {
+            $producto->precio_externo = null; // O un valor predeterminado si no se encuentra el precio
+        }
+
+        return response()->json($producto, 200);
+    }
+
     public function showAll($id)
     {
         $producto = Producto::find($id);
