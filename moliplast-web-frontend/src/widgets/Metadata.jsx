@@ -1,5 +1,16 @@
 import React from 'react';
 
+const JsonLdScript = ({ data }) => {
+  const scriptContent = JSON.stringify({
+    "@context": "https://schema.org",
+    ...data
+  });
+
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: scriptContent }} />
+  );
+};
+
 const MetaData = ({
     title = "Moliplast", 
     description = "Moliplast S.R.L.: Expertos en sistemas de riego tecnificado, tubos PVC/PEAD, tanques y biodigestores. Productos de alta calidad y atención personalizada en Arequipa, Pedregal y La Joya.",
@@ -8,7 +19,8 @@ const MetaData = ({
     canonical = "",
     icon = "/icono_moliplast.ico",
     icon_dark = "/icono_moliplast_dark.ico",
-    icon_light = "/icono_moliplast.ico"
+    icon_light = "/icono_moliplast.ico",
+    jsonDataLD = []
 }) => {
   const baseUrl = "https://www.moliplast.com";
   return (
@@ -19,7 +31,8 @@ const MetaData = ({
       <meta property="og:title" content={title} /> {/* Redes sociales y plataformas Open Graph. */}
       <meta property="og:type" content="website" />
       <meta property="og:url" content={`${baseUrl}${canonical}`} />
-      {/* <meta property="og:image" content={ogImage} /> */}
+      {/* <meta property="og:image" content={ogImage} /> 
+      <meta property="og:site_name" content="Moliplast S.R.L." />*/}
       {/* indexar y seguir la pagina */}
       <meta name="robots" content={robots} /> 
       <link rel="canonical" href={`${baseUrl}${canonical}`} />
@@ -30,6 +43,15 @@ const MetaData = ({
       <link rel="icon" type="image/x-icon" href={icon}/>
       <link rel="icon" type="image/x-icon" href={icon_dark} media="(prefers-color-scheme: dark)"/>
       <link rel="icon" type="image/x-icon" href={icon_light} media="(prefers-color-scheme: light)"/>
+      {/* JSON-LD */}
+      {jsonDataLD.map((data, index) => (
+        <JsonLdScript 
+          key={`json-ld-${index}`}
+          data={{ 
+            ...data 
+          }}
+        />
+      ))}
     </>
   );
 };
