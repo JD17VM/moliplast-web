@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use App\Models\Producto;
@@ -50,6 +51,13 @@ class ProductoController extends Controller
 
         return response()->json($productos, 200);
     }*/
+
+    public function listarPrecios()
+    {
+        $resultados = DB::connection('externa')->select('SELECT * FROM precios'); // Reemplaza 'precios' con el nombre correcto de tu tabla
+
+        return response()->json($resultados);
+    }
 
     public function productosDestacados()
     {

@@ -63,6 +63,20 @@ return [
             ]) : [],
         ],
 
+        'externa' => [ // Nombre de la nueva conexión
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST_EXTERNA', 'grupo-moliplast.dyndns.org'),
+            'port'      => env('DB_PORT_EXTERNA', '3306'),
+            'database'  => env('DB_DATABASE_EXTERNA', 'Moliplast'),
+            'username'  => env('DB_USERNAME_EXTERNA', 'consulta'),
+            'password'  => env('DB_PASSWORD_EXTERNA', 'U_{1Go94Q6<h'),
+            'charset' => 'latin1',
+            'collation' => 'latin1_swedish_ci',
+            'prefix'    => '',
+            'strict'    => true,
+            'engine'    => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

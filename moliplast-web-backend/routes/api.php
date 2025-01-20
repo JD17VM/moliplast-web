@@ -87,6 +87,8 @@ Route::get('/products/complete-search', [ProductoController::class, 'completeSea
 
 Route::get('/productos-carta', [ProductoController::class, 'getCartaProductos']);
 
+Route::get('/lista-precios', [ProductoController::class, 'listarPrecios']);
+
 // Ruta para obtener productos por categoría
 Route::get('/productos/carta/{categoriaNombre}', [ProductoController::class, 'getCartaProductosPorCategoria']);
 
