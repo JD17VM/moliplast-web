@@ -916,7 +916,7 @@ class ProductoController extends Controller
         }
 
         // Construir la URL del producto en el frontend
-        $frontendUrl = 'https://www.moliplast.com/productos/producto/' . $producto->id; // Ajusta según tu frontend
+        $frontendUrl = 'https://www.moliplast.com/productos/producto/' . $producto->id . '?source=softlink'; // Ajusta según tu frontend
 
         return redirect()->away($frontendUrl);
     }

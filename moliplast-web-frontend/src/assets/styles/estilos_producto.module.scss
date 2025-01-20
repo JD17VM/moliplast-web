@@ -72,6 +72,12 @@ $padding_lateral: 2rem;
             font-size: var(--fuente_tamanio_titulo_4);
         }
 
+        & > p.precio{
+            font-size: var(--fuente_tamanio_titulo_2);
+            font-weight: var(--fuente_bold);
+            color: var(--color_azul_1);
+        }
+
         & > div{
             display: flex;
             column-gap: 2rem;
@@ -124,6 +130,10 @@ $padding_lateral: 2rem;
                 display: flex;
                 flex-direction: column;
                 row-gap: 1rem;
+            }
+
+            & > p.precio{
+                align-self: center;
             }
         }
     } 

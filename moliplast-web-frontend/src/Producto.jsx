@@ -6,7 +6,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { BtnIconoTexto } from './widgets/Botones';
 import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 import MetaData from './widgets/Metadata'
 
@@ -24,13 +24,20 @@ const Producto = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-
+    const location = useLocation(); // Obtiene la ubicación actual
 
     // Cargar datos del producto
     useEffect(() => {
         const fetchProducto = async () => {
+            let url = `${BASE_URL_API}/api/productos/${id}`; // URL por defecto
+
+            // Verifica si el parámetro source=softlink está presente
+            const searchParams = new URLSearchParams(location.search);
+            if (searchParams.get('source') === 'softlink') {
+                url = `${BASE_URL_API}/api/productos-softlink/${id}`; // URL alternativa
+            }
             try {
-                const response = await fetch(`${BASE_URL_API}/api/productos/${id}`);
+                const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error('Error al obtener los datos del producto');
                 }
@@ -47,7 +54,7 @@ const Producto = () => {
         };
 
         fetchProducto();
-    }, [id]);
+    }, [id, location.search]);
 
     // Cargar productos relacionados
     useEffect(() => {
@@ -94,6 +101,11 @@ const Producto = () => {
             <div>Cargando...</div>
         </>
         );
+    }
+    let precioTruncado = 0; // Declarar con let
+
+    if (producto && producto.precio_externo) {
+        precioTruncado = (Math.floor(producto.precio_externo * 100) / 100).toFixed(2); // Reasignar valor
     }
 
     return (
@@ -158,6 +170,9 @@ const Producto = () => {
                             Comprar por Whatsapp
                         </BtnIconoTexto>
                     </div>
+                    {producto.precio_externo && (
+                        <p className={styles.precio}>S/ {precioTruncado}</p>  
+                    )}
                 </div>
             </div>
             <div className={styles.descripcion_extra}>
