@@ -4,30 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
+use App\Models\Categoria;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Storage;
 
-class CatalogoGeneratorController extends Controller
+class generarDocumentoDeQRsController extends Controller
 {
-    public function generarCatalogo()
+    public function generarDocumentoDeQRsCompleto() //demora en cargar
     {
-        ini_set('max_execution_time', 300);
+        ini_set('max_execution_time', 300); //maximo tiempo de espera 5 minutos
         // Ruta a tu plantilla
-        $templatePath = public_path('plantilla_catalogo_3.docx');
+        $templatePath = public_path('plantilla_documentos_qr.docx');
 
-        // Verificar si la plantilla existe
-        if (!file_exists($templatePath)) {
-            \Log::error("Plantilla no encontrada: $templatePath");
-            return response()->json([
-                'message' => 'Plantilla no encontrada',
-                'status' => 404
-            ], 404);
-        }
+        // Crear una instancia de TemplateProcessor
+        $templateProcessor = new TemplateProcessor($templatePath);
 
-        // Obtener los datos completos de los productos
+        // Obtener los datos de los primeros 100 productos desde la base de datos
         $productos = Producto::where('estatus', true)
-            ->select('id', 'codigo', 'nombre', 'enlace_imagen_qr') // Incluimos el ID
-            ->orderBy('id') // Ordenamos por ID para consistencia
+            ->select('codigo', 'nombre', 'enlace_imagen_qr')
             ->limit(100)
             ->get();
 
@@ -38,8 +32,122 @@ class CatalogoGeneratorController extends Controller
             ], 404);
         }
 
-        \Log::info('Generando catálogo con ' . count($productos) . ' productos');
-        \Log::debug('Lista de productos:', $productos->toArray()); // Registramos todos los productos con sus datos
+        \Log::info('Generando documento con ' . count($productos) . ' productos (limitado a 100)');
+
+        // Reemplazos para la primera pasada
+        $replacements = [];
+        foreach ($productos as $index => $producto) {
+            $nombreLimpio = str_replace('&', 'y', $producto->nombre);
+            $codigoLimpio = str_replace('&', 'y', $producto->codigo);
+            $caracteresProblematicos = ['<', '>', '"', '\'', '&'];
+            $reemplazos = ['(', ')', '', '', 'y'];
+            $nombreLimpio = str_replace($caracteresProblematicos, $reemplazos, $nombreLimpio);
+            $codigoLimpio = str_replace($caracteresProblematicos, $reemplazos, $codigoLimpio);
+
+            $replacements[] = [
+                'nombre_producto' => $nombreLimpio,
+                'descripcion_producto' => $codigoLimpio,
+                'imagen_producto' => '${imagen_producto_' . $index . '}' // Placeholder para segunda pasada
+            ];
+        }
+
+        // Clonar el bloque con los valores
+        $templateProcessor->cloneBlock('PRODUCTO', 0, true, false, $replacements);
+
+        // Guardar el documento generado (primera pasada)
+        $outputPath = storage_path('app/catalogo_generado.docx');
+        $templateProcessor->saveAs($outputPath);
+
+        // Segunda pasada: reemplazo de placeholders de imagen
+        $templateProcessor2 = new TemplateProcessor($outputPath);
+
+        foreach ($productos as $index => $producto) {
+            $placeholder = 'imagen_producto_' . $index;
+            $urlImagen = $producto->enlace_imagen_qr;
+
+            if (strpos($urlImagen, 'https://moliplast.com/api/storage/app/public/') !== false) {
+                $rutaRelativa = str_replace('https://moliplast.com/api/storage/app/public/', '', $urlImagen);
+                $rutaImagenLocal = storage_path('app/public/' . $rutaRelativa);
+
+                if (file_exists($rutaImagenLocal)) {
+                    try {
+                        $templateProcessor2->setImageValue($placeholder, [
+                            'path' => $rutaImagenLocal,
+                            'width' => '2.3cm',
+                            'height' => '2.3cm',
+                            'ratio' => true
+                        ]);
+                        \Log::info("Imagen insertada: $rutaImagenLocal (Producto: {$producto->nombre})");
+                    } catch (\Exception $e) {
+                        \Log::error("Error insertando imagen en segunda pasada ({$producto->nombre}): " . $e->getMessage());
+                    }
+                } else {
+                    \Log::warning("No se encontró la imagen local: $rutaImagenLocal");
+                }
+            }
+        }
+
+        // Guardar documento final con imágenes insertadas
+        $templateProcessor2->saveAs($outputPath);
+
+        // Descargar el documento
+        return response()->download($outputPath)->deleteFileAfterSend(true);
+    }
+
+    public function generarDocumentoDeQRsParaImprimirPorCategoria($categoriaId = null) //si esta null genera los primeros 100
+    {
+        ini_set('max_execution_time', 300);
+        // Ruta a tu plantilla
+        $templatePath = public_path('plantilla_documentos_qr_para_imprimir_9.docx');
+
+        // Verificar si la plantilla existe
+        if (!file_exists($templatePath)) {
+            \Log::error("Plantilla no encontrada: $templatePath");
+            return response()->json([
+                'message' => 'Plantilla no encontrada',
+                'status' => 404
+            ], 404);
+        }
+
+        // Consulta base para productos
+        $query = Producto::where('estatus', true)
+            ->select('id', 'codigo', 'nombre', 'enlace_imagen_qr', 'id_categoria')
+            ->orderBy('id');
+
+        // Filtrar por categoría si se proporciona un ID
+        if ($categoriaId) {
+            // Verificar si la categoría existe
+            $categoria = Categoria::where('id', $categoriaId)
+                                ->where('estatus', true)
+                                ->first();
+
+            if (!$categoria) {
+                return response()->json([
+                    'message' => 'Categoría no encontrada o inactiva',
+                    'status' => 404
+                ], 404);
+            }
+
+            $query->where('id_categoria', $categoriaId);
+            \Log::info("Generando documento para la categoría ID: $categoriaId");
+        }
+
+        // Obtener los productos (con límite de 100)
+        $productos = $query->limit(100)->get();
+
+        if ($productos->isEmpty()) {
+            $message = $categoriaId 
+                ? 'No hay productos registrados en esta categoría' 
+                : 'No hay productos registrados';
+                
+            return response()->json([
+                'message' => $message,
+                'status' => 404
+            ], 404);
+        }
+
+        \Log::info('Generando documento con ' . count($productos) . ' productos');
+        \Log::debug('Lista de productos:', $productos->toArray());
 
         // Agrupar los productos en bloques de 9
         $gruposProductos = array_chunk($productos->toArray(), 9);
@@ -59,7 +167,6 @@ class CatalogoGeneratorController extends Controller
                     $nombreLimpio = $this->limpiarTexto($producto['nombre']);
                     $codigoLimpio = $this->limpiarTexto($producto['codigo']);
                     
-
                     // Formatear el código a 6 cifras con ceros a la izquierda si es necesario
                     $codigoFormateado = str_pad($codigoLimpio, 6, '0', STR_PAD_LEFT);
 
@@ -70,7 +177,9 @@ class CatalogoGeneratorController extends Controller
                             'id' => $producto['id'],
                             'nombre' => $producto['nombre'],
                             'codigo' => $producto['codigo'],
-                            'imagen' => $producto['enlace_imagen_qr']
+                            'codigo_formateado' => $codigoFormateado,
+                            'imagen' => $producto['enlace_imagen_qr'],
+                            'categoria' => $producto['id_categoria']
                         ]);
                     }
                     
@@ -127,7 +236,7 @@ class CatalogoGeneratorController extends Controller
                     $rutaImagenLocal = storage_path('app/public/' . $rutaRelativa);
 
                     // Log específico con la información requerida, incluyendo la ruta relativa
-                    \Log::info("Producto: Imagen: {$rutaRelativa}, ID: {$producto->id}, Código: {$producto->codigo}, Nombre: {$producto->nombre}");
+                    \Log::info("Producto: Imagen: {$rutaRelativa}, ID: {$producto->id}, Código: {$producto->codigo}, Nombre: {$producto->nombre}, Categoría: {$producto->id_categoria}");
 
                     if (file_exists($rutaImagenLocal)) {
                         try {
@@ -154,8 +263,13 @@ class CatalogoGeneratorController extends Controller
             $finalOutputPath = $tempDir . '/catalogo_final_' . time() . '.docx';
             $templateProcessor2->saveAs($finalOutputPath);
 
+            // Nombre del archivo según si es por categoría o general
+            $filename = $categoriaId 
+                ? "catalogo_categoria_{$categoriaId}_productos.docx" 
+                : "catalogo_productos.docx";
+
             // Descargar el documento
-            return response()->download($finalOutputPath, 'catalogo_productos.docx')
+            return response()->download($finalOutputPath, $filename)
                 ->deleteFileAfterSend(true);
 
         } catch (\Exception $e) {

@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\SubcategoriaController;
 use App\Http\Controllers\Api\SubsubcategoriaController;
 use App\Http\Controllers\Api\ProductoController;
 use App\Http\Controllers\Api\AdministradorController;
-use App\Http\Controllers\Api\CatalogoGeneratorController;
+use App\Http\Controllers\Api\generarDocumentoDeQRsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,4 +112,5 @@ Route::post('/administradores/login',[AdministradorController::class, 'login']);
 
 Route::get('/producto/redirect/{id}', [ProductoController::class, 'redirect']);
 
-Route::get('/generar-catalogo', [CatalogoGeneratorController::class, 'generarCatalogo']);
+Route::get('/generar-documento-qrs-imprimir', [generarDocumentoDeQRsController::class, 'generarDocumentoDeQRsParaImprimirPorCategoria']);
+Route::get('/generar-documento-qrs-imprimir/categoria/{categoriaId}', [generarDocumentoDeQRsController::class, 'generarDocumentoDeQRsParaImprimirPorCategoria']);
