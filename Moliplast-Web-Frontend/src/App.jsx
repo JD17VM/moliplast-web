@@ -9,6 +9,7 @@ import Footer from './widgets/Footer'
 
 import Inicio from './Inicio'
 import Nosotros from './Nosotros'
+import Productos from './Productos'
 import Servicios from './Servicios'
 import Catalogos from './Catalogos'
 import Contacto from './Contacto'
@@ -33,6 +34,7 @@ function App() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/catalogos" element={<Catalogos/>} />
         <Route path="/contacto" element={<Contacto />} />
+        <Route path="/productos" element={<Productos />} />
         <Route path="/servicios" element={<Servicios />} />
       </Routes>
 
