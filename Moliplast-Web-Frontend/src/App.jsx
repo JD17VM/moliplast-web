@@ -10,6 +10,7 @@ import Footer from './widgets/Footer'
 import Inicio from './Inicio'
 import Nosotros from './Nosotros'
 import Servicios from './Servicios'
+import Catalogos from './Catalogos'
 import Contacto from './Contacto'
 
 import dataPaginas from './data/data_paginas.js'
@@ -30,6 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/catalogos" element={<Catalogos/>} />
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/servicios" element={<Servicios />} />
       </Routes>
