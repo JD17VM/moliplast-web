@@ -1,0 +1,30 @@
+button.btn_icono_texto{
+
+    --color_principal: var(--color_azul_1);
+    --color_activo: var(--color_azul_-2);
+
+    background-color: var(--color_principal);
+    color:white;
+    padding: 0.5rem 1rem;
+    display: flex;
+    column-gap: 0.7rem;
+    font-size: var(--fuente_tamanio_titulo_4);
+    align-items: center;
+    border-radius: 0.5rem;
+    border: 2px solid var(--color_principal);
+    transition: all 0.2s ease;
+
+    & > svg{
+        font-size: 1.5rem;
+    }
+
+    &:hover{
+        color: var(--color_principal);
+        background-color:white;
+    }
+
+    &:active{
+        color: var(--color_principal);
+        background-color:var(--color_activo);
+    }
+}
