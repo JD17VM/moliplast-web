@@ -1,0 +1,63 @@
+.cont_MD{
+    //background-color: yellow;
+    display: flex;
+    flex-direction: column;
+    font-size: var(--fuente_tamanio_titulo_4);
+    row-gap: 1rem;
+    
+    h1{
+        font-size: var(--fuente_tamanio_titulo_3);
+        font-weight: var(--fuente_semibold);
+    }
+
+
+    div:global(.table-wrapper){
+        overflow-x: auto;
+    }
+
+    table{
+        border-collapse: collapse;
+        font-size: var(--fuente_tamanio_titulo_5);
+        background-color: white;
+        
+        width: 100%;
+        min-width: 1000px;
+        overflow-x: scroll;
+
+        
+
+        td, th{
+            padding: 0.5rem;
+            
+        }
+    
+        &, td, th {
+            border: 1px solid black;
+        }
+
+        th{
+            font-weight: var(--fuente_semibold);
+            background-color: var(--color_azul_0);
+            color: white;
+            padding: 0.8rem 0.5rem;
+        }
+    }
+
+    ul{
+        list-style-type: disc;
+        list-style-position: inside;
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.3rem;
+    }
+
+    em{
+        font-style: italic;
+    }
+
+    strong{
+        font-weight: var(--fuente_semibold);
+    }
+
+
+}

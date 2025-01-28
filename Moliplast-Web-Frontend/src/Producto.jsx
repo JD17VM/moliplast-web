@@ -5,6 +5,7 @@ import { MdPictureAsPdf } from "react-icons/md";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { BtnIconoTexto } from './widgets/Botones';
+import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
 
 
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
@@ -42,6 +43,9 @@ const Producto = () => {
                         <BtnIconoTexto Icono={FaWhatsapp} colorPrincipal="#075e54" colorActivo='#25d366'>Comprar por Whatsapp</BtnIconoTexto >
                     </div>
                 </div>
+            </div>
+            <div className={styles.descripcion_extra}>
+                <InterpreteMarkdownHTML/>
             </div>
             <SeccionProductosImportantes titulo='Productos Relacionados'/>
 
