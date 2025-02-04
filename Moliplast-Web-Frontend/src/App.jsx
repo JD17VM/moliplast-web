@@ -15,6 +15,8 @@ import Servicios from './Servicios'
 import Catalogos from './Catalogos'
 import Contacto from './Contacto'
 
+import AdminCatalogos from './Administrador/AdminCatalogos'
+
 import dataPaginas from './data/data_paginas.js'
 
 const data = dataPaginas.data
@@ -40,6 +42,8 @@ function App() {
           <Route path="/productos/:subproductos/:subsubproductos" element={<Productos />} />
         <Route path="/productos/producto" element={<Producto />} />
         <Route path="/servicios" element={<Servicios />} />
+
+        <Route path="/administrador/catalogos" element={<AdminCatalogos />} />
       </Routes>
 
       <Footer data={data}/>
