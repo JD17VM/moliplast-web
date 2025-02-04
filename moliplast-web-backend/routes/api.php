@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\CatalogoController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,9 +16,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/catalogos',function (){ return 'Lista de Catálogos'; });
-Route::get('/catalogos/{id}',function (){ return 'Elemento Catálogo'; });
-Route::post('/catalogos',function (){ return 'Catálogo Creado'; });
-Route::put('/catalogos/{id}',function (){ return 'Catálogo Actualizado Completamente'; });
-Route::patch('/catalogos/{id}',function (){ return 'Elemento de Catálogo Actualizado'; });
-Route::delete('/catalogos/{id}',function (){ return 'Catálogo Eliminado'; });
+Route::get('/catalogos',[CatalogoController::class, 'index']);
+Route::get('/catalogos-all',[CatalogoController::class, 'indexAll']);
+Route::get('/catalogos/{id}',[CatalogoController::class, 'show']);
+Route::get('/catalogos-all/{id}',[CatalogoController::class, 'showAll']);
+Route::post('/catalogos',[CatalogoController::class, 'guardar']);
+Route::put('/catalogos/{id}',[CatalogoController::class, 'update']);
+Route::patch('/catalogos/{id}',[CatalogoController::class, 'updatePartial']);
+Route::delete('/catalogos/{id}',[CatalogoController::class, 'destroy']);
