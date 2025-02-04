@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/catalogos',function (){ return 'Lista de Catálogos'; });
+Route::get('/catalogos/{id}',function (){ return 'Elemento Catálogo'; });
+Route::post('/catalogos',function (){ return 'Catálogo Creado'; });
+Route::put('/catalogos/{id}',function (){ return 'Catálogo Actualizado Completamente'; });
+Route::patch('/catalogos/{id}',function (){ return 'Elemento de Catálogo Actualizado'; });
+Route::delete('/catalogos/{id}',function (){ return 'Catálogo Eliminado'; });
