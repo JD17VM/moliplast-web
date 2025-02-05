@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ServicioController;
+use App\Http\Controllers\Api\CategoriaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,3 +35,12 @@ Route::post('/servicios',[ServicioController::class, 'guardar']);
 Route::put('/servicios/{id}',[ServicioController::class, 'update']);
 Route::patch('/servicios/{id}',[ServicioController::class, 'updatePartial']);
 Route::delete('/servicios/{id}',[ServicioController::class, 'destroy']);
+
+Route::get('/categorias',[CategoriaController::class, 'index']); // X X
+Route::get('/categorias-all',[CategoriaController::class, 'indexAll']); // X X
+Route::get('/categorias/{id}',[CategoriaController::class, 'show']); // X X
+Route::get('/categorias-all/{id}',[CategoriaController::class, 'showAll']); // X X
+Route::post('/categorias',[CategoriaController::class, 'guardar']); // X X
+Route::put('/categorias/{id}',[CategoriaController::class, 'update']); // X X
+Route::patch('/categorias/{id}',[CategoriaController::class, 'updatePartial']); // X X
+Route::delete('/categorias/{id}',[CategoriaController::class, 'destroy']); // X X
