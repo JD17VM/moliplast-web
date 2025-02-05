@@ -26,5 +26,12 @@ class Subcategoria extends Model
         return $this->belongsTo(Categoria::class);
     }
 
+    /*
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'id_categoria', 'id');
+    }
+    */
+
     use HasFactory;
 }
