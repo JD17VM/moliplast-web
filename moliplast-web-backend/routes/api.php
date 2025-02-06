@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\SubcategoriaController;
+use App\Http\Controllers\Api\SubSubcategoriaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,3 +55,12 @@ Route::post('/subcategorias',[SubcategoriaController::class, 'guardar']); // X X
 Route::put('/subcategorias/{id}',[SubcategoriaController::class, 'update']); // X
 Route::patch('/subcategorias/{id}',[SubcategoriaController::class, 'updatePartial']); // X
 Route::delete('/subcategorias/{id}',[SubcategoriaController::class, 'destroy']); // X X
+
+Route::get('/subsubcategorias',[SubsubcategoriaController::class, 'index']); // X X
+Route::get('/subsubcategorias-all',[SubsubcategoriaController::class, 'indexAll']); // X
+Route::get('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'show']); // X
+Route::get('/subsubcategorias-all/{id}',[SubsubcategoriaController::class, 'showAll']); // X
+Route::post('/subsubcategorias',[SubsubcategoriaController::class, 'guardar']); // X
+Route::put('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'update']); // X
+Route::patch('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'updatePartial']); // X
+Route::delete('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'destroy']); // X
