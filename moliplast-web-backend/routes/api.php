@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\SubcategoriaController;
 use App\Http\Controllers\Api\SubSubcategoriaController;
+use App\Http\Controllers\Api\ProductoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +65,12 @@ Route::post('/subsubcategorias',[SubsubcategoriaController::class, 'guardar']); 
 Route::put('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'update']); // X
 Route::patch('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'updatePartial']); // X
 Route::delete('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'destroy']); // X
+
+Route::get('/productos',[ProductoController::class, 'index']); // X X
+Route::get('/productos-all',[ProductoController::class, 'indexAll']); // X X
+Route::get('/productos/{id}',[ProductoController::class, 'show']); // X X
+Route::get('/productos-all/{id}',[ProductoController::class, 'showAll']); // X
+Route::post('/productos',[ProductoController::class, 'guardar']); // X
+Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
+Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
+Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
