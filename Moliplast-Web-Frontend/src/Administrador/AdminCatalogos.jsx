@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+const BASE_URL_API = "http://127.0.0.1:8000";
+
 const AdminCatalogos = () => {
     const [catalogos, setCatalogos] = useState([]);
     const [newCatalogo, setNewCatalogo] = useState({
@@ -22,7 +24,7 @@ const AdminCatalogos = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/catalogos');
+            const response = await fetch(`${BASE_URL_API}/api/catalogos`);
             
             if (response.status === 404) {
                 console.log('No hay catálogos disponibles');
@@ -63,8 +65,8 @@ const AdminCatalogos = () => {
     
         try {
             const url = editingCatalogo 
-                ? `http://127.0.0.1:8000/api/catalogos/${editingCatalogo.id}` 
-                : 'http://127.0.0.1:8000/api/catalogos';
+                ? `${BASE_URL_API}/api/catalogos/${editingCatalogo.id}` 
+                : `${BASE_URL_API}/api/catalogos`;
                 
             const response = await fetch(url, {
                 method: editingCatalogo ? 'PUT' : 'POST',
@@ -100,7 +102,7 @@ const AdminCatalogos = () => {
             setError('');
             
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/catalogos/${id}`, {
+                const response = await fetch(`${BASE_URL_API}/api/catalogos/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json'
@@ -282,7 +284,7 @@ const AdminCatalogos = () => {
                                 <td>{catalogo.nombre}</td>
                                 <td>
                                     {catalogo.enlace_documento ? (
-                                        <a href={`http://127.0.0.1:8000${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
+                                        <a href={`${BASE_URL_API}${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
                                             Ver documento
                                         </a>
                                     ) : 'No disponible'}
@@ -290,7 +292,7 @@ const AdminCatalogos = () => {
                                 <td>
                                     {catalogo.enlace_imagen_portada ? (
                                         <img 
-                                            src={`http://127.0.0.1:8000${catalogo.enlace_imagen_portada}`} 
+                                            src={`${BASE_URL_API}${catalogo.enlace_imagen_portada}`} 
                                             alt={`Portada de ${catalogo.nombre}`} 
                                             style={{ maxWidth: '100px', maxHeight: '100px' }} 
                                         />
