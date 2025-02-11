@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Catalogo;
 
@@ -65,21 +66,56 @@ class CatalogoController extends Controller
 
     public function guardar(Request $request)
     {
+        // Validación
         $validator = Validator::make($request->all(), [
-            'enlace_documento' => 'required|string|max:50',
-            'nombre'=> 'required|string|max:50',
-            'enlace_imagen_portada'=> 'required|string|max:50',
+            'enlace_documento' => 'required|file|mimes:pdf,doc,docx',
+            'nombre' => 'required|string|max:50',
+            'enlace_imagen_portada' => 'required|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
+            return response()->json([
+                'message' => 'Error en la validación de los datos', 
+                'errors' => $validator->errors()
+            ], 400);
         }
 
+        // Guardar el documento con un nombre único
+        $documentPath = $request->file('enlace_documento')->store('documents', 'public');
+        $documentUrl = Storage::url($documentPath);
+
+        // Guardar la imagen con un nombre único
+        $imagePath = $request->file('enlace_imagen_portada')->store('images', 'public');
+        $imageUrl = Storage::url($imagePath);
+
+        /*
+        // Guardar el documento con el nombre original
+        $documentFile = $request->file('enlace_documento');
+        $documentName = $documentFile->getClientOriginalName();
+        $documentPath = $documentFile->storeAs('documents', $documentName, 'public');
+
+        // Guardar la imagen con el nombre original
+        $imageFile = $request->file('enlace_imagen_portada');
+        $imageName = $imageFile->getClientOriginalName();
+        $imagePath = $imageFile->storeAs('images', $imageName, 'public');
+        
+
+        // Crear el catálogo
         $catalogo = Catalogo::create([
-            'enlace_documento' => $request->enlace_documento,
+            'enlace_documento' => Storage::url($documentPath),
             'nombre' => $request->nombre,
-            'enlace_imagen_portada' => $request->enlace_imagen_portada,
-            'estatus' => true, // Asegurar que el nuevo catálogo tenga estatus true
+            'enlace_imagen_portada' => Storage::url($imagePath),
+            'estatus' => true,
+        ]);
+        */
+
+
+        // Crear el catálogo
+        $catalogo = Catalogo::create([
+            'enlace_documento' => $documentUrl,
+            'nombre' => $request->nombre,
+            'enlace_imagen_portada' => $imageUrl,
+            'estatus' => true,
         ]);
 
         if (!$catalogo) {
@@ -91,29 +127,79 @@ class CatalogoController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Solo obtener catálogo con estatus true
-        $catalogo = Catalogo::where('id', $id)->where('estatus', true)->first();
+        Log::info('Iniciando actualización de catálogo', ['id' => $id, 'data' => $request->all()]);
+        
+        try {
+            // Solo obtener catálogo con estatus true
+            $catalogo = Catalogo::where('id', $id)->where('estatus', true)->first();
 
-        if (!$catalogo) {
-            return response()->json(['message' => 'Catalogo no encontrado'], 404);
+            if (!$catalogo) {
+                Log::warning('Catálogo no encontrado', ['id' => $id]);
+                return response()->json(['message' => 'Catalogo no encontrado'], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'enlace_documento' => 'nullable|file|mimes:pdf,doc,docx',
+                'nombre' => 'required|string|max:50',
+                'enlace_imagen_portada' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            ]);
+
+            if ($validator->fails()) {
+                Log::error('Validación fallida en actualización', ['errors' => $validator->errors()]);
+                return response()->json([
+                    'message' => 'Error en la validacion de los datos', 
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            // Actualizar el documento si se proporciona uno nuevo
+            if ($request->hasFile('enlace_documento') && $request->file('enlace_documento')->isValid()) {
+                // Obtener la ruta relativa del archivo actual para eliminar
+                if ($catalogo->enlace_documento) {
+                    $oldDocumentPath = str_replace('/storage/', 'public/', $catalogo->enlace_documento);
+                    Storage::delete($oldDocumentPath);
+                }
+                
+                // Guardar el nuevo documento
+                $documentPath = $request->file('enlace_documento')->store('documents', 'public');
+                if (!$documentPath) {
+                    Log::error('Error al guardar el documento en actualización');
+                    return response()->json(['message' => 'Error al guardar el documento'], 500);
+                }
+                $catalogo->enlace_documento = Storage::url($documentPath);
+            }
+
+            // Actualizar la imagen si se proporciona una nueva
+            if ($request->hasFile('enlace_imagen_portada') && $request->file('enlace_imagen_portada')->isValid()) {
+                // Obtener la ruta relativa del archivo actual para eliminar
+                if ($catalogo->enlace_imagen_portada) {
+                    $oldImagePath = str_replace('/storage/', 'public/', $catalogo->enlace_imagen_portada);
+                    Storage::delete($oldImagePath);
+                }
+                
+                // Guardar la nueva imagen
+                $imagePath = $request->file('enlace_imagen_portada')->store('images', 'public');
+                if (!$imagePath) {
+                    Log::error('Error al guardar la imagen en actualización');
+                    return response()->json(['message' => 'Error al guardar la imagen'], 500);
+                }
+                $catalogo->enlace_imagen_portada = Storage::url($imagePath);
+            }
+
+            $catalogo->nombre = $request->nombre;
+            $catalogo->save();
+
+            Log::info('Catálogo actualizado exitosamente', ['id' => $catalogo->id]);
+            return response()->json($catalogo, 200);
+            
+        } catch (\Exception $e) {
+            Log::error('Error en actualizar catálogo', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'enlace_documento' => 'required|string|max:50',
-            'nombre' => 'required|string|max:50',
-            'enlace_imagen_portada' => 'required|string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
-        }
-
-        $catalogo->enlace_documento = $request->enlace_documento;
-        $catalogo->nombre = $request->nombre;
-        $catalogo->enlace_imagen_portada = $request->enlace_imagen_portada;
-        $catalogo->save();
-
-        return response()->json($catalogo, 200);
     }
 
     public function updatePartial(Request $request, $id)
@@ -126,25 +212,37 @@ class CatalogoController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'enlace_documento' => 'string|max:50',
-            'nombre' => 'string|max:50',
-            'enlace_imagen_portada' => 'string|max:50',
+            'enlace_documento' => 'nullable|file|mimes:pdf,doc,docx',
+            'nombre' => 'nullable|string|max:50',
+            'enlace_imagen_portada' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
         }
 
-        if ($request->has('enlace_documento')) {
-            $catalogo->enlace_documento = $request->enlace_documento;
+        if ($request->hasFile('enlace_documento')) {
+            // Obtener la ruta relativa del archivo actual para eliminar
+            $oldDocumentPath = str_replace('/storage', 'public', $catalogo->enlace_documento);
+            Storage::delete($oldDocumentPath);
+            
+            // Guardar el nuevo documento
+            $documentPath = $request->file('enlace_documento')->store('documents', 'public');
+            $catalogo->enlace_documento = Storage::url($documentPath);
         }
 
         if ($request->has('nombre')) {
             $catalogo->nombre = $request->nombre;
         }
 
-        if ($request->has('enlace_imagen_portada')) {
-            $catalogo->enlace_imagen_portada = $request->enlace_imagen_portada;
+        if ($request->hasFile('enlace_imagen_portada')) {
+            // Obtener la ruta relativa del archivo actual para eliminar
+            $oldImagePath = str_replace('/storage', 'public', $catalogo->enlace_imagen_portada);
+            Storage::delete($oldImagePath);
+            
+            // Guardar la nueva imagen
+            $imagePath = $request->file('enlace_imagen_portada')->store('images', 'public');
+            $catalogo->enlace_imagen_portada = Storage::url($imagePath);
         }
 
         $catalogo->save();
@@ -160,6 +258,14 @@ class CatalogoController extends Controller
         if (!$catalogo) {
             return response()->json(['message' => 'Catalogo no encontrado'], 404);
         }
+
+        // Obtener las rutas relativas de los archivos para eliminar
+        $documentPath = str_replace('/storage', 'public', $catalogo->enlace_documento);
+        $imagePath = str_replace('/storage', 'public', $catalogo->enlace_imagen_portada);
+        
+        // Eliminar los archivos
+        Storage::delete($documentPath);
+        Storage::delete($imagePath);
 
         $catalogo->estatus = false;
         $catalogo->save();

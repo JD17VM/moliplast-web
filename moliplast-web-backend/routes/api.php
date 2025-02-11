@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\ProductoController;
 |
 */
 
+//Route::prefix('catalogos')->group(function ()
+
 Route::get('/catalogos',[CatalogoController::class, 'index']);
 Route::get('/catalogos-all',[CatalogoController::class, 'indexAll']);
 Route::get('/catalogos/{id}',[CatalogoController::class, 'show']);
