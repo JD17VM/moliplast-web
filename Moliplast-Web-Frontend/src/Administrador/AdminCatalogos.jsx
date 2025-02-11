@@ -282,7 +282,7 @@ const AdminCatalogos = () => {
                                 <td>{catalogo.nombre}</td>
                                 <td>
                                     {catalogo.enlace_documento ? (
-                                        <a href={catalogo.enlace_documento} target="_blank" rel="noopener noreferrer">
+                                        <a href={`http://127.0.0.1:8000${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
                                             Ver documento
                                         </a>
                                     ) : 'No disponible'}

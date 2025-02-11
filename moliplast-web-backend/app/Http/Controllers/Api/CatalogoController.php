@@ -88,28 +88,6 @@ class CatalogoController extends Controller
         $imagePath = $request->file('enlace_imagen_portada')->store('images', 'public');
         $imageUrl = Storage::url($imagePath);
 
-        /*
-        // Guardar el documento con el nombre original
-        $documentFile = $request->file('enlace_documento');
-        $documentName = $documentFile->getClientOriginalName();
-        $documentPath = $documentFile->storeAs('documents', $documentName, 'public');
-
-        // Guardar la imagen con el nombre original
-        $imageFile = $request->file('enlace_imagen_portada');
-        $imageName = $imageFile->getClientOriginalName();
-        $imagePath = $imageFile->storeAs('images', $imageName, 'public');
-        
-
-        // Crear el catálogo
-        $catalogo = Catalogo::create([
-            'enlace_documento' => Storage::url($documentPath),
-            'nombre' => $request->nombre,
-            'enlace_imagen_portada' => Storage::url($imagePath),
-            'estatus' => true,
-        ]);
-        */
-
-
         // Crear el catálogo
         $catalogo = Catalogo::create([
             'enlace_documento' => $documentUrl,
