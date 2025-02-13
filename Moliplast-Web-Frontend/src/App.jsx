@@ -16,6 +16,7 @@ import Catalogos from './Catalogos'
 import Contacto from './Contacto'
 
 import AdminCatalogos from './Administrador/AdminCatalogos'
+import AdminServicios from './Administrador/AdminServicios'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -44,6 +45,7 @@ function App() {
         <Route path="/servicios" element={<Servicios />} />
 
         <Route path="/administrador/catalogos" element={<AdminCatalogos />} />
+        <Route path="/administrador/servicios" element={<AdminServicios />} />
       </Routes>
 
       <Footer data={data}/>

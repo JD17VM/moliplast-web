@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Servicio;
 
@@ -62,20 +64,29 @@ class ServicioController extends Controller
 
     public function guardar(Request $request)
     {
+        // Validación
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:50',
-            'descripcion'=> 'required|string',
-            'enlace_imagen'=> 'required|string|max:50',
+            'descripcion' => 'required|string',
+            'enlace_imagen' => 'required|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
+            return response()->json([
+                'message' => 'Error en la validación de los datos', 
+                'errors' => $validator->errors()
+            ], 400);
         }
 
+        // Guardar la imagen con un nombre único
+        $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
+        $imageUrl = Storage::url($imagePath);
+
+        // Crear el servicio
         $servicio = Servicio::create([
             'titulo' => $request->titulo,
             'descripcion' => $request->descripcion,
-            'enlace_imagen' => $request->enlace_imagen,
+            'enlace_imagen' => $imageUrl,
             'estatus' => true,
         ]);
 
@@ -88,73 +99,135 @@ class ServicioController extends Controller
 
     public function update(Request $request, $id)
     {
-        $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
+        Log::info('Iniciando actualización de servicio', ['id' => $id, 'data' => $request->all()]);
+        
+        try {
+            $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
 
-        if (!$servicio) {
-            return response()->json(['message' => 'Servicio no encontrado'], 404);
+            if (!$servicio) {
+                Log::warning('Servicio no encontrado', ['id' => $id]);
+                return response()->json(['message' => 'Servicio no encontrado'], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'titulo' => 'required|string|max:50',
+                'descripcion' => 'required|string',
+                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Error en la validación de los datos', 
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            // Actualizar la imagen solo si se ha proporcionado una nueva
+            if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
+                if ($servicio->enlace_imagen) {
+                    $oldImagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
+                    Storage::delete($oldImagePath);
+                }
+
+                $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
+                $servicio->enlace_imagen = Storage::url($imagePath);
+            }
+
+            $servicio->titulo = $request->titulo;
+            $servicio->descripcion = $request->descripcion;
+            $servicio->save();
+
+            return response()->json($servicio, 200);
+            
+        } catch (\Exception $e) {
+            Log::error('Error en actualizar servicio', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'titulo' => 'required|string|max:50',
-            'descripcion'=> 'required|string',
-            'enlace_imagen'=> 'required|string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
-        }
-
-        $servicio->titulo = $request->titulo;
-        $servicio->descripcion = $request->descripcion;
-        $servicio->enlace_imagen = $request->enlace_imagen;
-        $servicio->save();
-
-        return response()->json($servicio, 200);
     }
+
 
     public function updatePartial(Request $request, $id)
     {
-        // Solo obtener catálogo con estatus true
-        $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
+        Log::info('Iniciando actualización parcial de servicio', ['id' => $id, 'data' => $request->all()]);
+        
+        try {
+            // Solo obtener servicio con estatus true
+            $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
 
-        if (!$servicio) {
-            return response()->json(['message' => 'Servicio no encontrado'], 404);
+            if (!$servicio) {
+                Log::warning('Servicio no encontrado en actualización parcial', ['id' => $id]);
+                return response()->json(['message' => 'Servicio no encontrado'], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'titulo' => 'nullable|string|max:50',
+                'descripcion' => 'nullable|string',
+                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            ]);
+
+            if ($validator->fails()) {
+                Log::error('Validación fallida en actualización parcial', ['errors' => $validator->errors()]);
+                return response()->json([
+                    'message' => 'Error en la validación de los datos', 
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            if ($request->has('titulo')) {
+                $servicio->titulo = $request->titulo;
+            }
+
+            if ($request->has('descripcion')) {
+                $servicio->descripcion = $request->descripcion;
+            }
+
+            if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
+                // Obtener la ruta relativa del archivo actual para eliminar
+                if ($servicio->enlace_imagen) {
+                    $oldImagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
+                    Storage::delete($oldImagePath);
+                }
+                
+                // Guardar la nueva imagen
+                $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
+                if (!$imagePath) {
+                    Log::error('Error al guardar la imagen en actualización parcial');
+                    return response()->json(['message' => 'Error al guardar la imagen'], 500);
+                }
+                $servicio->enlace_imagen = Storage::url($imagePath);
+            }
+
+            $servicio->save();
+
+            Log::info('Servicio actualizado parcialmente con éxito', ['id' => $servicio->id]);
+            return response()->json($servicio, 200);
+        } catch (\Exception $e) {
+            Log::error('Error en actualización parcial', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'titulo' => 'string|max:50',
-            'descripcion'=> 'string',
-            'enlace_imagen'=> 'string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Error en la validacion de los datos', 'errors' => $validator->errors()], 400);
-        }
-
-        if ($request->has('titulo')) {
-            $servicio->titulo = $request->titulo;
-        }
-
-        if ($request->has('descripcion')) {
-            $servicio->descripcion = $request->descripcion;
-        }
-
-        if ($request->has('enlace_imagen')) {
-            $servicio->enlace_imagen = $request->enlace_imagen;
-        }
-
-        $servicio->save();
-
-        return response()->json($servicio, 200);
     }
 
     public function destroy($id)
     {
-        // Solo obtener catálogo con estatus true
+        // Solo obtener servicio con estatus true
         $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
 
         if (!$servicio) {
             return response()->json(['message' => 'Servicio no encontrado'], 404);
+        }
+
+        // Obtener la ruta relativa del archivo para eliminar
+        if ($servicio->enlace_imagen) {
+            $imagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
+            Storage::delete($imagePath);
         }
 
         $servicio->estatus = false;
