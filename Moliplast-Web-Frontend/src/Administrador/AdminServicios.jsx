@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useRef} from 'react';
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
 const AdminServicios = () => {
+    const fileInputRef = useRef(null); // 👈 Agrega esta línea
     const [servicios, setServicios] = useState([]);
     const [newServicio, setNewServicio] = useState({
         titulo: '',
@@ -96,6 +97,11 @@ const AdminServicios = () => {
             setNewServicio({ titulo: '', descripcion: '', enlace_imagen: null });
             setImagenPreview('');
             setEditingServicio(null);
+
+            // 🔥 Limpia el input de archivo después de guardar
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
     
             setSuccess(editingServicio ? 'Servicio actualizado exitosamente!' : 'Servicio guardado exitosamente!');
             loadServicios();
@@ -186,6 +192,12 @@ const AdminServicios = () => {
         setEditingServicio(null); 
         setNewServicio({ titulo: '', descripcion: '', enlace_imagen: null });
         setImagenPreview('');
+
+        // 🔥 Limpia el input de archivo después de cancelar
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+
         setError('');
         setSuccess('');
     };
@@ -236,9 +248,10 @@ const AdminServicios = () => {
                     id="enlace_imagen" 
                     name="enlace_imagen" 
                     onChange={handleFileChange} 
-                    required={!editingServicio} // Solo requerido en creación
+                    required={!editingServicio}
                     disabled={loading}
                     accept="image/*"
+                    ref={fileInputRef} // 👈 Aquí agregas la referencia
                 />
                 <br />
                 {imagenPreview && (
