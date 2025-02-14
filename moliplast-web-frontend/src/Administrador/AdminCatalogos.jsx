@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
 const AdminCatalogos = () => {
+    const documentoInputRef = useRef(null);
+    const imagenInputRef = useRef(null);
     const [catalogos, setCatalogos] = useState([]);
     const [newCatalogo, setNewCatalogo] = useState({
         nombre: '',
@@ -60,21 +62,37 @@ const AdminCatalogos = () => {
     
         const formData = new FormData();
         formData.append('nombre', newCatalogo.nombre);
-        formData.append('enlace_documento', newCatalogo.enlace_documento);
-        formData.append('enlace_imagen_portada', newCatalogo.enlace_imagen_portada);
+        
+        // Solo adjuntar los archivos si han sido seleccionados
+        if (newCatalogo.enlace_documento) {
+            formData.append('enlace_documento', newCatalogo.enlace_documento);
+        }
+        
+        if (newCatalogo.enlace_imagen_portada) {
+            formData.append('enlace_imagen_portada', newCatalogo.enlace_imagen_portada);
+        }
     
         try {
-            const url = editingCatalogo 
-                ? `${BASE_URL_API}/api/catalogos/${editingCatalogo.id}` 
-                : `${BASE_URL_API}/api/catalogos`;
+            let url, method;
+            
+            if (editingCatalogo) {
+                url = `${BASE_URL_API}/api/catalogos/${editingCatalogo.id}`;
+                method = 'POST'; // Laravel acepta `POST` para actualizaciones con archivos
+                formData.append('_method', 'PUT'); // Necesario para simular PUT en FormData
+            } else {
+                url = `${BASE_URL_API}/api/catalogos`;
+                method = 'POST';
+            }
                 
             const response = await fetch(url, {
-                method: editingCatalogo ? 'PUT' : 'POST',
+                method: method,
                 body: formData,
             });
     
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}` + 
+                    (errorData.message ? ` - ${errorData.message}` : ''));
             }
     
             const data = await response.json();
@@ -85,6 +103,14 @@ const AdminCatalogos = () => {
             setDocumentoPreview('');
             setImagenPreview('');
             setEditingCatalogo(null);
+            
+            // Limpiar los inputs de archivo
+            if (documentoInputRef.current) {
+                documentoInputRef.current.value = "";
+            }
+            if (imagenInputRef.current) {
+                imagenInputRef.current.value = "";
+            }
     
             setSuccess(editingCatalogo ? 'Catálogo actualizado exitosamente!' : 'Catálogo guardado exitosamente!');
             loadCatalogos();
@@ -148,8 +174,16 @@ const AdminCatalogos = () => {
         });
         
         // Guardamos las URLs originales para mostrar previews
-        setDocumentoPreview(catalogo.enlace_documento);
-        setImagenPreview(catalogo.enlace_imagen_portada);
+        const documentoUrl = catalogo.enlace_documento.startsWith('http') 
+            ? catalogo.enlace_documento 
+            : `${BASE_URL_API}${catalogo.enlace_documento}`;
+        
+        const imagenUrl = catalogo.enlace_imagen_portada.startsWith('http') 
+            ? catalogo.enlace_imagen_portada 
+            : `${BASE_URL_API}${catalogo.enlace_imagen_portada}`;
+            
+        setDocumentoPreview(documentoUrl);
+        setImagenPreview(imagenUrl);
     };
 
     const handleFileChange = (e) => {
@@ -176,6 +210,15 @@ const AdminCatalogos = () => {
         setNewCatalogo({ nombre: '', enlace_documento: null, enlace_imagen_portada: null });
         setDocumentoPreview('');
         setImagenPreview('');
+        
+        // Limpiar los inputs de archivo
+        if (documentoInputRef.current) {
+            documentoInputRef.current.value = "";
+        }
+        if (imagenInputRef.current) {
+            imagenInputRef.current.value = "";
+        }
+        
         setError('');
         setSuccess('');
     };
@@ -216,6 +259,7 @@ const AdminCatalogos = () => {
                     onChange={handleFileChange} 
                     required={!editingCatalogo}
                     disabled={loading}
+                    ref={documentoInputRef}
                 /><br />
                 {documentoPreview && (
                     <div>
@@ -236,6 +280,7 @@ const AdminCatalogos = () => {
                     required={!editingCatalogo}
                     disabled={loading}
                     accept="image/*"
+                    ref={imagenInputRef}
                 /><br />
                 {imagenPreview && (
                     <div>
@@ -256,6 +301,7 @@ const AdminCatalogos = () => {
                         type="button" 
                         onClick={handleCancelEdit}
                         disabled={loading}
+                        style={{ marginLeft: '10px' }}
                     >
                         Cancelar Edición
                     </button>
@@ -264,32 +310,34 @@ const AdminCatalogos = () => {
 
             <h2>Lista de Catálogos</h2>
             {loading && <p>Cargando...</p>}
-            <table>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Documento</th>
-                        <th>Imagen Portada</th>
-                        <th>Acciones</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Documento</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Imagen Portada</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {catalogos.length === 0 ? (
                         <tr>
-                            <td colSpan="4">No hay catálogos disponibles</td>
+                            <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                No hay catálogos disponibles
+                            </td>
                         </tr>
                     ) : (
                         catalogos.map((catalogo) => (
                             <tr key={catalogo.id}>
-                                <td>{catalogo.nombre}</td>
-                                <td>
+                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{catalogo.nombre}</td>
+                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
                                     {catalogo.enlace_documento ? (
                                         <a href={`${BASE_URL_API}${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
                                             Ver documento
                                         </a>
                                     ) : 'No disponible'}
                                 </td>
-                                <td>
+                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
                                     {catalogo.enlace_imagen_portada ? (
                                         <img 
                                             src={`${BASE_URL_API}${catalogo.enlace_imagen_portada}`} 
@@ -298,9 +346,20 @@ const AdminCatalogos = () => {
                                         />
                                     ) : 'No disponible'}
                                 </td>
-                                <td>
-                                    <button onClick={() => handleEdit(catalogo)} disabled={loading}>Editar</button>
-                                    <button onClick={() => handleDelete(catalogo.id)} disabled={loading}>Eliminar</button>
+                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                    <button 
+                                        onClick={() => handleEdit(catalogo)} 
+                                        disabled={loading}
+                                        style={{ marginRight: '5px' }}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDelete(catalogo.id)} 
+                                        disabled={loading}
+                                    >
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
                         ))
