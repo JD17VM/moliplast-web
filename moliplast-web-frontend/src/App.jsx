@@ -17,7 +17,7 @@ import Contacto from './Contacto'
 
 import AdminCatalogos from './Administrador/AdminCatalogos'
 import AdminServicios from './Administrador/AdminServicios'
-import AdminCategoria from './Administrador/AdminCategoria'
+import AdminCategorias from './Administrador/AdminCategorias'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -47,7 +47,7 @@ function App() {
 
         <Route path="/administrador/catalogos" element={<AdminCatalogos />} />
         <Route path="/administrador/servicios" element={<AdminServicios />} />
-        <Route path="/administrador/categoria" element={<AdminCategoria />} />
+        <Route path="/administrador/categorias" element={<AdminCategorias />} />
       </Routes>
 
       <Footer data={data}/>

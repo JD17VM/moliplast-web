@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
-const AdminCategoria = () => {
+const AdminCategorias = () => {
     const fileInputRef = useRef(null);
     const [categorias, setCategorias] = useState([]);
     const [newCategoria, setNewCategoria] = useState({
@@ -351,4 +351,4 @@ const AdminCategoria = () => {
     );
 };
 
-export default AdminCategoria;
+export default AdminCategorias;
