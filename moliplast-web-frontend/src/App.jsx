@@ -19,6 +19,7 @@ import AdminCatalogos from './Administrador/AdminCatalogos'
 import AdminServicios from './Administrador/AdminServicios'
 import AdminCategorias from './Administrador/AdminCategorias'
 import AdminSubcategorias from './Administrador/AdminSubcategorias'
+import AdminSubsubcategorias from './Administrador/AdminSubsubcategorias'
 
 import dataPaginas from './data/data_paginas.js'
 
@@ -50,6 +51,7 @@ function App() {
         <Route path="/administrador/servicios" element={<AdminServicios />} />
         <Route path="/administrador/categorias" element={<AdminCategorias />} />
         <Route path="/administrador/subcategorias" element={<AdminSubcategorias />} />
+        <Route path="/administrador/subsubcategorias" element={<AdminSubsubcategorias />} />
       </Routes>
 
       <Footer data={data}/>
