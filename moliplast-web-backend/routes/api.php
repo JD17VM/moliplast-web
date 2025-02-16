@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\SubcategoriaController;
 use App\Http\Controllers\Api\SubSubcategoriaController;
 use App\Http\Controllers\Api\ProductoController;
+use App\Http\Controllers\Api\AdministradorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,3 +77,7 @@ Route::post('/productos',[ProductoController::class, 'guardar']); // X
 Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
 Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
+
+Route::post('/administradores',[AdministradorController::class, 'register']);
+Route::get('/administradores',[AdministradorController::class, 'index']);
+Route::post('/administradores/login',[AdministradorController::class, 'login']);
