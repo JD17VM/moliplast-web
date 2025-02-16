@@ -17,6 +17,7 @@ class AdministradorController extends Controller
             'nombres' => 'required|string|max:50',
             'apellidos' => 'required|string|max:50',
             'contrasena' => 'required|string|min:8',
+            //'password' => 'required|string|min:8|confirmed', // Cambiado a 'password' y añadido 'confirmed'
         ]);
 
         if ($validator->fails()) {
@@ -25,7 +26,11 @@ class AdministradorController extends Controller
 
         $administrador = Administrador::create($request->all());
 
-        return response()->json(['message' => 'Administrador creado'], 201);
+        return response()->json([
+            'message' => 'Administrador creado',
+            'administrador' => $administrador,
+            'status' => 201,
+        ], 201);
     }
 
 
@@ -54,13 +59,15 @@ class AdministradorController extends Controller
 
         if (!$administrador || !Hash::check($request->contrasena, $administrador->contrasena)) {
             return response()->json([
-                'message' => 'Credenciales incorrectas'
+                'message' => 'Credenciales incorrectas',
+                'status' => 401
             ], 401);
         }
 
         return response()->json([
             'message' => 'Login exitoso',
-            'administrador' => $administrador
+            'administrador' => $administrador,
+            'status' => 200,
         ], 200);
     }
 }
