@@ -42,6 +42,63 @@ class ProductoController extends Controller
         return response()->json($productos, 200);
     }
 
+    // Método para filtrar productos por categoría
+    public function getByCategoria($categoria)
+    {
+        // Buscar productos por categoría con estatus true
+        $productos = Producto::where('id_categoria', $categoria)
+                            ->where('estatus', true)
+                            ->get();
+
+        if ($productos->isEmpty()){
+            return response()->json([
+                'message' => 'No hay productos en esta categoría',
+                'status' => 404
+            ], 404);
+        }
+
+        return response()->json($productos, 200);
+    }
+
+    // Método para filtrar productos por categoría y subcategoría
+    public function getBySubcategoria($categoria, $subcategoria)
+    {
+        // Buscar productos por categoría y subcategoría con estatus true
+        $productos = Producto::where('id_categoria', $categoria)
+                            ->where('id_subcategoria', $subcategoria)
+                            ->where('estatus', true)
+                            ->get();
+
+        if ($productos->isEmpty()){
+            return response()->json([
+                'message' => 'No hay productos en esta subcategoría',
+                'status' => 404
+            ], 404);
+        }
+
+        return response()->json($productos, 200);
+    }
+
+    // Método para filtrar productos por categoría, subcategoría y subsubcategoría
+    public function getBySubsubcategoria($categoria, $subcategoria, $subsubcategoria)
+    {
+        // Buscar productos por categoría, subcategoría y subsubcategoría con estatus true
+        $productos = Producto::where('id_categoria', $categoria)
+                            ->where('id_subcategoria', $subcategoria)
+                            ->where('id_subsubcategoria', $subsubcategoria)
+                            ->where('estatus', true)
+                            ->get();
+
+        if ($productos->isEmpty()){
+            return response()->json([
+                'message' => 'No hay productos en esta subsubcategoría',
+                'status' => 404
+            ], 404);
+        }
+
+        return response()->json($productos, 200);
+    }
+
     public function show($id)
     {
         // Solo obtener producto con estatus true
