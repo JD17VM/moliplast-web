@@ -14,6 +14,7 @@ import { Logo_Moliplast } from '../assets/imgs/iconos/svg/Logo_Moliplast';
 
 import { InputButton } from './Form';
 
+import axios from 'axios'; // Importar axios
 
 // Definir dataPaginas directamente en el archivo
 const dataPaginas = {
@@ -29,11 +30,7 @@ const dataPaginas = {
         { 
             nombre: "Productos", 
             enlace: "/productos",
-            subsecciones: [
-                { nombre: "Producto 1", enlace: "/productos/Producto 1" },
-                { nombre: "Producto 2", enlace: "/productos/Producto 2" },
-                { nombre: "Producto 3", enlace: "/productos/Producto 3" },
-            ] 
+            subsecciones: [] 
         },
         { 
             nombre: "Servicios", 
@@ -53,7 +50,37 @@ const dataPaginas = {
 
 const Navegador = () => {
 
-    const data = dataPaginas.data;
+    const [data, setData] = useState(dataPaginas.data);
+
+    // Consulta a la API para obtener las categorías
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/categorias-con-subcategorias');
+                const categorias = response.data; // Suponiendo que la API devuelve un array de categorías
+
+                // Mapear las categorías para que coincidan con el formato de subsecciones
+                const subsecciones = categorias.map(categoria => ({
+                    nombre: categoria.nombre, // Nombre de la categoría
+                    enlace: `/productos/${categoria.nombre}` // Enlace dinámico
+                }));
+
+                // Actualizar las subsecciones de "Productos"
+                const newData = data.map(seccion => {
+                    if (seccion.nombre === "Productos") {
+                        return { ...seccion, subsecciones: subsecciones };
+                    }
+                    return seccion;
+                });
+
+                setData(newData); // Actualizar el estado con los nuevos datos
+            } catch (error) {
+                console.error("Error al obtener las categorías:", error);
+            }
+        };
+
+        fetchCategorias(); // Llamar a la función para obtener los datos
+    }, []); // El efecto se ejecuta solo una vez al montar el componente
 
     const [subseccion_abierta, setSubseccionAbierta] = useState(null);
     const toggleSubseccion = (index) => {
