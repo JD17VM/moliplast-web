@@ -79,6 +79,7 @@ Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); //
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
 Route::get('/categorias-con-subcategorias', [ProductoController::class, 'getCategoriasConSubcategorias']);
+Route::get('/subcategorias-por-categoria/{categoria}', [ProductoController::class, 'getSubcategoriasPorCategoria']);
 
 Route::get('/productos/categoria/{categoria}', [ProductoController::class, 'getByCategoria']);
 Route::get('/productos/categoria/{categoria}/subcategoria/{subcategoria}', [ProductoController::class, 'getBySubcategoria']);

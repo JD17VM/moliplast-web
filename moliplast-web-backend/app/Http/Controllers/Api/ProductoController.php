@@ -145,6 +145,60 @@ class ProductoController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getSubcategoriasPorCategoria($nombreCategoria)
+    {
+        // Buscar la categoría por nombre y con estatus true
+        $categoria = Categoria::where('nombre', $nombreCategoria)
+                            ->where('estatus', true)
+                            ->first();
+
+        // Si no se encuentra la categoría, devolver un error 404
+        if (!$categoria) {
+            return response()->json([
+                'message' => 'Categoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Obtener las subcategorías activas de la categoría, con sus subsubcategorías activas
+        $subcategorias = Subcategoria::where('id_categoria', $categoria->id)
+                                    ->where('estatus', true)
+                                    ->with(['subsubcategorias' => function ($query) {
+                                        $query->where('estatus', true);
+                                    }])
+                                    ->get();
+
+        // Si no hay subcategorías activas, devolver un error 404
+        if ($subcategorias->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay subcategorías activas para esta categoría',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        $response = [
+            'categoria' => [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+            ],
+            'subcategorias' => $subcategorias->map(function ($subcategoria) {
+                return [
+                    'id' => $subcategoria->id,
+                    'nombre' => $subcategoria->nombre,
+                    'subsubcategorias' => $subcategoria->subsubcategorias->map(function ($subsubcategoria) {
+                        return [
+                            'id' => $subsubcategoria->id,
+                            'nombre' => $subsubcategoria->nombre,
+                        ];
+                    }),
+                ];
+            }),
+        ];
+
+        return response()->json($response, 200);
+    }
+
     public function show($id)
     {
         // Solo obtener producto con estatus true
