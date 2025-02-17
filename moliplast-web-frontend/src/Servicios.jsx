@@ -1,6 +1,7 @@
-import styles from './assets/styles/estilos_servicios.module.scss'
+import React, { useState, useEffect } from 'react';
+import styles from './assets/styles/estilos_servicios.module.scss';
 
-import imageHelper from './utils/imageHelper'
+const BASE_URL_API = "http://127.0.0.1:8000";
 
 const Servicio = ({ titulo, descripcion, imagen }) => {
     return (
@@ -9,27 +10,84 @@ const Servicio = ({ titulo, descripcion, imagen }) => {
                 <h2>{titulo}</h2>
                 <p>{descripcion}</p>
             </div>
-            <img src={imagen} alt="" />
+            <img src={imagen} alt={titulo} />
         </article>
-    )
-}
-
+    );
+};
 
 const Servicios = () => {
+    const [servicios, setServicios] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        loadServicios();
+    }, []);
+
+    const loadServicios = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch(`${BASE_URL_API}/api/servicios`);
+            
+            if (response.status === 404) {
+                console.log('No hay servicios disponibles');
+                setServicios([]);
+                setLoading(false);
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            setServicios(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setError('Error al cargar los servicios. Por favor, intenta nuevamente.');
+            setServicios([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Función para construir la URL completa de la imagen
+    const getFullImageUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
     return (
         <>
         <div className={styles.contenedor_servicios} data-aos="fade-up">
             <h1>Servicios</h1>
-            <Servicio titulo='Este es el subtitulo 1' descripcion='MOLIPLAST S.R.L., es una empresa de comercialización y de servicios, 100% Peruana con un equipo de profesionales de primer nivel, con amplios conocimientos y experiencia en el tema de riego; ofrecemos Sistemas de Riego Tecnificado por Aspersión Agrícola, Riego por Goteo, Reservorios alta calidad, tubos PVC, PE, PEAD, Tanques y Biodigestores; además cultivamos una estrecha relación con nuestros clientes y una atención personalizada en nuestras filiales de Arequipa, Pedregal y La Joya.' imagen={imageHelper.Fachada_Moliplast}/>
             
-            <Servicio titulo='Este es el subtitulo 1' descripcion='MOLIPLAST S.R.L., es una empresa de comercialización y de servicios, 100% Peruana con un equipo de profesionales de primer nivel, con amplios conocimientos y experiencia en el tema de riego; ofrecemos Sistemas de Riego Tecnificado por Aspersión Agrícola, Riego por Goteo, Reservorios alta calidad, tubos PVC, PE, PEAD, Tanques y Biodigestores; además cultivamos una estrecha relación con nuestros clientes y una atención personalizada en nuestras filiales de Arequipa, Pedregal y La Joya.' imagen={imageHelper.Fachada_Moliplast}/>
+            {error && (
+                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                    {error}
+                </div>
+            )}
             
-            <Servicio titulo='Este es el subtitulo 1' descripcion='MOLIPLAST S.R.L., es una empresa de comercialización y de servicios, 100% Peruana con un equipo de profesionales de primer nivel, con amplios conocimientos y experiencia en el tema de riego; ofrecemos Sistemas de Riego Tecnificado por Aspersión Agrícola, Riego por Goteo, Reservorios alta calidad, tubos PVC, PE, PEAD, Tanques y Biodigestores; además cultivamos una estrecha relación con nuestros clientes y una atención personalizada en nuestras filiales de Arequipa, Pedregal y La Joya.' imagen={imageHelper.Fachada_Moliplast}/>
-            
+            {loading ? (
+                <p>Cargando servicios...</p>
+            ) : (
+                servicios.length === 0 ? (
+                    <p>No hay servicios disponibles</p>
+                ) : (
+                    servicios.map((servicio) => (
+                        <Servicio 
+                            key={servicio.id}
+                            titulo={servicio.titulo}
+                            descripcion={servicio.descripcion}
+                            imagen={getFullImageUrl(servicio.enlace_imagen)}
+                        />
+                    ))
+                )
+            )}
         </div>
-
         </>
-    )
-}
+    );
+};
 
 export default Servicios;
