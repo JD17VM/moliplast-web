@@ -13,6 +13,7 @@
     "@dile/editor": "^2.4.14",
     "@vis.gl/react-google-maps": "^1.5.1",
     "aos": "^2.3.4",
+    "axios": "^1.8.1",
     "bootstrap": "^5.3.3",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
