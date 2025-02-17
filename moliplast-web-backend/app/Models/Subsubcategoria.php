@@ -19,9 +19,10 @@ class Subsubcategoria extends Model
         'estatus' => 'boolean',
     ];
 
+    // Relación con Subcategoria
     public function subcategoria()
     {
-        return $this->belongsTo(Subcategoria::class);
+        return $this->belongsTo(Subcategoria::class, 'id_subcategoria');
     }
 
     /*
@@ -30,6 +31,8 @@ class Subsubcategoria extends Model
         return $this->belongsTo(Subcategoria::class, 'id_subcategoria', 'id');
     }
     */
+
+    
 
     use HasFactory;
 }

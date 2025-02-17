@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Producto;
+use App\Models\Categoria;
+use App\Models\Subcategoria;
+use App\Models\Subsubcategoria;
 
 class ProductoController extends Controller
 {
@@ -97,6 +100,34 @@ class ProductoController extends Controller
         }
 
         return response()->json($productos, 200);
+    }
+
+    public function getCategoriasConSubcategorias()
+    {
+        // Obtener todas las categorías con sus subcategorías y subsubcategorías
+        $categorias = Categoria::with(['subcategorias.subsubcategorias'])->get();
+
+        // Formatear la respuesta
+        $response = $categorias->map(function ($categoria) {
+            return [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+                'subcategorias' => $categoria->subcategorias->map(function ($subcategoria) {
+                    return [
+                        'id' => $subcategoria->id,
+                        'nombre' => $subcategoria->nombre,
+                        'subsubcategorias' => $subcategoria->subsubcategorias->map(function ($subsubcategoria) {
+                            return [
+                                'id' => $subsubcategoria->id,
+                                'nombre' => $subsubcategoria->nombre,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json($response, 200);
     }
 
     public function show($id)

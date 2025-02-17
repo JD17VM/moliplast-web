@@ -78,6 +78,12 @@ Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
 Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
+Route::get('/categorias-con-subcategorias', [ProductoController::class, 'getCategoriasConSubcategorias']);
+
+Route::get('/productos/categoria/{categoria}', [ProductoController::class, 'getByCategoria']);
+Route::get('/productos/categoria/{categoria}/subcategoria/{subcategoria}', [ProductoController::class, 'getBySubcategoria']);
+Route::get('/productos/categoria/{categoria}/subcategoria/{subcategoria}/subsubcategoria/{subsubcategoria}', [ProductoController::class, 'getBySubsubcategoria']);
+
 Route::post('/administradores',[AdministradorController::class, 'register']);
 Route::get('/administradores',[AdministradorController::class, 'index']);
 Route::post('/administradores/login',[AdministradorController::class, 'login']);

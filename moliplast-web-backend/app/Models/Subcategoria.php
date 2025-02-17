@@ -20,10 +20,16 @@ class Subcategoria extends Model
         'estatus' => 'boolean', // Convierte el valor a booleano (true/false)
     ];
 
-    // Relación con la tabla "categoria"
+    // Relación con Categoria
     public function categoria()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->belongsTo(Categoria::class, 'id_categoria');
+    }
+
+    // Relación con Subsubcategorias
+    public function subsubcategorias()
+    {
+        return $this->hasMany(Subsubcategoria::class, 'id_subcategoria');
     }
 
     /*
@@ -32,6 +38,7 @@ class Subcategoria extends Model
         return $this->belongsTo(Categoria::class, 'id_categoria', 'id');
     }
     */
+
 
     use HasFactory;
 }
