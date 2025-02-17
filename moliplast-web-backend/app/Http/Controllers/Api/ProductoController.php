@@ -104,8 +104,15 @@ class ProductoController extends Controller
 
     public function getCategoriasConSubcategorias()
     {
-        // Obtener todas las categorías con sus subcategorías y subsubcategorías
-        $categorias = Categoria::with(['subcategorias.subsubcategorias'])->get();
+        // Obtener todas las categorías con estatus true y sus subcategorías y subsubcategorías
+        $categorias = Categoria::where('estatus', true)
+            ->with(['subcategorias' => function ($query) {
+                $query->where('estatus', true)
+                    ->with(['subsubcategorias' => function ($query) {
+                        $query->where('estatus', true);
+                    }]);
+            }])
+            ->get();
 
         // Formatear la respuesta
         $response = $categorias->map(function ($categoria) {
@@ -126,6 +133,14 @@ class ProductoController extends Controller
                 }),
             ];
         });
+
+        // Verificar si hay categorías activas
+        if ($response->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay categorías activas',
+                'status' => 404
+            ], 404);
+        }
 
         return response()->json($response, 200);
     }
