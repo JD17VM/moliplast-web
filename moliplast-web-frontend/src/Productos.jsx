@@ -45,6 +45,32 @@ const Productos = () => {
         }
     }, [categoria]);
 
+    // Marcar el CheckBox según la subcategoria o subsubcategoria en la URL
+    useEffect(() => {
+        if (categoriaData) {
+            // Buscar la subcategoria en los datos
+            const subcategoriaEncontrada = categoriaData.subcategorias.find(
+                (sub) => sub.nombre === subcategoria
+            );
+
+            if (subcategoriaEncontrada) {
+                // Si hay una subcategoria en la URL, marcar su CheckBox
+                setCheckedElement(subcategoriaEncontrada.id);
+
+                // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
+                if (subsubcategoria) {
+                    const subsubcategoriaEncontrada = subcategoriaEncontrada.subsubcategorias.find(
+                        (subsub) => subsub.nombre === subsubcategoria
+                    );
+
+                    if (subsubcategoriaEncontrada) {
+                        setCheckedElement(subsubcategoriaEncontrada.id);
+                    }
+                }
+            }
+        }
+    }, [categoriaData, subcategoria, subsubcategoria]);
+
     const handleClick = (id) => {
         setCheckedElement(id);
     };
@@ -64,28 +90,28 @@ const Productos = () => {
                 <div className={styles.panel_filtros}>
                     <h2>Panel de Filtros</h2>
                     <ul>
-                        {categoriaData.subcategorias.map(subcategoria => (
-                            <li key={subcategoria.id}>
-                                <Link to={`/productos/${categoria}/${subcategoria.nombre}`}>
+                        {categoriaData.subcategorias.map(subcategoriaItem => (
+                            <li key={subcategoriaItem.id}>
+                                <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}`}>
                                     <CheckBox
-                                        id={subcategoria.id}
-                                        onClick={() => handleClick(subcategoria.id)}
-                                        marcado={checkedElement === subcategoria.id}
+                                        id={subcategoriaItem.id}
+                                        onClick={() => handleClick(subcategoriaItem.id)}
+                                        marcado={checkedElement === subcategoriaItem.id}
                                     >
-                                        {subcategoria.nombre}
+                                        {subcategoriaItem.nombre}
                                     </CheckBox>
                                 </Link>
-                                {subcategoria.subsubcategorias.length > 0 && (
+                                {subcategoriaItem.subsubcategorias.length > 0 && (
                                     <ul>
-                                        {subcategoria.subsubcategorias.map(subsubcategoria => (
-                                            <li key={subsubcategoria.id}>
-                                                <Link to={`/productos/${categoria}/${subcategoria.nombre}/${subsubcategoria.nombre}`}>
+                                        {subcategoriaItem.subsubcategorias.map(subsubcategoriaItem => (
+                                            <li key={subsubcategoriaItem.id}>
+                                                <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}/${subsubcategoriaItem.nombre}`}>
                                                     <CheckBox
-                                                        id={subsubcategoria.id}
-                                                        onClick={() => handleClick(subsubcategoria.id)}
-                                                        marcado={checkedElement === subsubcategoria.id}
+                                                        id={subsubcategoriaItem.id}
+                                                        onClick={() => handleClick(subsubcategoriaItem.id)}
+                                                        marcado={checkedElement === subsubcategoriaItem.id}
                                                     >
-                                                        {subsubcategoria.nombre}
+                                                        {subsubcategoriaItem.nombre}
                                                     </CheckBox>
                                                 </Link>
                                             </li>
