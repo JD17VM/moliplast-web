@@ -25,7 +25,7 @@ import dataPaginas from './data/data_paginas.js'
 
 const data = dataPaginas.data
 
-function App() {``
+function App() {
 
   useEffect(() => {
     AOS.init();
@@ -41,15 +41,12 @@ function App() {``
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/catalogos" element={<Catalogos/>} />
         <Route path="/contacto" element={<Contacto />} />
-        <Route path="/servicios" element={<Servicios />} />
-        
-        {/* Rutas de productos con filtros anidados */}
-        {/*<Route path="/productos" element={<Productos />} />*/}
         <Route path="/productos/:categoria" element={<Productos />} />
         <Route path="/productos/:categoria/:subcategoria" element={<Productos />} />
-        <Route path="/productos/categoria/:categoria/:subcategoria/:subsubcategoria" element={<Productos />} />
+        <Route path="/productos/:categoria/:subcategoria/:subsubcategoria" element={<Productos />} />
         <Route path="/productos/producto/:id" element={<Producto />} />
 
+        <Route path="/servicios" element={<Servicios />}/>
         <Route path="/administrador/catalogos" element={<AdminCatalogos />} />
         <Route path="/administrador/servicios" element={<AdminServicios />} />
         <Route path="/administrador/categorias" element={<AdminCategorias />} />
