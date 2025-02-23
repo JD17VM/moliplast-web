@@ -5,6 +5,7 @@ $padding_x_y: 45px;
     display:grid;
     width: 100%;
     grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
     grid-template-areas: 
     "cont_panel_filtros_busqueda titulo_boton_menu"
     "cont_panel_filtros_busqueda contenedor_productos"
