@@ -78,6 +78,17 @@ Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
 Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
+Route::get('/productos-carta', [ProductoController::class, 'getCartaProductos']);
+
+// Ruta para obtener productos por categoría
+Route::get('/productos/carta/{categoriaNombre}', [ProductoController::class, 'getCartaProductosPorCategoria']);
+
+// Ruta para obtener productos por categoría y subcategoría
+Route::get('/productos/carta/{categoriaNombre}/{subcategoriaNombre}', [ProductoController::class, 'getCartaProductosPorSubcategoria']);
+
+// Ruta para obtener productos por categoría, subcategoría y subsubcategoría
+Route::get('/productos/carta/{categoriaNombre}/{subcategoriaNombre}/{subsubcategoriaNombre}', [ProductoController::class, 'getCartaProductosPorSubsubcategoria']);
+
 Route::get('/categorias-con-subcategorias', [ProductoController::class, 'getCategoriasConSubcategorias']);
 Route::get('/subcategorias-por-categoria/{categoria}', [ProductoController::class, 'getSubcategoriasPorCategoria']);
 

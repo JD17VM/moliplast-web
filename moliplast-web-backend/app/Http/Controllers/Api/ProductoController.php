@@ -222,6 +222,192 @@ class ProductoController extends Controller
         return response()->json($producto, 200);
     }
 
+    public function getCartaProductos()
+    {
+        // Obtener todos los productos con estatus true y seleccionar solo los campos necesarios
+        $productos = Producto::where('estatus', true)
+                            ->select('id', 'nombre', 'imagen_1') // Seleccionar solo id, nombre e imagen_1
+                            ->get();
+
+        // Verificar si hay productos activos
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay productos activos',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        $response = $productos->map(function ($producto) {
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'enlace_imagen' => $producto->imagen_1, // Usar la primera imagen como enlace
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
+    public function getCartaProductosPorCategoria($categoriaNombre)
+    {
+        // Buscar la categoría por nombre
+        $categoria = Categoria::where('nombre', $categoriaNombre)
+                            ->where('estatus', true)
+                            ->first();
+
+        if (!$categoria) {
+            return response()->json([
+                'message' => 'Categoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Obtener productos de la categoría
+        $productos = Producto::where('id_categoria', $categoria->id)
+                            ->where('estatus', true)
+                            ->select('id', 'nombre', 'imagen_1')
+                            ->get();
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay productos en esta categoría',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        $response = $productos->map(function ($producto) {
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'enlace_imagen' => $producto->imagen_1,
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
+    public function getCartaProductosPorSubcategoria($categoriaNombre, $subcategoriaNombre)
+    {
+        // Buscar la categoría por nombre
+        $categoria = Categoria::where('nombre', $categoriaNombre)
+                            ->where('estatus', true)
+                            ->first();
+
+        if (!$categoria) {
+            return response()->json([
+                'message' => 'Categoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Buscar la subcategoría por nombre y categoría
+        $subcategoria = Subcategoria::where('nombre', $subcategoriaNombre)
+                                ->where('id_categoria', $categoria->id)
+                                ->where('estatus', true)
+                                ->first();
+
+        if (!$subcategoria) {
+            return response()->json([
+                'message' => 'Subcategoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Obtener productos de la subcategoría
+        $productos = Producto::where('id_categoria', $categoria->id)
+                            ->where('id_subcategoria', $subcategoria->id)
+                            ->where('estatus', true)
+                            ->select('id', 'nombre', 'imagen_1')
+                            ->get();
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay productos en esta subcategoría',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        $response = $productos->map(function ($producto) {
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'enlace_imagen' => $producto->imagen_1,
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
+    public function getCartaProductosPorSubsubcategoria($categoriaNombre, $subcategoriaNombre, $subsubcategoriaNombre)
+    {
+        // Buscar la categoría por nombre
+        $categoria = Categoria::where('nombre', $categoriaNombre)
+                            ->where('estatus', true)
+                            ->first();
+
+        if (!$categoria) {
+            return response()->json([
+                'message' => 'Categoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Buscar la subcategoría por nombre y categoría
+        $subcategoria = Subcategoria::where('nombre', $subcategoriaNombre)
+                                ->where('id_categoria', $categoria->id)
+                                ->where('estatus', true)
+                                ->first();
+
+        if (!$subcategoria) {
+            return response()->json([
+                'message' => 'Subcategoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Buscar la subsubcategoría por nombre y subcategoría
+        $subsubcategoria = Subsubcategoria::where('nombre', $subsubcategoriaNombre)
+                                        ->where('id_subcategoria', $subcategoria->id)
+                                        ->where('estatus', true)
+                                        ->first();
+
+        if (!$subsubcategoria) {
+            return response()->json([
+                'message' => 'Subsubcategoría no encontrada o inactiva',
+                'status' => 404
+            ], 404);
+        }
+
+        // Obtener productos de la subsubcategoría
+        $productos = Producto::where('id_categoria', $categoria->id)
+                            ->where('id_subcategoria', $subcategoria->id)
+                            ->where('id_subsubcategoria', $subsubcategoria->id)
+                            ->where('estatus', true)
+                            ->select('id', 'nombre', 'imagen_1')
+                            ->get();
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay productos en esta subsubcategoría',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        $response = $productos->map(function ($producto) {
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'enlace_imagen' => $producto->imagen_1,
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
     public function guardar(Request $request)
     {
         // Validación
