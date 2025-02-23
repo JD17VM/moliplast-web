@@ -48,23 +48,28 @@ const Productos = () => {
     // Marcar el CheckBox según la subcategoria o subsubcategoria en la URL
     useEffect(() => {
         if (categoriaData) {
-            // Buscar la subcategoria en los datos
-            const subcategoriaEncontrada = categoriaData.subcategorias.find(
-                (sub) => sub.nombre === subcategoria
-            );
+            // Si no hay subcategoria ni subsubcategoria, marcar el checkbox "Todos"
+            if (!subcategoria && !subsubcategoria) {
+                setCheckedElement('todos');
+            } else {
+                // Buscar la subcategoria en los datos
+                const subcategoriaEncontrada = categoriaData.subcategorias.find(
+                    (sub) => sub.nombre === subcategoria
+                );
 
-            if (subcategoriaEncontrada) {
-                // Si hay una subcategoria en la URL, marcar su CheckBox
-                setCheckedElement(subcategoriaEncontrada.id);
+                if (subcategoriaEncontrada) {
+                    // Si hay una subcategoria en la URL, marcar su CheckBox
+                    setCheckedElement(subcategoriaEncontrada.id);
 
-                // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
-                if (subsubcategoria) {
-                    const subsubcategoriaEncontrada = subcategoriaEncontrada.subsubcategorias.find(
-                        (subsub) => subsub.nombre === subsubcategoria
-                    );
+                    // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
+                    if (subsubcategoria) {
+                        const subsubcategoriaEncontrada = subcategoriaEncontrada.subsubcategorias.find(
+                            (subsub) => subsub.nombre === subsubcategoria
+                        );
 
-                    if (subsubcategoriaEncontrada) {
-                        setCheckedElement(subsubcategoriaEncontrada.id);
+                        if (subsubcategoriaEncontrada) {
+                            setCheckedElement(subsubcategoriaEncontrada.id);
+                        }
                     }
                 }
             }
@@ -90,6 +95,20 @@ const Productos = () => {
                 <div className={styles.panel_filtros}>
                     <h2>Panel de Filtros</h2>
                     <ul>
+                        {/* Checkbox "Todos" */}
+                        <li>
+                            <Link to={`/productos/${categoria}`}>
+                                <CheckBox
+                                    id="todos"
+                                    onClick={() => handleClick('todos')}
+                                    marcado={checkedElement === 'todos'}
+                                >
+                                    Todos
+                                </CheckBox>
+                            </Link>
+                        </li>
+
+                        {/* Lista de subcategorías */}
                         {categoriaData.subcategorias.map(subcategoriaItem => (
                             <li key={subcategoriaItem.id}>
                                 <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}`}>
