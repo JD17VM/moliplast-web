@@ -20,11 +20,12 @@ const CheckBox = ({ id, marcado = false, children, onClick }) => {
 
 const Productos = () => {
     const [categoriaData, setCategoriaData] = useState(null);
-    const [checkedElement, setCheckedElement] = useState(null);
+    const [productos, setProductos] = useState([]); // Estado para almacenar los productos
+    const [checkedElement, setCheckedElement] = useState({ subcategoria: null, subsubcategoria: null });
     const [mostrarElemento, setMostrarElemento] = useState(false);
     const { categoria, subcategoria, subsubcategoria } = useParams();
 
-    // Obtener datos de la API
+    // Obtener datos de la API (categorías, subcategorías, etc.)
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -45,12 +46,41 @@ const Productos = () => {
         }
     }, [categoria]);
 
+    // Obtener productos según los parámetros de la URL
+    useEffect(() => {
+        const fetchProductos = async () => {
+            try {
+                let url = `http://127.0.0.1:8000/api/productos/carta/${categoria}`;
+
+                if (subcategoria) {
+                    url += `/${subcategoria}`;
+                }
+                if (subsubcategoria) {
+                    url += `/${subsubcategoria}`;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setProductos(data); // Almacenar los productos en el estado
+            } catch (error) {
+                console.error('Error fetching productos:', error);
+            }
+        };
+
+        if (categoria) {
+            fetchProductos();
+        }
+    }, [categoria, subcategoria, subsubcategoria]);
+
     // Marcar el CheckBox según la subcategoria o subsubcategoria en la URL
     useEffect(() => {
         if (categoriaData) {
             // Si no hay subcategoria ni subsubcategoria, marcar el checkbox "Todos"
             if (!subcategoria && !subsubcategoria) {
-                setCheckedElement('todos');
+                setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
             } else {
                 // Buscar la subcategoria en los datos
                 const subcategoriaEncontrada = categoriaData.subcategorias.find(
@@ -59,7 +89,7 @@ const Productos = () => {
 
                 if (subcategoriaEncontrada) {
                     // Si hay una subcategoria en la URL, marcar su CheckBox
-                    setCheckedElement(subcategoriaEncontrada.id);
+                    setCheckedElement({ subcategoria: subcategoriaEncontrada.id, subsubcategoria: null });
 
                     // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
                     if (subsubcategoria) {
@@ -68,7 +98,7 @@ const Productos = () => {
                         );
 
                         if (subsubcategoriaEncontrada) {
-                            setCheckedElement(subsubcategoriaEncontrada.id);
+                            setCheckedElement({ subcategoria: subcategoriaEncontrada.id, subsubcategoria: subsubcategoriaEncontrada.id });
                         }
                     }
                 }
@@ -76,8 +106,12 @@ const Productos = () => {
         }
     }, [categoriaData, subcategoria, subsubcategoria]);
 
-    const handleClick = (id) => {
-        setCheckedElement(id);
+    const handleClick = (id, type) => {
+        if (type === 'subcategoria') {
+            setCheckedElement({ subcategoria: id, subsubcategoria: null });
+        } else if (type === 'subsubcategoria') {
+            setCheckedElement(prevState => ({ ...prevState, subsubcategoria: id }));
+        }
     };
 
     const handleClickPanel = () => {
@@ -100,8 +134,8 @@ const Productos = () => {
                             <Link to={`/productos/${categoria}`}>
                                 <CheckBox
                                     id="todos"
-                                    onClick={() => handleClick('todos')}
-                                    marcado={checkedElement === 'todos'}
+                                    onClick={() => handleClick('todos', 'subcategoria')}
+                                    marcado={checkedElement.subcategoria === 'todos'}
                                 >
                                     Todos
                                 </CheckBox>
@@ -114,8 +148,8 @@ const Productos = () => {
                                 <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}`}>
                                     <CheckBox
                                         id={subcategoriaItem.id}
-                                        onClick={() => handleClick(subcategoriaItem.id)}
-                                        marcado={checkedElement === subcategoriaItem.id}
+                                        onClick={() => handleClick(subcategoriaItem.id, 'subcategoria')}
+                                        marcado={checkedElement.subcategoria === subcategoriaItem.id}
                                     >
                                         {subcategoriaItem.nombre}
                                     </CheckBox>
@@ -127,8 +161,8 @@ const Productos = () => {
                                                 <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}/${subsubcategoriaItem.nombre}`}>
                                                     <CheckBox
                                                         id={subsubcategoriaItem.id}
-                                                        onClick={() => handleClick(subsubcategoriaItem.id)}
-                                                        marcado={checkedElement === subsubcategoriaItem.id}
+                                                        onClick={() => handleClick(subsubcategoriaItem.id, 'subsubcategoria')}
+                                                        marcado={checkedElement.subsubcategoria === subsubcategoriaItem.id}
                                                     >
                                                         {subsubcategoriaItem.nombre}
                                                     </CheckBox>
@@ -150,27 +184,14 @@ const Productos = () => {
                 </button>
             </div>
             <div className={styles.contenedor_productos}>
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="GREENRAIN SYSTEM | VALVULA ELECTRICA SERIE DVF LINEAL 1” RH" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="GREENRAIN SYSTEM | VALVULA ELECTRICA SERIE DVF LINEAL 1” RH" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="GREENRAIN SYSTEM | VALVULA ELECTRICA SERIE DVF LINEAL 1” RH" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-                <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
+                {/* Mapear los productos y generar las CartaProducto */}
+                {productos.map((producto) => (
+                    <CartaProducto
+                        key={producto.id}
+                        enlace_imagen={producto.enlace_imagen}
+                        texto={producto.nombre}
+                    />
+                ))}
             </div>
         </div>
     );
