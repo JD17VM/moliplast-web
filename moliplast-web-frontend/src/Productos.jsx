@@ -4,10 +4,7 @@ import CartaProducto from './widgets/CartaProducto';
 import { IoFilter } from "react-icons/io5";
 import { IoIosCloseCircle } from "react-icons/io";
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import dataProductos from './data/data_productos.js';
-
-const data = dataProductos.data;
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const CheckBox = ({ id, marcado = false, children, onClick }) => {
     return (
@@ -19,25 +16,28 @@ const CheckBox = ({ id, marcado = false, children, onClick }) => {
 };
 
 const Productos = () => {
+    const navigate = useNavigate();
     const [categoriaData, setCategoriaData] = useState(null);
-    const [productos, setProductos] = useState([]); // Estado para almacenar los productos
-    const [checkedElement, setCheckedElement] = useState({ subcategoria: null, subsubcategoria: null });
+    const [productos, setProductos] = useState([]);
+    const [checkedElement, setCheckedElement] = useState({ subcategoria: 'todos', subsubcategoria: null });
     const [mostrarElemento, setMostrarElemento] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { categoria, subcategoria, subsubcategoria } = useParams();
 
-    // Obtener datos de la API (categorías, subcategorías, etc.)
+    // Obtener datos de subcategorías
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await fetch(`http://127.0.0.1:8000/api/subcategorias-por-categoria/${categoria}`);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Error al obtener las subcategorías');
                 }
                 const data = await response.json();
                 setCategoriaData(data);
-                console.log(data);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error:', error);
+                setError('No se pudieron cargar las subcategorías');
             }
         };
 
@@ -46,13 +46,15 @@ const Productos = () => {
         }
     }, [categoria]);
 
-    // Obtener productos según los parámetros de la URL
+    // Obtener productos
     useEffect(() => {
         const fetchProductos = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 let url = `http://127.0.0.1:8000/api/productos/carta/${categoria}`;
 
-                if (subcategoria) {
+                if (subcategoria && subcategoria !== 'todos') {
                     url += `/${subcategoria}`;
                 }
                 if (subsubcategoria) {
@@ -61,12 +63,15 @@ const Productos = () => {
 
                 const response = await fetch(url);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Error al obtener los productos');
                 }
                 const data = await response.json();
-                setProductos(data); // Almacenar los productos en el estado
+                setProductos(data);
+                setIsLoading(false);
             } catch (error) {
-                console.error('Error fetching productos:', error);
+                console.error('Error:', error);
+                setError('No se pudieron cargar los productos');
+                setIsLoading(false);
             }
         };
 
@@ -79,7 +84,7 @@ const Productos = () => {
     useEffect(() => {
         if (categoriaData) {
             // Si no hay subcategoria ni subsubcategoria, marcar el checkbox "Todos"
-            if (!subcategoria && !subsubcategoria) {
+            if (!subcategoria || subcategoria === 'todos') {
                 setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
             } else {
                 // Buscar la subcategoria en los datos
@@ -89,7 +94,10 @@ const Productos = () => {
 
                 if (subcategoriaEncontrada) {
                     // Si hay una subcategoria en la URL, marcar su CheckBox
-                    setCheckedElement({ subcategoria: subcategoriaEncontrada.id, subsubcategoria: null });
+                    setCheckedElement({
+                        subcategoria: subcategoriaEncontrada.id,
+                        subsubcategoria: null
+                    });
 
                     // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
                     if (subsubcategoria) {
@@ -98,7 +106,10 @@ const Productos = () => {
                         );
 
                         if (subsubcategoriaEncontrada) {
-                            setCheckedElement({ subcategoria: subcategoriaEncontrada.id, subsubcategoria: subsubcategoriaEncontrada.id });
+                            setCheckedElement({
+                                subcategoria: subcategoriaEncontrada.id,
+                                subsubcategoria: subsubcategoriaEncontrada.id
+                            });
                         }
                     }
                 }
@@ -108,15 +119,36 @@ const Productos = () => {
 
     const handleClick = (id, type) => {
         if (type === 'subcategoria') {
-            setCheckedElement({ subcategoria: id, subsubcategoria: null });
+            if (id === 'todos') {
+                // Navegar a la ruta base de la categoría
+                navigate(`/productos/${categoria}`);
+            } else {
+                // Encontrar el nombre de la subcategoría
+                const subcategoriaItem = categoriaData.subcategorias.find(sub => sub.id === id);
+                if (subcategoriaItem) {
+                    navigate(`/productos/${categoria}/${subcategoriaItem.nombre}`);
+                }
+            }
         } else if (type === 'subsubcategoria') {
-            setCheckedElement(prevState => ({ ...prevState, subsubcategoria: id }));
+            // Encontrar la subcategoría actual y el nombre de la subsubcategoría
+            const currentSubcategoria = categoriaData.subcategorias.find(
+                sub => sub.id === checkedElement.subcategoria
+            );
+
+            if (currentSubcategoria) {
+                const subsubcategoriaItem = currentSubcategoria.subsubcategorias.find(
+                    subsub => subsub.id === id
+                );
+
+                if (subsubcategoriaItem) {
+                    navigate(`/productos/${categoria}/${currentSubcategoria.nombre}/${subsubcategoriaItem.nombre}`);
+                }
+            }
         }
     };
 
     const handleClickPanel = () => {
         setMostrarElemento(!mostrarElemento);
-        console.log(mostrarElemento);
     };
 
     if (!categoriaData) {
@@ -131,42 +163,36 @@ const Productos = () => {
                     <ul>
                         {/* Checkbox "Todos" */}
                         <li>
-                            <Link to={`/productos/${categoria}`}>
-                                <CheckBox
-                                    id="todos"
-                                    onClick={() => handleClick('todos', 'subcategoria')}
-                                    marcado={checkedElement.subcategoria === 'todos'}
-                                >
-                                    Todos
-                                </CheckBox>
-                            </Link>
+                            <CheckBox
+                                id="todos"
+                                onClick={() => handleClick('todos', 'subcategoria')}
+                                marcado={checkedElement.subcategoria === 'todos'}
+                            >
+                                Todos
+                            </CheckBox>
                         </li>
 
                         {/* Lista de subcategorías */}
                         {categoriaData.subcategorias.map(subcategoriaItem => (
                             <li key={subcategoriaItem.id}>
-                                <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}`}>
-                                    <CheckBox
-                                        id={subcategoriaItem.id}
-                                        onClick={() => handleClick(subcategoriaItem.id, 'subcategoria')}
-                                        marcado={checkedElement.subcategoria === subcategoriaItem.id}
-                                    >
-                                        {subcategoriaItem.nombre}
-                                    </CheckBox>
-                                </Link>
+                                <CheckBox
+                                    id={subcategoriaItem.id}
+                                    onClick={() => handleClick(subcategoriaItem.id, 'subcategoria')}
+                                    marcado={checkedElement.subcategoria === subcategoriaItem.id}
+                                >
+                                    {subcategoriaItem.nombre}
+                                </CheckBox>
                                 {subcategoriaItem.subsubcategorias.length > 0 && (
                                     <ul>
                                         {subcategoriaItem.subsubcategorias.map(subsubcategoriaItem => (
                                             <li key={subsubcategoriaItem.id}>
-                                                <Link to={`/productos/${categoria}/${subcategoriaItem.nombre}/${subsubcategoriaItem.nombre}`}>
-                                                    <CheckBox
-                                                        id={subsubcategoriaItem.id}
-                                                        onClick={() => handleClick(subsubcategoriaItem.id, 'subsubcategoria')}
-                                                        marcado={checkedElement.subsubcategoria === subsubcategoriaItem.id}
-                                                    >
-                                                        {subsubcategoriaItem.nombre}
-                                                    </CheckBox>
-                                                </Link>
+                                                <CheckBox
+                                                    id={subsubcategoriaItem.id}
+                                                    onClick={() => handleClick(subsubcategoriaItem.id, 'subsubcategoria')}
+                                                    marcado={checkedElement.subsubcategoria === subsubcategoriaItem.id}
+                                                >
+                                                    {subsubcategoriaItem.nombre}
+                                                </CheckBox>
                                             </li>
                                         ))}
                                     </ul>
@@ -184,14 +210,21 @@ const Productos = () => {
                 </button>
             </div>
             <div className={styles.contenedor_productos}>
-                {/* Mapear los productos y generar las CartaProducto */}
-                {productos.map((producto) => (
-                    <CartaProducto
-                        key={producto.id}
-                        enlace_imagen={producto.enlace_imagen}
-                        texto={producto.nombre}
-                    />
-                ))}
+                {isLoading ? (
+                    <div>Cargando productos...</div>
+                ) : error ? (
+                    <div>Error: {error}</div>
+                ) : productos.length === 0 ? (
+                    <div>No hay productos disponibles</div>
+                ) : (
+                    productos.map((producto) => (
+                        <CartaProducto
+                            key={producto.id}
+                            enlace_imagen={producto.enlace_imagen}
+                            texto={producto.nombre}
+                        />
+                    ))
+                )}
             </div>
         </div>
     );
