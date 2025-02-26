@@ -122,26 +122,32 @@ const Productos = () => {
             if (id === 'todos') {
                 // Navegar a la ruta base de la categoría
                 navigate(`/productos/${categoria}`);
+                setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
             } else {
                 // Encontrar el nombre de la subcategoría
                 const subcategoriaItem = categoriaData.subcategorias.find(sub => sub.id === id);
                 if (subcategoriaItem) {
                     navigate(`/productos/${categoria}/${subcategoriaItem.nombre}`);
+                    setCheckedElement({ subcategoria: id, subsubcategoria: null });
                 }
             }
         } else if (type === 'subsubcategoria') {
             // Encontrar la subcategoría actual y el nombre de la subsubcategoría
             const currentSubcategoria = categoriaData.subcategorias.find(
-                sub => sub.id === checkedElement.subcategoria
+                sub => sub.subsubcategorias.some(subsub => subsub.id === id)
             );
-
+    
             if (currentSubcategoria) {
                 const subsubcategoriaItem = currentSubcategoria.subsubcategorias.find(
                     subsub => subsub.id === id
                 );
-
+    
                 if (subsubcategoriaItem) {
                     navigate(`/productos/${categoria}/${currentSubcategoria.nombre}/${subsubcategoriaItem.nombre}`);
+                    setCheckedElement({
+                        subcategoria: currentSubcategoria.id,
+                        subsubcategoria: id
+                    });
                 }
             }
         }
