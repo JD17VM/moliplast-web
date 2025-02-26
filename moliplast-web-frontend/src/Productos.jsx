@@ -230,6 +230,7 @@ const Productos = () => {
                             key={producto.id}
                             enlace_imagen={producto.enlace_imagen.startsWith('http') ? producto.enlace_imagen : `${BASE_URL_API}${producto.enlace_imagen}`}
                             texto={producto.nombre}
+                            id = {producto.id}
                         />
                     ))
                 )}

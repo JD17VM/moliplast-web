@@ -1,15 +1,16 @@
+import { Link } from 'react-router-dom';
 import styles from '../assets/styles/estilos_carta_producto.module.scss'
 
-const CartaProducto = ({enlace_imagen, texto}) => {
+const CartaProducto = ({enlace_imagen, texto, id}) => {
     return (
-        <a className={styles.carta_producto}>
+        <Link to={`/productos/producto/${id}`} className={styles.carta_producto}>
             <div className={styles.cont_imagen_producto}>
                 <img src={enlace_imagen} alt="" />
             </div>
             <div className={styles.cont_nombre_producto}>
                 <p>{texto}</p>
             </div>
-        </a>
+        </Link>
     )
 }
 
