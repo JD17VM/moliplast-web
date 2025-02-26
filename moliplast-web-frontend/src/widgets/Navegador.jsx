@@ -29,7 +29,6 @@ const dataPaginas = {
         },
         { 
             nombre: "Productos", 
-            enlace: "/productos",
             subsecciones: [] 
         },
         { 
@@ -152,7 +151,7 @@ const Navegador = () => {
                         {data.map((seccion, index) => (
                             <li key={index}>
                                 {!seccion.subsecciones ? (
-                                    <Link to={seccion.enlace} >{seccion.nombre}</Link>
+                                    <Link to={seccion.enlace}>{seccion.nombre}</Link>
                                 ) : (
                                     <>
                                     <Link 
@@ -183,7 +182,7 @@ const Navegador = () => {
                     {data.map((seccion, index) => (
                             <li key={index}>
                                 {!seccion.subsecciones ? (
-                                   <Link to={seccion.enlace} >{seccion.nombre}</Link>
+                                    <Link to={seccion.enlace}>{seccion.nombre}</Link>
                                 ) : (
                                     <>
                                     <div>
