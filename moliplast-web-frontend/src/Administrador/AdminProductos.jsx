@@ -46,9 +46,27 @@ const AdminProductos = () => {
     useEffect(() => {
         loadProductos();
         loadCategorias();
-        loadSubcategorias();
-        loadSubsubcategorias();
     }, []);
+
+
+    // Cargar subcategorías cuando se selecciona una categoría
+    useEffect(() => {
+        if (newProducto.id_categoria) {
+            loadSubcategorias(newProducto.id_categoria);
+        } else {
+            setSubcategorias([]);
+            setSubsubcategorias([]);
+        }
+    }, [newProducto.id_categoria]);
+
+    // Cargar subsubcategorías cuando se selecciona una subcategoría
+    useEffect(() => {
+        if (newProducto.id_subcategoria) {
+            loadSubsubcategorias(newProducto.id_subcategoria);
+        } else {
+            setSubsubcategorias([]);
+        }
+    }, [newProducto.id_subcategoria]);
 
     // Carga de productos desde la API
     const loadProductos = async () => {
@@ -110,9 +128,9 @@ const AdminProductos = () => {
     };
 
     // Carga de subcategorías desde la API
-    const loadSubcategorias = async () => {
+    const loadSubcategorias = async (categoriaId) => {
         try {
-            const response = await fetch(`${BASE_URL_API}/api/subcategorias`);
+            const response = await fetch(`${BASE_URL_API}/api/subcategorias?categoria_id=${categoriaId}`);
             
             if (response.status === 404) {
                 console.log('No hay subcategorías disponibles');
@@ -133,9 +151,9 @@ const AdminProductos = () => {
     };
 
     // Carga de subsubcategorías desde la API
-    const loadSubsubcategorias = async () => {
+    const loadSubsubcategorias = async (subcategoriaId) => {
         try {
-            const response = await fetch(`${BASE_URL_API}/api/subsubcategorias`);
+            const response = await fetch(`${BASE_URL_API}/api/subsubcategorias?subcategoria_id=${subcategoriaId}`);
             
             if (response.status === 404) {
                 console.log('No hay subsubcategorías disponibles');
@@ -217,42 +235,39 @@ const AdminProductos = () => {
             }
         });
     
-        // Depurar los datos enviados
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-    
         try {
-            const url = `${BASE_URL_API}/api/productos`;
-            const method = 'POST';
+            let url, method;
+            
+            if (editingProducto) {
+                url = `${BASE_URL_API}/api/productos/${editingProducto.id}`;
+                method = 'POST'; // Laravel acepta `POST` para actualizaciones con archivos
+                formData.append('_method', 'PUT'); // Necesario para simular PUT en FormData
+            } else {
+                url = `${BASE_URL_API}/api/productos`;
+                method = 'POST';
+            }
                 
             const response = await fetch(url, {
                 method: method,
                 body: formData,
             });
-        
+    
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Detalles del error:', errorData); // Loguea el objeto completo
-                if (errorData.errors) {
-                    // Mostrar errores específicos de validación
-                    const errorMessages = Object.values(errorData.errors).flat().join(', ');
-                    throw new Error(`HTTP error! status: ${response.status} - ${errorData.message} - ${errorMessages}`);
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status} - ${errorData.message}`);
-                }
+                throw new Error(`HTTP error! status: ${response.status}` + 
+                    (errorData.message ? ` - ${errorData.message}` : ''));
             }
     
             const data = await response.json();
-            console.log('Producto guardado:', data);
+            console.log(editingProducto ? 'Producto actualizado:' : 'Producto guardado:', data);
     
             // Limpiar el formulario
             resetForm();
             
-            setSuccess('Producto guardado exitosamente!');
+            setSuccess(editingProducto ? 'Producto actualizado exitosamente!' : 'Producto guardado exitosamente!');
             loadProductos();
         } catch (error) {
-            console.error('Error guardando producto:', error);
+            console.error(editingProducto ? 'Error actualizando producto:' : 'Error guardando producto:', error);
             setError(`Error: ${error.message}`);
         } finally {
             setLoading(false);
@@ -300,24 +315,24 @@ const AdminProductos = () => {
         setError('');
         setSuccess('');
         
-        // Al editar, configuramos la información del producto a editar
+        // Al editar, configuramos la información del producto a editar, sin establecer archivos
         setNewProducto({
             id_categoria: producto.id_categoria || '',
             id_subcategoria: producto.id_subcategoria || '',
             id_subsubcategoria: producto.id_subsubcategoria || '',
             nombre: producto.nombre || '',
             descripcion: producto.descripcion || '',
-            imagen_1: '', // No establecemos los archivos directamente
-            imagen_2: '',
-            imagen_3: '',
-            imagen_4: '',
-            enlace_ficha_tecnica: '',
+            imagen_1: null, // No establecemos los archivos directamente
+            imagen_2: null,
+            imagen_3: null,
+            imagen_4: null,
+            enlace_ficha_tecnica: null,
             texto_markdown: producto.texto_markdown || '',
             destacados: producto.destacados || false,
-            enlace_imagen_qr: '',
+            enlace_imagen_qr: null,
         });
         
-        // Guardar las URLs originales para mostrar previews
+        // Guardamos las URLs originales para mostrar previews
         if (producto.imagen_1) {
             const imagen1Url = producto.imagen_1.startsWith('http') 
                 ? producto.imagen_1 
@@ -496,7 +511,7 @@ const AdminProductos = () => {
                         name="id_subcategoria" 
                         value={newProducto.id_subcategoria} 
                         onChange={handleInputChange} 
-                        disabled={loading}
+                        disabled={loading || !newProducto.id_categoria}
                         style={{ width: '100%', padding: '8px' }}
                     >
                         <option value="">Seleccione una subcategoría</option>
@@ -515,7 +530,7 @@ const AdminProductos = () => {
                         name="id_subsubcategoria" 
                         value={newProducto.id_subsubcategoria} 
                         onChange={handleInputChange} 
-                        disabled={loading}
+                        disabled={loading || !newProducto.id_subcategoria}
                         style={{ width: '100%', padding: '8px' }}
                     >
                         <option value="">Seleccione una subsubcategoría</option>
