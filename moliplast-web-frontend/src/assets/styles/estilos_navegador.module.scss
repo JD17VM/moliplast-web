@@ -248,7 +248,7 @@
                     position: absolute;
                     top:calc(((1em + var(--height_nav)) / 2) + $padding_vertical);
                     left: 0;
-                    width: 100%;
+                    //width: 100%;
 
                     &.mostrar{
                         display: block !important;
@@ -460,12 +460,15 @@
                 >ul{
                     position: static;
                     padding-top: 0;
+                    white-space:normal;
+                    width: 90%;
 
                     >li{
                         justify-content: start;
 
                         >a{
                             justify-content: start;
+                            line-height: 1.2;
                         }
                     }
                 }   
