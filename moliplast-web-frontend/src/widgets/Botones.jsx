@@ -1,7 +1,7 @@
 
 import styles from '../assets/styles/estilos_botones.module.scss'
 
-export const BtnIconoTexto = ({children, Icono = false, colorPrincipal = 'var(--color_azul_1)', colorActivo = 'var(--color_azul_-2)'}) => {
+export const BtnIconoTexto = ({children, Icono = false, colorPrincipal = 'var(--color_azul_1)', colorActivo = 'var(--color_azul_-2)', enlace = undefined}) => {
     
     const buttonStyles = {
         '--color_principal': colorPrincipal,
@@ -10,9 +10,9 @@ export const BtnIconoTexto = ({children, Icono = false, colorPrincipal = 'var(--
 
     
     return (
-        <button className={styles.btn_icono_texto} style={buttonStyles}>
+        <a href={enlace} target="_blank" className={styles.btn_icono_texto} style={buttonStyles}>
             {Icono && <Icono/>}
             <p>{children}</p>
-        </button>
+        </a>
     )
 }

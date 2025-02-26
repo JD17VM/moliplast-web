@@ -54,6 +54,7 @@ $padding_lateral: 2rem;
     & > .contenedor_datos{
         //background-color: yellow;
         color: var(--color_negro);
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: flex-start;

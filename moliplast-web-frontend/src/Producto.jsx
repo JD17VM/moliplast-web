@@ -1,56 +1,109 @@
-import { useState } from 'react';
-import styles from './assets/styles/estilos_producto.module.scss'
+import { useState, useEffect } from 'react';
+import styles from './assets/styles/estilos_producto.module.scss';
 import imageHelper from './utils/imageHelper';
 import { MdPictureAsPdf } from "react-icons/md";
 import { FaWhatsapp } from "react-icons/fa";
-
 import { BtnIconoTexto } from './widgets/Botones';
 import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
-
-
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
+import { useParams } from 'react-router-dom';
 
+const BASE_URL_API = "http://127.0.0.1:8000";
 
 const Producto = () => {
-
-    const [imagenActual, setImagenActual] = useState(imageHelper.ImagenDemoProducto1);
     const [botonActivo, setBotonActivo] = useState(1);
+    const [producto, setProducto] = useState(null);
+    const [imagenActual, setImagenActual] = useState(null); // Inicializa con null o una imagen de carga
+    const { id } = useParams();
 
+    useEffect(() => {
+        const fetchProducto = async () => {
+            try {
+                const response = await fetch(`${BASE_URL_API}/api/productos/${id}`);
+                if (!response.ok) {
+                    throw new Error('Error al obtener los datos del producto');
+                }
+                const data = await response.json();
+                setProducto(data);
+
+                // Actualiza la imagen actual cuando el producto se carga
+                if (data.imagen_1) {
+                    setImagenActual(data.imagen_1.startsWith('http') ? data.imagen_1 : `${BASE_URL_API}${data.imagen_1}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        fetchProducto();
+    }, [id]);
 
     const handleClick = (imagen, numButton) => {
         setImagenActual(imagen);
         setBotonActivo(numButton);
+    };
+
+    // Función para construir la URL completa
+    const getFullUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
+    if (!producto) {
+        return <div>Cargando...</div>;
     }
 
     return (
         <>
             <div className={styles.contenedor_producto}>
-                <div className={styles.contenedor_imagenes}>    
+                <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>
-                        <button onClick={() => handleClick(imageHelper.ImagenDemoProducto1,1)} className={botonActivo === 1 ? styles.activo : ''}><img src={imageHelper.ImagenDemoProducto1} alt="" /></button>
-                        <button onClick={() => handleClick(imageHelper.ImagenDemoProducto2,2)} className={botonActivo === 2 ? styles.activo : ''}><img src={imageHelper.ImagenDemoProducto2} alt="" /></button>
-                        <button onClick={() => handleClick(imageHelper.ImagenDemoProducto3,3)} className={botonActivo === 3 ? styles.activo : ''}><img src={imageHelper.ImagenDemoProducto3} alt="" /></button>
+                        <button
+                            onClick={() => handleClick(getFullUrl(producto.imagen_1), 1)}
+                            className={botonActivo === 1 ? styles.activo : ''}
+                        >
+                            <img src={getFullUrl(producto.imagen_1)} alt="" />
+                        </button>
+                        <button
+                            onClick={() => handleClick(getFullUrl(producto.imagen_2), 2)}
+                            className={botonActivo === 2 ? styles.activo : ''}
+                        >
+                            <img src={getFullUrl(producto.imagen_2)} alt="" />
+                        </button>
+                        <button
+                            onClick={() => handleClick(getFullUrl(producto.imagen_3), 3)}
+                            className={botonActivo === 3 ? styles.activo : ''}
+                        >
+                            <img src={getFullUrl(producto.imagen_3)} alt="" />
+                        </button>
                     </div>
                     <div className={styles.cont_imagen}>
-                        <img src={imagenActual} alt="" />
+                        {imagenActual ? (
+                            <img src={imagenActual} alt="" />
+                        ) : (
+                            <div>Cargando imagen...</div>
+                        )}
                     </div>
                 </div>
                 <div className={styles.contenedor_datos}>
-                    <h1>Electrobomba Centrífuga De 0.85 Hp Pedrollo Al-redm 610-4</h1>
-                    <p>Para bombear agua limpia, sin partículas abrasivas y líquidos químicamente no agresivos con los materiales que constituyen la bomba.</p>
+                    <h1>{producto.nombre}</h1>
+                    <p>{producto.descripcion}</p>
                     <div>
-                        <BtnIconoTexto Icono={MdPictureAsPdf}>Ficha Técnica</BtnIconoTexto >
-                        <BtnIconoTexto Icono={FaWhatsapp} colorPrincipal="#075e54" colorActivo='#25d366'>Comprar por Whatsapp</BtnIconoTexto >
+                        <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
+                            Ficha Técnica
+                        </BtnIconoTexto>
+                        <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51922900787/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
+                            Comprar por Whatsapp
+                        </BtnIconoTexto>
                     </div>
                 </div>
             </div>
             <div className={styles.descripcion_extra}>
-                <InterpreteMarkdownHTML/>
+                <InterpreteMarkdownHTML />
             </div>
-            <SeccionProductosImportantes titulo='Productos Relacionados'/>
-
+            <SeccionProductosImportantes titulo='Productos Relacionados' />
         </>
-    )
-}
+    );
+};
 
 export default Producto;
