@@ -15,11 +15,12 @@
     & > .cont_imagen_producto{
         width: 100%;
         aspect-ratio: 1/1;
-        background-color: black;
+        background-color: var(--color_blanco);
 
         & > img{
             width: 100%;
-            height: 100%;
+            //height: 100%;
+            aspect-ratio: 1/1;
             object-fit: cover;
             object-position: center;
         }

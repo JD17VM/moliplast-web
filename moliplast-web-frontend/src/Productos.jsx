@@ -6,6 +6,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
+const BASE_URL_API = "http://127.0.0.1:8000";
+
 const CheckBox = ({ id, marcado = false, children, onClick }) => {
     return (
         <div className={styles.container_checkbox} onClick={() => onClick(id)}>
@@ -226,7 +228,7 @@ const Productos = () => {
                     productos.map((producto) => (
                         <CartaProducto
                             key={producto.id}
-                            enlace_imagen={producto.enlace_imagen}
+                            enlace_imagen={producto.enlace_imagen.startsWith('http') ? producto.enlace_imagen : `${BASE_URL_API}${producto.enlace_imagen}`}
                             texto={producto.nombre}
                         />
                     ))
