@@ -52,21 +52,45 @@ const AdminProductos = () => {
     // Cargar subcategorías cuando se selecciona una categoría
     useEffect(() => {
         if (newProducto.id_categoria) {
-            loadSubcategorias(newProducto.id_categoria);
+            // Filtrar subcategorías basadas en la categoría seleccionada
+            const filteredSubcategorias = categorias
+                .find(cat => cat.id === parseInt(newProducto.id_categoria))?.subcategorias || [];
+            
+            setSubcategorias(filteredSubcategorias);
+            
+            // Resetear subcategoría y subsubcategoría si cambia la categoría
+            setNewProducto(prev => ({
+                ...prev, 
+                id_subcategoria: '',
+                id_subsubcategoria: ''
+            }));
+            setSubsubcategorias([]);
         } else {
             setSubcategorias([]);
             setSubsubcategorias([]);
         }
-    }, [newProducto.id_categoria]);
+    }, [newProducto.id_categoria, categorias]);
 
     // Cargar subsubcategorías cuando se selecciona una subcategoría
     useEffect(() => {
         if (newProducto.id_subcategoria) {
-            loadSubsubcategorias(newProducto.id_subcategoria);
+            // Buscar la subcategoría seleccionada y obtener sus subsubcategorías
+            const selectedSubcategoria = subcategorias
+                .find(subcat => subcat.id === parseInt(newProducto.id_subcategoria));
+            
+            const filteredSubsubcategorias = selectedSubcategoria?.subsubcategorias || [];
+            
+            setSubsubcategorias(filteredSubsubcategorias);
+            
+            // Resetear subsubcategoría si cambia la subcategoría
+            setNewProducto(prev => ({
+                ...prev, 
+                id_subsubcategoria: ''
+            }));
         } else {
             setSubsubcategorias([]);
         }
-    }, [newProducto.id_subcategoria]);
+    }, [newProducto.id_subcategoria, subcategorias]);
 
     // Carga de productos desde la API
     const loadProductos = async () => {
@@ -104,10 +128,10 @@ const AdminProductos = () => {
         }
     };
 
-    // Carga de categorías desde la API
+    // Cargar categorías con su estructura completa
     const loadCategorias = async () => {
         try {
-            const response = await fetch(`${BASE_URL_API}/api/categorias`);
+            const response = await fetch(`${BASE_URL_API}/api/categorias-con-subcategorias`);
             
             if (response.status === 404) {
                 console.log('No hay categorías disponibles');
