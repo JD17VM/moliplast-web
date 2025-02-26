@@ -1,10 +1,13 @@
 import showdown from "showdown";
-import styles from '../assets/styles/estilos_markdown.module.scss'
+import styles from '../assets/styles/estilos_markdown.module.scss';
 
-const InterpreteMarkdownHTML = () => {
+const InterpreteMarkdownHTML = ({ texto_markdown }) => {
     const converter = new showdown.Converter({ tables: true });
 
-    const markdownText = `
+    let markdownText = "";
+
+    if (!texto_markdown) {
+        markdownText = `
 # Mi tabla con texto
 
 Este es un párrafo de texto antes de la tabla.  Puede incluir **negritas**, *cursivas* y otros elementos Markdown.
@@ -30,23 +33,34 @@ Este es otro *párrafo* de **texto** después de la tabla.  También puede inclu
 # Más texto
 
 Incluso puedes tener más encabezados y contenido Markdown después de la tabla.
-    `;
+        `;
+    } else {
+        markdownText = texto_markdown;
+    }
 
     const html = converter.makeHtml(markdownText);
 
     // Función para envolver las tablas en un div con la clase .table-wrapper
     const wrapTables = (htmlString) => {
-        // Reemplazar <table> con <div class="table-wrapper"><table>
+        if (typeof htmlString !== 'string') {
+            console.error('htmlString is not a string:', htmlString);
+            return ''; // O un valor predeterminado
+        }
         let modifiedHtml = htmlString.replace(/<table>/g, '<div class="table-wrapper"><table>');
-        // Reemplazar </table> con </table></div>
         modifiedHtml = modifiedHtml.replace(/<\/table>/g, '</table></div>');
         return modifiedHtml;
     };
 
-    const modifiedHtml = wrapTables(html);
+    let modifiedHtml = "";
+
+    if (typeof html === 'string') {
+        modifiedHtml = wrapTables(html);
+    } else {
+        modifiedHtml = "";
+    }
 
     return (
-            <div className={styles.cont_MD} dangerouslySetInnerHTML={{ __html: modifiedHtml }} />
+        <div className={styles.cont_MD} dangerouslySetInnerHTML={{ __html: modifiedHtml }} />
     );
 };
 

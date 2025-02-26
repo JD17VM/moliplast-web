@@ -99,7 +99,7 @@ const Producto = () => {
                 </div>
             </div>
             <div className={styles.descripcion_extra}>
-                <InterpreteMarkdownHTML />
+                <InterpreteMarkdownHTML texto_markdown={producto.texto_markdown}/>
             </div>
             <SeccionProductosImportantes titulo='Productos Relacionados' />
         </>
