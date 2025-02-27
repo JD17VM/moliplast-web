@@ -78,6 +78,8 @@ Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
 Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
+Route::get('/products/search', [ProductoController::class, 'search']);
+
 Route::get('/productos-carta', [ProductoController::class, 'getCartaProductos']);
 
 // Ruta para obtener productos por categoría

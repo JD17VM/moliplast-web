@@ -112,6 +112,23 @@ const Navegador = () => {
         };
     }, [location.pathname]); // El efecto solo se ejecuta una vez al montar el componente
 
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+
+    useEffect(() => {
+        if (query.length > 2) { // Solo busca si el usuario ha escrito más de 2 caracteres
+            axios.get(`http://127.0.0.1:8000/api/products/search?query=${query}`)
+                .then(response => {
+                    setResults(response.data);
+                })
+                .catch(error => {
+                    console.error('Error fetching products', error);
+                });
+        } else {
+            setResults([]); // Limpia los resultados si el query es muy corto
+        }
+    }, [query]);
+
     return (
         <>
             <div className={styles.cont_navegador}>
@@ -210,14 +227,16 @@ const Navegador = () => {
                     </ul>
 
                     <div className={styles.cont_busqueda_tiempo_real}>
-                        <InputButton placeholder='Buscar producto' Icono = {FaSearch}/>
+                    <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Buscar productos..."
+                    />
                         <ul>
-                            <li><a href="">Hola a todos</a></li>
-                            <li><a href="">Hola a todos</a></li>
-                            <li><a href="">Hola a todos</a></li>
-                            <li><a href="">Hola a todos</a></li>
-                            <li><a href="">Hola a todos</a></li>
-                            <li><a href="">Hola a todos</a></li>
+                        {results.map(product => (
+                            <li key={product.id}><Link to={`/productos/producto/${product.id}`}>{product.nombre}</Link></li>
+                        ))}
                         </ul>
                     </div>
                 </nav>

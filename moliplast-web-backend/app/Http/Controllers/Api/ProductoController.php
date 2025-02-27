@@ -45,6 +45,19 @@ class ProductoController extends Controller
         return response()->json($productos, 200);
     }
 
+    // En tu controlador (ProductController.php)
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $productos = Producto::where('nombre', 'like', '%' . $query . '%')
+                        ->select('id', 'nombre')
+                        ->limit(10) // Limita los resultados para no sobrecargar el frontend
+                        ->get();
+
+        return response()->json($productos);
+    }
+
     // Método para filtrar productos por categoría
     public function getByCategoria($categoria)
     {
