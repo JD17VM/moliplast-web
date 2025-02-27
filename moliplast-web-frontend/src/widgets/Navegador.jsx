@@ -234,11 +234,11 @@ const Navegador = () => {
                     </ul>
 
                     <div className={styles.cont_busqueda_tiempo_real}>
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Buscar productos..."
+                    <InputButton
+                        placeholder="Buscar productos"
+                        Icono={FaSearch}
+                        value={query} // Pasar el valor del estado `query`
+                        onChange={(e) => setQuery(e.target.value)} // Manejar cambios
                     />
                         <ul>
                             {Array.isArray(results) && results.length > 0 ? (
