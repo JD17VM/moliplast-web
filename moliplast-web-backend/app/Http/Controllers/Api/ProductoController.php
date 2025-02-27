@@ -52,6 +52,7 @@ class ProductoController extends Controller
 
         $productos = Producto::where('nombre', 'like', '%' . $query . '%')
                         ->select('id', 'nombre')
+                        ->where('estatus', true)
                         ->limit(10) // Limita los resultados para no sobrecargar el frontend
                         ->get();
 
