@@ -291,8 +291,47 @@
             }
         }
 
-        >div:last-child{
+        >.cont_busqueda_tiempo_real{
             width: 16rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+
+            >ul{
+                //background-color: red;
+                position: absolute;
+                width: 100%;
+                top:50px;
+                -webkit-box-shadow: 2px 2px 5px -1px rgba(0,0,0,0.75);
+                -moz-box-shadow: 2px 2px 5px -1px rgba(0,0,0,0.75);
+                box-shadow: 2px 2px 5px -1px rgba(0,0,0,0.75);
+
+                >li{
+                    border-bottom: 1px solid rgb(189, 189, 189);
+
+                    &:last-of-type{
+                        border-bottom: 1px solid rgba(0, 0, 0, 0);
+                    }
+
+                    
+
+                    >a{
+                        background-color: var(--color_blanco);
+                        color: var(--color_azul_1);
+                        font-size: 14px;
+                        font-weight: var(--fuente_regular);
+                        display: block;
+                        width: 100%;
+                        padding: 0.3rem 0.5rem;
+
+                        &:hover{
+                            background-color: var(--color_azul_1);
+                            color: var(--color_blanco);
+                        }
+                    }
+                }
+            }
         }
 
     }

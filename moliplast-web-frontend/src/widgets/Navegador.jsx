@@ -209,7 +209,17 @@ const Navegador = () => {
                         ))}
                     </ul>
 
-                    <InputButton placeholder='Buscar producto' Icono = {FaSearch}/>
+                    <div className={styles.cont_busqueda_tiempo_real}>
+                        <InputButton placeholder='Buscar producto' Icono = {FaSearch}/>
+                        <ul>
+                            <li><a href="">Hola a todos</a></li>
+                            <li><a href="">Hola a todos</a></li>
+                            <li><a href="">Hola a todos</a></li>
+                            <li><a href="">Hola a todos</a></li>
+                            <li><a href="">Hola a todos</a></li>
+                            <li><a href="">Hola a todos</a></li>
+                        </ul>
+                    </div>
                 </nav>
             </div>
     
