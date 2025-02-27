@@ -314,7 +314,15 @@
                         border-bottom: 1px solid rgba(0, 0, 0, 0);
                     }
 
-                    
+                    >p{
+                        background-color: var(--color_blanco);
+                        color: rgb(167, 27, 27);
+                        font-size: 14px;
+                        display: block;
+                        width: 100%;
+                        font-weight: var(--fuente_regular);
+                        padding: 0.3rem 0.5rem;
+                    }
 
                     >a{
                         background-color: var(--color_blanco);

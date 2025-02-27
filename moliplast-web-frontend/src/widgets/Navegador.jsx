@@ -11,6 +11,7 @@ import { FaSearch } from "react-icons/fa";
 import { TiThMenu } from "react-icons/ti";
 
 import { Logo_Moliplast } from '../assets/imgs/iconos/svg/Logo_Moliplast';
+import { debounce } from 'lodash';
 
 import { InputButton } from './Form';
 
@@ -115,9 +116,9 @@ const Navegador = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
 
-    useEffect(() => {
-        if (query.length > 2) { // Solo busca si el usuario ha escrito más de 2 caracteres
-            axios.get(`http://127.0.0.1:8000/api/products/search?query=${query}`)
+    const debouncedSearch = debounce((searchQuery) => {
+        if (searchQuery.length > 2) {
+            axios.get(`http://127.0.0.1:8000/api/products/search?query=${searchQuery}`)
                 .then(response => {
                     setResults(response.data);
                 })
@@ -125,8 +126,14 @@ const Navegador = () => {
                     console.error('Error fetching products', error);
                 });
         } else {
-            setResults([]); // Limpia los resultados si el query es muy corto
+            setResults([]);
         }
+    }, 300); // 300ms de retraso
+
+    useEffect(() => {
+        debouncedSearch(query);
+        // Limpia el debounce si el componente se desmonta
+        return () => debouncedSearch.cancel();
     }, [query]);
 
     return (
@@ -234,9 +241,15 @@ const Navegador = () => {
                         placeholder="Buscar productos..."
                     />
                         <ul>
-                        {results.map(product => (
-                            <li key={product.id}><Link to={`/productos/producto/${product.id}`}>{product.nombre}</Link></li>
-                        ))}
+                            {Array.isArray(results) && results.length > 0 ? (
+                                results.map(product => (
+                                    <li key={product.id}>
+                                        <Link to={`/productos/producto/${product.id}`}>{product.nombre}</Link>
+                                    </li>
+                                ))
+                            ) : (
+                                query.length > 2 && <li><p>No se encontraron productos</p></li>
+                            )}
                         </ul>
                     </div>
                 </nav>
