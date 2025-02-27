@@ -89,9 +89,12 @@ const Producto = () => {
                     <h1>{producto.nombre}</h1>
                     <p>{producto.descripcion}</p>
                     <div>
-                        <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
-                            Ficha Técnica
-                        </BtnIconoTexto>
+                        {producto.enlace_ficha_tecnica && (
+                            <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
+                                Ficha Técnica
+                            </BtnIconoTexto>
+                        )}
+                        
                         <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51922900787/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
                             Comprar por Whatsapp
                         </BtnIconoTexto>
