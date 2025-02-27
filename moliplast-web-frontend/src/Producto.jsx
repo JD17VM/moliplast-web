@@ -64,18 +64,33 @@ const Producto = () => {
                         >
                             <img src={getFullUrl(producto.imagen_1)} alt="" />
                         </button>
-                        <button
-                            onClick={() => handleClick(getFullUrl(producto.imagen_2), 2)}
-                            className={botonActivo === 2 ? styles.activo : ''}
-                        >
-                            <img src={getFullUrl(producto.imagen_2)} alt="" />
-                        </button>
-                        <button
-                            onClick={() => handleClick(getFullUrl(producto.imagen_3), 3)}
-                            className={botonActivo === 3 ? styles.activo : ''}
-                        >
-                            <img src={getFullUrl(producto.imagen_3)} alt="" />
-                        </button>
+                        
+                        {producto.imagen_2 && (
+                            <button
+                                onClick={() => handleClick(getFullUrl(producto.imagen_2), 2)}
+                                className={botonActivo === 2 ? styles.activo : ''}
+                            >
+                                <img src={getFullUrl(producto.imagen_2)} alt="" />
+                            </button>
+                        )}
+
+                        {producto.imagen_3 && (
+                            <button
+                                onClick={() => handleClick(getFullUrl(producto.imagen_3), 3)}
+                                className={botonActivo === 3 ? styles.activo : ''}
+                            >
+                                <img src={getFullUrl(producto.imagen_3)} alt="" />
+                            </button>
+                        )}
+
+                        {producto.imagen_4 && (
+                            <button
+                                onClick={() => handleClick(getFullUrl(producto.imagen_4), 4)}
+                                className={botonActivo === 4 ? styles.activo : ''}
+                            >
+                                <img src={getFullUrl(producto.imagen_4)} alt="" />
+                            </button>
+                        )}
                     </div>
                     <div className={styles.cont_imagen}>
                         {imagenActual ? (

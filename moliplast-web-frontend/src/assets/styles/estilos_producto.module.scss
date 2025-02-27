@@ -18,7 +18,9 @@ $padding_lateral: 2rem;
             display: flex;
             flex-direction: column;
             & > button{
-                width: $alto_ancho_imagen / 3;
+                $lado_imagen_pequenia: $alto_ancho_imagen / 4;
+                width: $lado_imagen_pequenia;
+                height: $lado_imagen_pequenia;
                 aspect-ratio: 1/1;
                 border: 3px solid rgb(255, 255, 255);
                 box-sizing: border-box;
