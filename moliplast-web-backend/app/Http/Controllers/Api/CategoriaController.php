@@ -70,8 +70,8 @@ class CategoriaController extends Controller
         // Validación
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:50',
-            'descripcion' => 'required|string|max:100',
-            'enlace_imagen' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'descripcion' => 'nullable|string|max:100',
+            'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($validator->fails()) {
@@ -82,9 +82,12 @@ class CategoriaController extends Controller
         }
 
         // Guardar la imagen con un nombre único
-        $imagePath = $request->file('enlace_imagen')->store('categorias', 'public');
-        $imageUrl = Storage::url($imagePath);
-
+        $imagenUrl = null;
+        if ($request->hasFile('enlace_imagen')) {
+            $imagePath = $request->file('enlace_imagen')->store('categorias', 'public');
+            $imageUrl = Storage::url($imagePath);
+        }
+        
         // Crear la categoría
         $categoria = Categoria::create([
             'nombre' => $request->nombre,
@@ -114,7 +117,7 @@ class CategoriaController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'nombre' => 'required|string|max:50',
-                'descripcion' => 'required|string|max:100',
+                'descripcion' => 'nullable|string|max:100',
                 'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             ]);
 
@@ -137,7 +140,7 @@ class CategoriaController extends Controller
             }
 
             $categoria->nombre = $request->nombre;
-            $categoria->descripcion = $request->descripcion;
+            $categoria->descripcion = $request->descripcion ?? $request->descripcion;
             $categoria->save();
 
             return response()->json($categoria, 200);

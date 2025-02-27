@@ -247,7 +247,6 @@ const AdminCategorias = () => {
                     name="descripcion" 
                     value={newCategoria.descripcion} 
                     onChange={handleInputChange} 
-                    required 
                     disabled={loading}
                     rows="5"
                     cols="50"
@@ -259,7 +258,6 @@ const AdminCategorias = () => {
                     id="enlace_imagen" 
                     name="enlace_imagen" 
                     onChange={handleFileChange} 
-                    required={!editingCategoria}
                     disabled={loading}
                     accept="image/*"
                     ref={fileInputRef}

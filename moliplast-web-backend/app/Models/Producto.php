@@ -24,6 +24,7 @@ class Producto extends Model
         'destacados',
         'enlace_imagen_qr',
         'estatus',
+        'codigo',
     ];
 
     protected $casts = [

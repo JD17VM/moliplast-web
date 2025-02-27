@@ -431,14 +431,15 @@ class ProductoController extends Controller
             'id_subsubcategoria' => 'nullable|exists:subsubcategorias,id',
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string|max:200',
-            'imagen_1' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'imagen_1' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'imagen_2' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'imagen_3' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'imagen_4' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'enlace_ficha_tecnica' => 'nullable|file|mimes:pdf,doc,docx',
             'texto_markdown' => 'nullable|string',
             'destacados' => 'boolean',
-            'enlace_imagen_qr' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'codigo' => 'nullable|string|max:9',
         ]);
 
         if ($validator->fails()) {
@@ -450,8 +451,11 @@ class ProductoController extends Controller
         }
 
         // Guardar las imágenes y el archivo de ficha técnica
-        $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-        $imagen1Url = Storage::url($imagen1Path);
+        $imagen1Url = null;
+        if ($request->hasFile('imagen_1')) {
+            $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
+            $imagen1Url = Storage::url($imagen1Path);
+        }
 
         $imagen2Url = null;
         if ($request->hasFile('imagen_2')) {
@@ -477,8 +481,11 @@ class ProductoController extends Controller
             $fichaTecnicaUrl = Storage::url($fichaTecnicaPath);
         }
 
-        $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-        $qrImageUrl = Storage::url($qrImagePath);
+        $qrImagePath = null;
+        if ($request->hasFile('enlace_imagen_qr')) {
+            $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
+            $qrImageUrl = Storage::url($qrImagePath);
+        }
 
         // Crear el producto
         $producto = Producto::create([
@@ -495,6 +502,7 @@ class ProductoController extends Controller
             'texto_markdown' => $request->texto_markdown,
             'destacados' => $request->destacados ?? false,
             'enlace_imagen_qr' => $qrImageUrl,
+            'codigo' => $request->codigo,
             'estatus' => true,
         ]);
 
@@ -531,6 +539,7 @@ class ProductoController extends Controller
                 'texto_markdown' => 'nullable|string',
                 'destacados' => 'boolean',
                 'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'codigo' => 'nullable|string|max:9',
             ]);
 
             if ($validator->fails()) {
@@ -604,6 +613,7 @@ class ProductoController extends Controller
             $producto->descripcion = $request->descripcion ?? $producto->descripcion;
             $producto->texto_markdown = $request->texto_markdown ?? $producto->texto_markdown;
             $producto->destacados = $request->destacados ?? $producto->destacados;
+            $producto->codigo = $request->codigo ?? $producto->codigo;
             $producto->save();
 
             Log::info('Producto actualizado exitosamente', ['id' => $producto->id]);
@@ -645,6 +655,7 @@ class ProductoController extends Controller
                 'texto_markdown' => 'nullable|string',
                 'destacados' => 'nullable|boolean',
                 'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'codigo' => 'nullable|string|max:9',
             ]);
 
             if ($validator->fails()) {
@@ -731,6 +742,10 @@ class ProductoController extends Controller
 
             if ($request->has('texto_markdown')) {
                 $producto->texto_markdown = $request->texto_markdown;
+            }
+
+            if ($request->has('codigo')) {
+                $producto->codigo = $request->codigo;
             }
 
             if ($request->has('destacados')) {

@@ -586,7 +586,6 @@ const AdminProductos = () => {
                         id="imagen_1" 
                         name="imagen_1" 
                         onChange={handleFileChange} 
-                        required={!editingProducto}
                         disabled={loading}
                         accept="image/*"
                         ref={imagen1InputRef}
@@ -679,7 +678,6 @@ const AdminProductos = () => {
                         id="enlace_imagen_qr" 
                         name="enlace_imagen_qr" 
                         onChange={handleFileChange} 
-                        required={!editingProducto}
                         disabled={loading}
                         accept="image/*"
                         ref={imagenQRInputRef}
