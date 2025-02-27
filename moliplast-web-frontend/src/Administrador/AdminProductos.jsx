@@ -21,6 +21,7 @@ const AdminProductos = () => {
         texto_markdown: '',
         destacados: false,
         enlace_imagen_qr: '',
+        codigo: '',
     });
     
     const [editingProducto, setEditingProducto] = useState(null);
@@ -314,6 +315,7 @@ const AdminProductos = () => {
             texto_markdown: '',
             destacados: false,
             enlace_imagen_qr: '',
+            codigo: '',
         });
         
         setImagen1Preview('');
@@ -354,6 +356,7 @@ const AdminProductos = () => {
             texto_markdown: producto.texto_markdown || '',
             destacados: producto.destacados || false,
             enlace_imagen_qr: null,
+            codigo: null,
         });
         
         // Guardamos las URLs originales para mostrar previews
@@ -722,6 +725,18 @@ const AdminProductos = () => {
                         id="texto_markdown" 
                         name="texto_markdown" 
                         value={newProducto.texto_markdown || ''} 
+                        onChange={handleInputChange} 
+                        disabled={loading}
+                        style={{ width: '100%', padding: '8px', minHeight: '150px' }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                    <label htmlFor="codigo">Codigo (opcional):</label><br />
+                    <textarea 
+                        id="codigo" 
+                        name="codigo" 
+                        value={newProducto.codigo || ''} 
                         onChange={handleInputChange} 
                         disabled={loading}
                         style={{ width: '100%', padding: '8px', minHeight: '150px' }}
