@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
@@ -470,95 +471,551 @@ const AdminProductos = () => {
     };
 
     return (
-        <div>
-            <h1>Admin Productos</h1>
-            
-            {error && (
-                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {error}
-                </div>
-            )}
-            
-            {success && (
-                <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {success}
-                </div>
-            )}
+        <>
+        {error && (
+            <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {error}
+            </div>
+        )}      
+        {success && (
+            <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {success}
+            </div>
+        )}
+        <div className={styles.contenedor_total_administrador}>
+            <div className={styles.contenedor_registros}>
+                
+            </div>
+            <div className={styles.contenedor_formulario}>
+                <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                    <div className="col-6">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="imagen_1" 
+                                name="imagen_1" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={imagen1InputRef}
 
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="nombre">Nombre:</label><br />
-                    <input 
-                        type="text" 
-                        id="nombre" 
-                        name="nombre" 
-                        value={newProducto.nombre} 
-                        onChange={handleInputChange} 
-                        required 
-                        disabled={loading}
-                        style={{ width: '100%', padding: '8px' }}
-                    />
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagen1Preview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagen1Preview} 
+                                        alt="Vista previa imagen 1" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="col-6">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="imagen_2" 
+                                name="imagen_2" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={imagen2InputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagen2Preview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagen2Preview} 
+                                        alt="Vista previa imagen 2" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="col-6">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="imagen_3" 
+                                name="imagen_3" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={imagen3InputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagen3Preview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagen3Preview} 
+                                        alt="Vista previa imagen 3" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="col-6">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="imagen_4" 
+                                name="imagen_4" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={imagen4InputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagen4Preview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagen4Preview} 
+                                        alt="Vista previa imagen 4" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <h2 className="mt-3">Seccion</h2>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <label className="input-group-text">Categoria</label>
+                            <select 
+                                id="id_categoria" 
+                                name="id_categoria" 
+                                value={newProducto.id_categoria} 
+                                onChange={handleInputChange} 
+                                disabled={loading}
+
+                                className="form-select"
+                            >
+                                <option value="">Seleccione una categoría</option>
+                                {categorias.map(categoria => (
+                                    <option key={categoria.id} value={categoria.id}>
+                                        {categoria.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <label className="input-group-text" >Subcategoria</label>
+                            <select 
+                                id="id_subcategoria" 
+                                name="id_subcategoria" 
+                                value={newProducto.id_subcategoria} 
+                                onChange={handleInputChange} 
+                                disabled={loading || !newProducto.id_categoria}
+
+                                className="form-select"
+                            >
+                                <option value="">Seleccione una subcategoría</option>
+                                {subcategorias.map(subcategoria => (
+                                    <option key={subcategoria.id} value={subcategoria.id}>
+                                        {subcategoria.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <label className="input-group-text" >Subsubcategoria</label>
+
+                            <select 
+                            id="id_subsubcategoria" 
+                            name="id_subsubcategoria" 
+                            value={newProducto.id_subsubcategoria} 
+                            onChange={handleInputChange} 
+                            disabled={loading || !newProducto.id_subcategoria}
+
+                            className="form-select"
+                        >
+                            <option value="">Seleccione una subsubcategoría</option>
+                            {subsubcategorias.map(subsubcategoria => (
+                                <option key={subsubcategoria.id} value={subsubcategoria.id}>
+                                    {subsubcategoria.nombre}
+                                </option>
+                            ))}
+                        </select>
+                        </div>
+                    </div>
+
+                    <h2 className="mt-3">Información</h2>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre"
+                                value={newProducto.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Codigo</span>
+                            <input 
+                                id="codigo" 
+                                name="codigo" 
+                                value={newProducto.codigo || ''} 
+                                onChange={handleInputChange} 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username"
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12 fw-bold">
+                        <label className="form-label">Descripción</label>
+                        <textarea 
+                            id="descripcion" 
+                            name="descripcion" 
+                            value={newProducto.descripcion || ''} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-control"
+                            rows="4"
+                        />
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="enlace_ficha_tecnica" 
+                                name="enlace_ficha_tecnica" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept=".pdf,.doc,.docx"
+                                ref={fichaTecnicaInputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {fichaTecnicaPreview && (
+                                <div>
+                                    Documento actual: {typeof fichaTecnicaPreview === 'string' && fichaTecnicaPreview.includes('http') ? (
+                                        <a href={fichaTecnicaPreview} target="_blank" rel="noopener noreferrer">
+                                            Ver ficha técnica
+                                        </a>
+                                    ) : fichaTecnicaPreview}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="enlace_imagen_qr" 
+                                name="enlace_imagen_qr" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={imagenQRInputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagenQRPreview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagenQRPreview} 
+                                        alt="Vista previa QR" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <label className="form-label">Texto Markdown (opcional):</label><br />
+                        <textarea 
+                            id="texto_markdown" 
+                            name="texto_markdown" 
+                            value={newProducto.texto_markdown || ''} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-control"
+                            rows="6"
+                        />
+                    </div>
+
+                    <div className="col-3">
+                        <input 
+                            type="checkbox" 
+                            id="destacados" 
+                            name="destacados" 
+                            checked={newProducto.destacados} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-check-input"
+                        />
+                        <label className="form-check-label" >
+                            Destacado
+                        </label>
+                    </div>
+
+
+                    <div className="col-4 me-3">
+                        {editingProducto && (
+                            <button 
+                                type="button" 
+                                onClick={handleCancelEdit}
+                                disabled={loading}
+                                className="btn btn-danger w-100 "
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="col-4">
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="btn btn-primary w-100"
+                        >
+                            {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
+                        </button>
+                    </div>
+                    
+                    
+                </form>
+            </div>
+        </div>
+
+        {/* 
+        <form className="container py-4" onSubmit={handleSubmit} encType="multipart/form-data">
+            <h1 className="mb-4">CRUD Moliplast</h1>
+        
+            <h2>Imagenes</h2>
+
+            <div className="row grid gap-0 row-gap-3 mt-2"> 
+                <div className="col-12 col-sm-6 col-md-6">
+                    <div className="input-group">
+                        <input 
+                            type="file" 
+                            id="imagen_1" 
+                            name="imagen_1" 
+                            onChange={handleFileChange} 
+                            disabled={loading}
+                            accept="image/*"
+                            ref={imagen1InputRef}
+
+                            className="form-control"
+                            aria-describedby="inputGroupFileAddon04" 
+                            aria-label="Upload"
+                        />
+                        {imagen1Preview && (
+                            <div>
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagen1Preview} 
+                                    alt="Vista previa imagen 1" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="row grid gap-0 row-gap-3 mt-3"> 
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <input 
+                            type="file" 
+                            id="imagen_2" 
+                            name="imagen_2" 
+                            onChange={handleFileChange} 
+                            disabled={loading}
+                            accept="image/*"
+                            ref={imagen2InputRef}
+
+                            className="form-control"
+                            aria-describedby="inputGroupFileAddon04" 
+                            aria-label="Upload"
+                        />
+                        {imagen2Preview && (
+                            <div>
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagen2Preview} 
+                                    alt="Vista previa imagen 2" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <input 
+                            type="file" 
+                            id="imagen_3" 
+                            name="imagen_3" 
+                            onChange={handleFileChange} 
+                            disabled={loading}
+                            accept="image/*"
+                            ref={imagen3InputRef}
+
+                            className="form-control"
+                            aria-describedby="inputGroupFileAddon04" 
+                            aria-label="Upload"
+                        />
+                        {imagen3Preview && (
+                            <div>
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagen3Preview} 
+                                    alt="Vista previa imagen 3" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <input 
+                            type="file" 
+                            id="imagen_4" 
+                            name="imagen_4" 
+                            onChange={handleFileChange} 
+                            disabled={loading}
+                            accept="image/*"
+                            ref={imagen4InputRef}
+
+                            className="form-control"
+                            aria-describedby="inputGroupFileAddon04" 
+                            aria-label="Upload"
+                        />
+                        {imagen4Preview && (
+                            <div>
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagen4Preview} 
+                                    alt="Vista previa imagen 4" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <h2 className="mt-3">Seccion</h2>
+            
+            <div className="row grid gap-0 row-gap-3 mt-3">
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <label className="input-group-text">Categoria</label>
+                        <select 
+                            id="id_categoria" 
+                            name="id_categoria" 
+                            value={newProducto.id_categoria} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-select"
+                        >
+                            <option value="">Seleccione una categoría</option>
+                            {categorias.map(categoria => (
+                                <option key={categoria.id} value={categoria.id}>
+                                    {categoria.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="descripcion">Descripción:</label><br />
-                    <textarea 
-                        id="descripcion" 
-                        name="descripcion" 
-                        value={newProducto.descripcion || ''} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-                        style={{ width: '100%', padding: '8px', minHeight: '100px' }}
-                    />
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <label className="input-group-text" >Subcategoria</label>
+                        <select 
+                            id="id_subcategoria" 
+                            name="id_subcategoria" 
+                            value={newProducto.id_subcategoria} 
+                            onChange={handleInputChange} 
+                            disabled={loading || !newProducto.id_categoria}
+
+                            className="form-select"
+                        >
+                            <option value="">Seleccione una subcategoría</option>
+                            {subcategorias.map(subcategoria => (
+                                <option key={subcategoria.id} value={subcategoria.id}>
+                                    {subcategoria.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="id_categoria">Categoría:</label><br />
-                    <select 
-                        id="id_categoria" 
-                        name="id_categoria" 
-                        value={newProducto.id_categoria} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-                        style={{ width: '100%', padding: '8px' }}
-                    >
-                        <option value="">Seleccione una categoría</option>
-                        {categorias.map(categoria => (
-                            <option key={categoria.id} value={categoria.id}>
-                                {categoria.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="id_subcategoria">Subcategoría:</label><br />
-                    <select 
-                        id="id_subcategoria" 
-                        name="id_subcategoria" 
-                        value={newProducto.id_subcategoria} 
-                        onChange={handleInputChange} 
-                        disabled={loading || !newProducto.id_categoria}
-                        style={{ width: '100%', padding: '8px' }}
-                    >
-                        <option value="">Seleccione una subcategoría</option>
-                        {subcategorias.map(subcategoria => (
-                            <option key={subcategoria.id} value={subcategoria.id}>
-                                {subcategoria.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="id_subsubcategoria">Subsubcategoría:</label><br />
-                    <select 
+                <div className="col-12 col-sm-6 col-md-4">
+                    <div className="input-group">
+                        <label className="input-group-text" >Options</label>
+
+                        <select 
                         id="id_subsubcategoria" 
                         name="id_subsubcategoria" 
                         value={newProducto.id_subsubcategoria} 
                         onChange={handleInputChange} 
                         disabled={loading || !newProducto.id_subcategoria}
-                        style={{ width: '100%', padding: '8px' }}
+
+                        className="form-select"
                     >
                         <option value="">Seleccione una subsubcategoría</option>
                         {subsubcategorias.map(subsubcategoria => (
@@ -567,10 +1024,93 @@ const AdminProductos = () => {
                             </option>
                         ))}
                     </select>
+                    </div>
                 </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="destacados">Destacado:</label>
+            </div>
+
+            <h2 className="mt-3">Información</h2>
+            
+            <div className="row grid gap-0 row-gap-3 mt-3">
+                <div className="col-12 col-sm-12 col-md-8">
+                    <div className="input-group">
+                        <span className="input-group-text" id="basic-addon1">Nombre</span>
+                        <input 
+                            type="text" 
+                            id="nombre" 
+                            name="nombre"
+                            value={newProducto.nombre} 
+                            onChange={handleInputChange} 
+                            required 
+                            disabled={loading}
+
+                            className="form-control"
+                            placeholder="Username" 
+                            aria-label="Username" 
+                            aria-describedby="basic-addon1"
+                        />
+                    </div>
+                </div>
+                <div className="col-12 col-sm-12 col-md-4">
+                    <div className="input-group">
+                        <span className="input-group-text" id="basic-addon1">Codigo</span>
+                        <input 
+                            id="codigo" 
+                            name="codigo" 
+                            value={newProducto.codigo || ''} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-control"
+                            placeholder="Username"
+                            aria-label="Username" 
+                            aria-describedby="basic-addon1"
+                        />
+                    </div>
+                </div>
+                <div className="col-12 fw-bold">
+                    <label className="form-label">Descripción</label>
+                    <textarea 
+                        id="descripcion" 
+                        name="descripcion" 
+                        value={newProducto.descripcion || ''} 
+                        onChange={handleInputChange} 
+                        disabled={loading}
+
+                        className="form-control"
+                        rows="4"
+                    />
+                </div>
+
+                <div className="col-12 col-sm-12 col-md-8">
+                    <div className="input-group">
+                        <input 
+                            type="file" 
+                            id="enlace_ficha_tecnica" 
+                            name="enlace_ficha_tecnica" 
+                            onChange={handleFileChange} 
+                            disabled={loading}
+                            accept=".pdf,.doc,.docx"
+                            ref={fichaTecnicaInputRef}
+
+                            className="form-control"
+                            aria-describedby="inputGroupFileAddon04" 
+                            aria-label="Upload"
+                        />
+                        {fichaTecnicaPreview && (
+                            <div>
+                                Documento actual: {typeof fichaTecnicaPreview === 'string' && fichaTecnicaPreview.includes('http') ? (
+                                    <a href={fichaTecnicaPreview} target="_blank" rel="noopener noreferrer">
+                                        Ver ficha técnica
+                                    </a>
+                                ) : fichaTecnicaPreview}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="row mt-4 justify-content-end">
+                <div className="form-check">
                     <input 
                         type="checkbox" 
                         id="destacados" 
@@ -578,104 +1118,16 @@ const AdminProductos = () => {
                         checked={newProducto.destacados} 
                         onChange={handleInputChange} 
                         disabled={loading}
-                        style={{ marginLeft: '10px' }}
+
+                        className="form-check-input"
                     />
+                    <label className="form-check-label" >
+                        Destacado
+                    </label>
                 </div>
-                
+
                 <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="imagen_1">Imagen Principal:</label><br />
-                    <input 
-                        type="file" 
-                        id="imagen_1" 
-                        name="imagen_1" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept="image/*"
-                        ref={imagen1InputRef}
-                    />
-                    {imagen1Preview && (
-                        <div>
-                            <p>Imagen actual:</p>
-                            <img 
-                                src={imagen1Preview} 
-                                alt="Vista previa imagen 1" 
-                                style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="imagen_2">Imagen 2 (opcional):</label><br />
-                    <input 
-                        type="file" 
-                        id="imagen_2" 
-                        name="imagen_2" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept="image/*"
-                        ref={imagen2InputRef}
-                    />
-                    {imagen2Preview && (
-                        <div>
-                            <p>Imagen actual:</p>
-                            <img 
-                                src={imagen2Preview} 
-                                alt="Vista previa imagen 2" 
-                                style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="imagen_3">Imagen 3 (opcional):</label><br />
-                    <input 
-                        type="file" 
-                        id="imagen_3" 
-                        name="imagen_3" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept="image/*"
-                        ref={imagen3InputRef}
-                    />
-                    {imagen3Preview && (
-                        <div>
-                            <p>Imagen actual:</p>
-                            <img 
-                                src={imagen3Preview} 
-                                alt="Vista previa imagen 3" 
-                                style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="imagen_4">Imagen 4 (opcional):</label><br />
-                    <input 
-                        type="file" 
-                        id="imagen_4" 
-                        name="imagen_4" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept="image/*"
-                        ref={imagen4InputRef}
-                    />
-                    {imagen4Preview && (
-                        <div>
-                            <p>Imagen actual:</p>
-                            <img 
-                                src={imagen4Preview} 
-                                alt="Vista previa imagen 4" 
-                                style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="enlace_imagen_qr">Imagen QR:</label><br />
+                    <label >Imagen QR:</label><br />
                     <input 
                         type="file" 
                         id="enlace_imagen_qr" 
@@ -697,30 +1149,9 @@ const AdminProductos = () => {
                     )}
                 </div>
                 
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="enlace_ficha_tecnica">Ficha Técnica (opcional):</label><br />
-                    <input 
-                        type="file" 
-                        id="enlace_ficha_tecnica" 
-                        name="enlace_ficha_tecnica" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept=".pdf,.doc,.docx"
-                        ref={fichaTecnicaInputRef}
-                    />
-                    {fichaTecnicaPreview && (
-                        <div>
-                            Documento actual: {typeof fichaTecnicaPreview === 'string' && fichaTecnicaPreview.includes('http') ? (
-                                <a href={fichaTecnicaPreview} target="_blank" rel="noopener noreferrer">
-                                    Ver ficha técnica
-                                </a>
-                            ) : fichaTecnicaPreview}
-                        </div>
-                    )}
-                </div>
                 
                 <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="texto_markdown">Texto Markdown (opcional):</label><br />
+                    <label >Texto Markdown (opcional):</label><br />
                     <textarea 
                         id="texto_markdown" 
                         name="texto_markdown" 
@@ -731,55 +1162,35 @@ const AdminProductos = () => {
                     />
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="codigo">Codigo (opcional):</label><br />
-                    <textarea 
-                        id="codigo" 
-                        name="codigo" 
-                        value={newProducto.codigo || ''} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-                        style={{ width: '100%', padding: '8px', minHeight: '150px' }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: '15px' }}>
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        style={{ 
-                            padding: '10px 15px', 
-                            backgroundColor: '#4CAF50', 
-                            color: 'white', 
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                        }}
-                    >
-                        {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
-                    </button>
-                    
-                    {editingProducto && (
+                <div className="row mt-4 justify-content-end">
+                    <div className="col-3 col-sm-3 col-md-2">
                         <button 
-                            type="button" 
-                            onClick={handleCancelEdit}
+                            type="submit" 
                             disabled={loading}
-                            style={{ 
-                                marginLeft: '10px',
-                                padding: '10px 15px',
-                                backgroundColor: '#f44336',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: loading ? 'not-allowed' : 'pointer'
-                            }}
+                            className="btn btn-primary w-100"
                         >
-                            Cancelar Edición
+                            {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
                         </button>
-                    )}
+                    </div>
+                    <div className="col-3 col-sm-3 col-md-2">
+                        {editingProducto && (
+                            <button 
+                                type="button" 
+                                onClick={handleCancelEdit}
+                                disabled={loading}
+                                className="btn btn-primary w-100"
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
                 </div>
-            </form>
+                
+            </div>
 
+        </form>
+        */}
+        <div>
             <h2>Lista de Productos</h2>
             {loading && <p>Cargando...</p>}
             
@@ -858,6 +1269,7 @@ const AdminProductos = () => {
                 </table>
             </div>
         </div>
+        </>
     );
 };
 

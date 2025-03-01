@@ -1,0 +1,19 @@
+.contenedor_total_administrador{
+    background-color: red;
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+
+    display: flex;
+
+    >.contenedor_registros{
+        background-color: green;
+        height: 100%;
+        width: 60%;
+    }
+
+    >.contenedor_formulario{
+        background-color: yellow;
+        width: 40%;
+    }
+}
