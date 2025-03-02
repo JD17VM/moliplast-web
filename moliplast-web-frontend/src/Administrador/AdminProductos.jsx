@@ -482,9 +482,65 @@ const AdminProductos = () => {
                 {success}
             </div>
         )}
+        <h2 className='mt-4 mb-5'>Lista de Productos</h2>
+        {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
             <div className={styles.contenedor_registros}>
-                
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th style={{width: "150px"}}>Nombre</th>
+                            <th style={{width: "150px"}}>Categoría</th>
+                            <th style={{width: "80px"}}>Imagen</th>
+                            <th style={{width: "30px"}}>Dest</th>
+                            <th style={{width: "60px"}}>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {productos.length === 0 ? (
+                            <tr>
+                                <td colSpan="5" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                    No hay productos disponibles
+                                </td>
+                            </tr>
+                        ) : (
+                            productos.map((producto) => (
+                                <tr key={producto.id}>
+                                <td>{producto.nombre}</td>
+                                <td>{producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}</td>
+                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                    {producto.imagen_1 ? (
+                                        <img 
+                                            src={producto.imagen_1.startsWith('http') ? producto.imagen_1 : `${BASE_URL_API}${producto.imagen_1}`}
+                                            alt={`Imagen de ${producto.nombre}`} 
+                                            style={{ maxWidth: '100px', maxHeight: '100px' }} 
+                                        />
+                                    ) : 'No disponible'}
+                                </td>
+                                <td>{producto.destacados ? '✓' : '✗'}</td>
+                                <td>
+                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%"}}>
+                                        <button 
+                                            onClick={() => handleEdit(producto)} 
+                                            disabled={loading}
+                                            className="btn btn-primary mb-3"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(producto.id)} 
+                                            disabled={loading}
+                                            className="btn btn-danger"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            ))
+                        )}
+                        </tbody>
+                </table>
             </div>
             <div className={styles.contenedor_formulario}>
                 <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
@@ -835,438 +891,6 @@ const AdminProductos = () => {
                     
                     
                 </form>
-            </div>
-        </div>
-
-        {/* 
-        <form className="container py-4" onSubmit={handleSubmit} encType="multipart/form-data">
-            <h1 className="mb-4">CRUD Moliplast</h1>
-        
-            <h2>Imagenes</h2>
-
-            <div className="row grid gap-0 row-gap-3 mt-2"> 
-                <div className="col-12 col-sm-6 col-md-6">
-                    <div className="input-group">
-                        <input 
-                            type="file" 
-                            id="imagen_1" 
-                            name="imagen_1" 
-                            onChange={handleFileChange} 
-                            disabled={loading}
-                            accept="image/*"
-                            ref={imagen1InputRef}
-
-                            className="form-control"
-                            aria-describedby="inputGroupFileAddon04" 
-                            aria-label="Upload"
-                        />
-                        {imagen1Preview && (
-                            <div>
-                                <p>Imagen actual:</p>
-                                <img 
-                                    src={imagen1Preview} 
-                                    alt="Vista previa imagen 1" 
-                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="row grid gap-0 row-gap-3 mt-3"> 
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <input 
-                            type="file" 
-                            id="imagen_2" 
-                            name="imagen_2" 
-                            onChange={handleFileChange} 
-                            disabled={loading}
-                            accept="image/*"
-                            ref={imagen2InputRef}
-
-                            className="form-control"
-                            aria-describedby="inputGroupFileAddon04" 
-                            aria-label="Upload"
-                        />
-                        {imagen2Preview && (
-                            <div>
-                                <p>Imagen actual:</p>
-                                <img 
-                                    src={imagen2Preview} 
-                                    alt="Vista previa imagen 2" 
-                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <input 
-                            type="file" 
-                            id="imagen_3" 
-                            name="imagen_3" 
-                            onChange={handleFileChange} 
-                            disabled={loading}
-                            accept="image/*"
-                            ref={imagen3InputRef}
-
-                            className="form-control"
-                            aria-describedby="inputGroupFileAddon04" 
-                            aria-label="Upload"
-                        />
-                        {imagen3Preview && (
-                            <div>
-                                <p>Imagen actual:</p>
-                                <img 
-                                    src={imagen3Preview} 
-                                    alt="Vista previa imagen 3" 
-                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <input 
-                            type="file" 
-                            id="imagen_4" 
-                            name="imagen_4" 
-                            onChange={handleFileChange} 
-                            disabled={loading}
-                            accept="image/*"
-                            ref={imagen4InputRef}
-
-                            className="form-control"
-                            aria-describedby="inputGroupFileAddon04" 
-                            aria-label="Upload"
-                        />
-                        {imagen4Preview && (
-                            <div>
-                                <p>Imagen actual:</p>
-                                <img 
-                                    src={imagen4Preview} 
-                                    alt="Vista previa imagen 4" 
-                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <h2 className="mt-3">Seccion</h2>
-            
-            <div className="row grid gap-0 row-gap-3 mt-3">
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <label className="input-group-text">Categoria</label>
-                        <select 
-                            id="id_categoria" 
-                            name="id_categoria" 
-                            value={newProducto.id_categoria} 
-                            onChange={handleInputChange} 
-                            disabled={loading}
-
-                            className="form-select"
-                        >
-                            <option value="">Seleccione una categoría</option>
-                            {categorias.map(categoria => (
-                                <option key={categoria.id} value={categoria.id}>
-                                    {categoria.nombre}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <label className="input-group-text" >Subcategoria</label>
-                        <select 
-                            id="id_subcategoria" 
-                            name="id_subcategoria" 
-                            value={newProducto.id_subcategoria} 
-                            onChange={handleInputChange} 
-                            disabled={loading || !newProducto.id_categoria}
-
-                            className="form-select"
-                        >
-                            <option value="">Seleccione una subcategoría</option>
-                            {subcategorias.map(subcategoria => (
-                                <option key={subcategoria.id} value={subcategoria.id}>
-                                    {subcategoria.nombre}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                <div className="col-12 col-sm-6 col-md-4">
-                    <div className="input-group">
-                        <label className="input-group-text" >Options</label>
-
-                        <select 
-                        id="id_subsubcategoria" 
-                        name="id_subsubcategoria" 
-                        value={newProducto.id_subsubcategoria} 
-                        onChange={handleInputChange} 
-                        disabled={loading || !newProducto.id_subcategoria}
-
-                        className="form-select"
-                    >
-                        <option value="">Seleccione una subsubcategoría</option>
-                        {subsubcategorias.map(subsubcategoria => (
-                            <option key={subsubcategoria.id} value={subsubcategoria.id}>
-                                {subsubcategoria.nombre}
-                            </option>
-                        ))}
-                    </select>
-                    </div>
-                </div>
-            </div>
-
-            <h2 className="mt-3">Información</h2>
-            
-            <div className="row grid gap-0 row-gap-3 mt-3">
-                <div className="col-12 col-sm-12 col-md-8">
-                    <div className="input-group">
-                        <span className="input-group-text" id="basic-addon1">Nombre</span>
-                        <input 
-                            type="text" 
-                            id="nombre" 
-                            name="nombre"
-                            value={newProducto.nombre} 
-                            onChange={handleInputChange} 
-                            required 
-                            disabled={loading}
-
-                            className="form-control"
-                            placeholder="Username" 
-                            aria-label="Username" 
-                            aria-describedby="basic-addon1"
-                        />
-                    </div>
-                </div>
-                <div className="col-12 col-sm-12 col-md-4">
-                    <div className="input-group">
-                        <span className="input-group-text" id="basic-addon1">Codigo</span>
-                        <input 
-                            id="codigo" 
-                            name="codigo" 
-                            value={newProducto.codigo || ''} 
-                            onChange={handleInputChange} 
-                            disabled={loading}
-
-                            className="form-control"
-                            placeholder="Username"
-                            aria-label="Username" 
-                            aria-describedby="basic-addon1"
-                        />
-                    </div>
-                </div>
-                <div className="col-12 fw-bold">
-                    <label className="form-label">Descripción</label>
-                    <textarea 
-                        id="descripcion" 
-                        name="descripcion" 
-                        value={newProducto.descripcion || ''} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-
-                        className="form-control"
-                        rows="4"
-                    />
-                </div>
-
-                <div className="col-12 col-sm-12 col-md-8">
-                    <div className="input-group">
-                        <input 
-                            type="file" 
-                            id="enlace_ficha_tecnica" 
-                            name="enlace_ficha_tecnica" 
-                            onChange={handleFileChange} 
-                            disabled={loading}
-                            accept=".pdf,.doc,.docx"
-                            ref={fichaTecnicaInputRef}
-
-                            className="form-control"
-                            aria-describedby="inputGroupFileAddon04" 
-                            aria-label="Upload"
-                        />
-                        {fichaTecnicaPreview && (
-                            <div>
-                                Documento actual: {typeof fichaTecnicaPreview === 'string' && fichaTecnicaPreview.includes('http') ? (
-                                    <a href={fichaTecnicaPreview} target="_blank" rel="noopener noreferrer">
-                                        Ver ficha técnica
-                                    </a>
-                                ) : fichaTecnicaPreview}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="row mt-4 justify-content-end">
-                <div className="form-check">
-                    <input 
-                        type="checkbox" 
-                        id="destacados" 
-                        name="destacados" 
-                        checked={newProducto.destacados} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-
-                        className="form-check-input"
-                    />
-                    <label className="form-check-label" >
-                        Destacado
-                    </label>
-                </div>
-
-                <div style={{ marginBottom: '15px' }}>
-                    <label >Imagen QR:</label><br />
-                    <input 
-                        type="file" 
-                        id="enlace_imagen_qr" 
-                        name="enlace_imagen_qr" 
-                        onChange={handleFileChange} 
-                        disabled={loading}
-                        accept="image/*"
-                        ref={imagenQRInputRef}
-                    />
-                    {imagenQRPreview && (
-                        <div>
-                            <p>Imagen actual:</p>
-                            <img 
-                                src={imagenQRPreview} 
-                                alt="Vista previa QR" 
-                                style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                
-                
-                <div style={{ marginBottom: '15px' }}>
-                    <label >Texto Markdown (opcional):</label><br />
-                    <textarea 
-                        id="texto_markdown" 
-                        name="texto_markdown" 
-                        value={newProducto.texto_markdown || ''} 
-                        onChange={handleInputChange} 
-                        disabled={loading}
-                        style={{ width: '100%', padding: '8px', minHeight: '150px' }}
-                    />
-                </div>
-
-                <div className="row mt-4 justify-content-end">
-                    <div className="col-3 col-sm-3 col-md-2">
-                        <button 
-                            type="submit" 
-                            disabled={loading}
-                            className="btn btn-primary w-100"
-                        >
-                            {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
-                        </button>
-                    </div>
-                    <div className="col-3 col-sm-3 col-md-2">
-                        {editingProducto && (
-                            <button 
-                                type="button" 
-                                onClick={handleCancelEdit}
-                                disabled={loading}
-                                className="btn btn-primary w-100"
-                            >
-                                Cancelar Edición
-                            </button>
-                        )}
-                    </div>
-                </div>
-                
-            </div>
-
-        </form>
-        */}
-        <div>
-            <h2>Lista de Productos</h2>
-            {loading && <p>Cargando...</p>}
-            
-            <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr>
-                            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Categoría</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Imagen</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Destacado</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {productos.length === 0 ? (
-                            <tr>
-                                <td colSpan="5" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                    No hay productos disponibles
-                                </td>
-                            </tr>
-                        ) : (
-                            productos.map((producto) => (
-                                <tr key={producto.id}>
-                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.nombre}</td>
-                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                        {producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}
-                                    </td>
-                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                        {producto.imagen_1 ? (
-                                            <img 
-                                                src={producto.imagen_1.startsWith('http') ? producto.imagen_1 : `${BASE_URL_API}${producto.imagen_1}`}
-                                                alt={`Imagen de ${producto.nombre}`} 
-                                                style={{ maxWidth: '100px', maxHeight: '100px' }} 
-                                            />
-                                        ) : 'No disponible'}
-                                    </td>
-                                    <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                        {producto.destacados ? '✓' : '✗'}
-                                    </td>
-                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                        <button 
-                                            onClick={() => handleEdit(producto)} 
-                                            disabled={loading}
-                                            style={{ 
-                                                marginRight: '5px',
-                                                padding: '5px 10px',
-                                                backgroundColor: '#2196F3',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: loading ? 'not-allowed' : 'pointer'
-                                            }}
-                                        >
-                                            Editar
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(producto.id)} 
-                                            disabled={loading}
-                                            style={{ 
-                                                padding: '5px 10px',
-                                                backgroundColor: '#f44336',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: loading ? 'not-allowed' : 'pointer'
-                                            }}
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
             </div>
         </div>
         </>

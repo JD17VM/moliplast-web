@@ -1,5 +1,5 @@
 .contenedor_total_administrador{
-    background-color: red;
+    //background-color: red;
     width: 100%;
     max-width: 1300px;
     margin: 0 auto;
@@ -7,13 +7,33 @@
     display: flex;
 
     >.contenedor_registros{
-        background-color: green;
+        //background-color: green;
         height: 100%;
         width: 60%;
     }
 
     >.contenedor_formulario{
-        background-color: yellow;
+        //background-color: yellow;
+        padding: 0 1rem;
         width: 40%;
+        border-left: 1px solid rgb(122, 122, 122);
     }
+}
+
+@media only screen and (max-width: 900px){
+    .contenedor_total_administrador{
+
+        flex-direction: column;
+    
+        >.contenedor_registros{
+            height: 70vh;
+            width: 100%;
+            overflow: scroll;
+        }
+    
+        >.contenedor_formulario{
+            width: 100%;
+        }
+    }
+    
 }
