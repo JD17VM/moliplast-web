@@ -481,7 +481,7 @@ class ProductoController extends Controller
             $fichaTecnicaUrl = Storage::url($fichaTecnicaPath);
         }
 
-        $qrImagePath = null;
+        $qrImageUrl = null;
         if ($request->hasFile('enlace_imagen_qr')) {
             $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
             $qrImageUrl = Storage::url($qrImagePath);
