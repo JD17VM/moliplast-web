@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
@@ -201,110 +202,145 @@ const AdminSubsubcategorias = () => {
     };
 
     return (
-        <div>
-            <h1>Admin Subsubcategorías</h1>
+        <>
+        {error && (
+            <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {error}
+            </div>
+        )}
             
-            {error && (
-                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {error}
-                </div>
-            )}
-            
-            {success && (
-                <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {success}
-                </div>
-            )}
+        {success && (
+              <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                 {success}
+            </div>
+        )}
 
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="nombre">Nombre:</label><br />
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    name="nombre" 
-                    value={newSubsubcategoria.nombre} 
-                    onChange={handleInputChange} 
-                    required 
-                    disabled={loading}
-                /><br /><br />
+        <h2 className='mt-4 mb-3'>Lista de Subcategorías</h2>
 
-                <label htmlFor="id_subcategoria">Subcategoría:</label><br />
-                <select
-                    id="id_subcategoria"
-                    name="id_subcategoria"
-                    value={newSubsubcategoria.id_subcategoria}
-                    onChange={handleInputChange}
-                    required
-                    disabled={loading}
-                >
-                    <option value="">Seleccionar subcategoría</option>
-                    {subcategorias.map((subcategoria) => (
-                        <option key={subcategoria.id} value={subcategoria.id}>
-                            {subcategoria.nombre}
-                        </option>
-                    ))}
-                </select><br /><br />
-
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Procesando...' : (editingSubsubcategoria ? 'Actualizar' : 'Guardar')}
-                </button>
-                {editingSubsubcategoria && (
-                    <button 
-                        type="button" 
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        style={{ marginLeft: '10px' }}
-                    >
-                        Cancelar Edición
-                    </button>
-                )}
-            </form>
-
-            <h2>Lista de Subsubcategorías</h2>
-            {loading && <p>Cargando...</p>}
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Subcategoría</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {subsubcategorias.length === 0 ? (
+        {loading && <p>Cargando...</p>}
+        <div className={styles.contenedor_total_administrador}>
+            <div className={styles.contenedor_registros}>
+                <table className="table table-striped table-responsive align-midle">
+                    <thead className="table-dark">
                         <tr>
-                            <td colSpan="3" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                No hay subsubcategorías disponibles
-                            </td>
+                            <th scope="col" style={{width: "150px"}}>Nombre</th>
+                            <th scope="col" style={{width: "150px"}}>SubCategoría</th>
+                            <th scope="col" style={{width: "60px"}}>Acciones</th>
                         </tr>
-                    ) : (
-                        subsubcategorias.map((subsubcategoria) => (
-                            <tr key={subsubcategoria.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{subsubcategoria.nombre}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    {getSubcategoryName(subsubcategoria.id_subcategoria)}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button 
-                                        onClick={() => handleEdit(subsubcategoria)} 
-                                        disabled={loading}
-                                        style={{ marginRight: '5px' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(subsubcategoria.id)} 
-                                        disabled={loading}
-                                    >
-                                        Eliminar
-                                    </button>
+                    </thead>
+                    <tbody>
+                        {subsubcategorias.length === 0 ? (
+                            <tr>
+                                <td colSpan="3" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                    No hay subsubcategorías disponibles
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        ) : (
+                            subsubcategorias.map((subsubcategoria) => (
+                                <tr key={subsubcategoria.id}>
+                                <td>{subsubcategoria.nombre}</td>
+                                <td>
+                                    {getSubcategoryName(subsubcategoria.id_subcategoria)}
+                                </td>
+                                <td>
+                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+                                        <button 
+                                            onClick={() => handleEdit(subsubcategoria)} 
+                                            disabled={loading}
+                                            className="btn btn-primary mb-1 w-50"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(subsubcategoria.id)} 
+                                            disabled={loading}
+                                            className="btn btn-danger w-50"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            ))
+                        )}
+                        </tbody>
+                </table>
+            </div>
+
+            <div className={styles.contenedor_formulario}>
+                <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                    <h3 className="mt-3">Información</h3>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                value={newSubsubcategoria.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <label className="input-group-text">Categoria</label>
+                            <select
+                                id="id_subcategoria"
+                                name="id_subcategoria"
+                                value={newSubsubcategoria.id_subcategoria}
+                                onChange={handleInputChange}
+                                required
+                                disabled={loading}
+
+                                className="form-select"
+                            >
+                                <option value="">Seleccionar subcategoría</option>
+                                {subcategorias.map((subcategoria) => (
+                                    <option key={subcategoria.id} value={subcategoria.id}>
+                                        {subcategoria.nombre}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="col-4 me-3">
+                        {editingSubsubcategoria && (
+                            <button 
+                                type="button" 
+                                onClick={handleCancelEdit}
+                                disabled={loading}
+                                className="btn btn-danger w-100 "
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="col-4">
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="btn btn-primary w-100"
+                        >
+                            {loading ? 'Procesando...' : (editingSubsubcategoria ? 'Actualizar' : 'Guardar')}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
+        </>
     );
 };
 

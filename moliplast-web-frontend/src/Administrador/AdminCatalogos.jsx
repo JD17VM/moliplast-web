@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
@@ -224,8 +225,8 @@ const AdminCatalogos = () => {
     };
 
     return (
+        <>
         <div>
-            <h1>Admin Catálogos</h1>
             
             {error && (
                 <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
@@ -239,134 +240,179 @@ const AdminCatalogos = () => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <label htmlFor="nombre">Nombre:</label><br />
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    name="nombre" 
-                    value={newCatalogo.nombre} 
-                    onChange={handleInputChange} 
-                    required 
-                    disabled={loading}
-                /><br /><br />
+            <h2 className='mt-4 mb-3'>Lista de Catalogos</h2>
 
-                <label htmlFor="enlace_documento">Documento:</label><br />
-                <input 
-                    type="file" 
-                    id="enlace_documento" 
-                    name="enlace_documento" 
-                    onChange={handleFileChange} 
-                    required={!editingCatalogo}
-                    disabled={loading}
-                    ref={documentoInputRef}
-                /><br />
-                {documentoPreview && (
-                    <div>
-                        Documento actual: {typeof documentoPreview === 'string' && documentoPreview.includes('http') ? (
-                            <a href={documentoPreview} target="_blank" rel="noopener noreferrer">
-                                Ver documento
-                            </a>
-                        ) : documentoPreview}
-                    </div>
-                )}<br />
-
-                <label htmlFor="enlace_imagen_portada">Imagen Portada:</label><br />
-                <input 
-                    type="file" 
-                    id="enlace_imagen_portada" 
-                    name="enlace_imagen_portada" 
-                    onChange={handleFileChange} 
-                    required={!editingCatalogo}
-                    disabled={loading}
-                    accept="image/*"
-                    ref={imagenInputRef}
-                /><br />
-                {imagenPreview && (
-                    <div>
-                        <p>Imagen actual:</p>
-                        <img 
-                            src={imagenPreview} 
-                            alt="Vista previa" 
-                            style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                        />
-                    </div>
-                )}<br />
-
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Procesando...' : (editingCatalogo ? 'Actualizar' : 'Guardar')}
-                </button>
-                {editingCatalogo && (
-                    <button 
-                        type="button" 
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        style={{ marginLeft: '10px' }}
-                    >
-                        Cancelar Edición
-                    </button>
-                )}
-            </form>
-
-            <h2>Lista de Catálogos</h2>
             {loading && <p>Cargando...</p>}
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Documento</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Imagen Portada</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {catalogos.length === 0 ? (
-                        <tr>
-                            <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                No hay catálogos disponibles
-                            </td>
-                        </tr>
-                    ) : (
-                        catalogos.map((catalogo) => (
-                            <tr key={catalogo.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{catalogo.nombre}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    {catalogo.enlace_documento ? (
-                                        <a href={`${BASE_URL_API}${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
-                                            Ver documento
-                                        </a>
-                                    ) : 'No disponible'}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    {catalogo.enlace_imagen_portada ? (
-                                        <img 
-                                            src={`${BASE_URL_API}${catalogo.enlace_imagen_portada}`} 
-                                            alt={`Portada de ${catalogo.nombre}`} 
-                                            style={{ maxWidth: '100px', maxHeight: '100px' }} 
-                                        />
-                                    ) : 'No disponible'}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button 
-                                        onClick={() => handleEdit(catalogo)} 
-                                        disabled={loading}
-                                        style={{ marginRight: '5px' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(catalogo.id)} 
-                                        disabled={loading}
-                                    >
-                                        Eliminar
-                                    </button>
-                                </td>
+            <div className={styles.contenedor_total_administrador}>
+                <div className={styles.contenedor_registros}>
+                    <table className="table table-striped table-responsive align-midle">
+                        <thead className="table-dark">
+                            <tr>
+                                <th scope="col" style={{width: "150px"}}>Nombre</th>
+                                <th scope="col" style={{width: "80px"}}>Documento</th>
+                                <th scope="col" style={{width: "80px"}}>Imagen Portada</th>
+                                <th scope="col" style={{width: "60px"}}>Acciones</th>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            {catalogos.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                        No hay catálogos disponibles
+                                    </td>
+                                </tr>
+                            ) : (
+                                catalogos.map((catalogo) => (
+                                    <tr key={catalogo.id}>
+                                    <td>{catalogo.nombre}</td>
+                                    <td>
+                                        {catalogo.enlace_documento ? (
+                                            <a href={`${BASE_URL_API}${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
+                                                Ver documento
+                                            </a>
+                                        ) : 'No disponible'}
+                                    </td>
+                                    <td>
+                                        {catalogo.enlace_imagen_portada ? (
+                                            <img 
+                                                src={`${BASE_URL_API}${catalogo.enlace_imagen_portada}`} 
+                                                alt={`Portada de ${catalogo.nombre}`} 
+                                            />
+                                        ) : 'No disponible'}
+                                    </td>
+                                    <td>
+                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+                                            <button 
+                                                onClick={() => handleEdit(catalogo)} 
+                                                disabled={loading}
+                                                className="btn btn-primary mb-1 w-50"
+                                            >
+                                                Editar
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(catalogo.id)} 
+                                                disabled={loading}
+                                                className="btn btn-danger w-50"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                ))
+                            )}
+                            </tbody>
+                    </table>
+                </div>
+
+                <div className={styles.contenedor_formulario}>
+                    <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                        <h3 className="mt-3">Información</h3>
+
+                        <div className="col-12">
+                            <div className="input-group">
+                                <span className="input-group-text" id="basic-addon1">Nombre</span>
+                                <input 
+                                    type="text" 
+                                    id="nombre" 
+                                    name="nombre" 
+                                    value={newCatalogo.nombre} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                    disabled={loading}
+
+                                    className="form-control"
+                                    placeholder="Username" 
+                                    aria-label="Username" 
+                                    aria-describedby="basic-addon1"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="col-12">
+                            <div className="input-group">
+                                <input 
+                                    type="file" 
+                                    id="enlace_imagen_portada" 
+                                    name="enlace_imagen_portada" 
+                                    onChange={handleFileChange} 
+                                    required={!editingCatalogo}
+                                    disabled={loading}
+                                    accept="image/*"
+                                    ref={imagenInputRef}
+
+                                    className="form-control"
+                                    aria-describedby="inputGroupFileAddon04" 
+                                    aria-label="Upload"
+                                />
+                                {imagenPreview && (
+                                    <div>
+                                        <p>Imagen actual:</p>
+                                        <img 
+                                            src={imagenPreview} 
+                                            alt="Vista previa" 
+                                            style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="col-12">
+                            <div className="input-group">
+                                <input 
+                                    type="file" 
+                                    id="enlace_documento" 
+                                    name="enlace_documento" 
+                                    onChange={handleFileChange} 
+                                    required={!editingCatalogo}
+                                    disabled={loading}
+                                    accept=".pdf,.doc,.docx"
+                                    ref={documentoInputRef}
+
+                                    className="form-control"
+                                    aria-describedby="inputGroupFileAddon04" 
+                                    aria-label="Upload"
+                                />
+                                {documentoPreview && (
+                                    <div>
+                                        Documento actual: {typeof documentoPreview === 'string' && documentoPreview.includes('http') ? (
+                                            <a href={documentoPreview} target="_blank" rel="noopener noreferrer">
+                                                Ver documento
+                                            </a>
+                                        ) : documentoPreview}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="col-4 me-3">
+                            {editingCatalogo && (
+                                <button 
+                                    type="button" 
+                                    onClick={handleCancelEdit}
+                                    disabled={loading}
+                                    className="btn btn-danger w-100 "
+                                >
+                                    Cancelar Edición
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="col-4">
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className="btn btn-primary w-100"
+                            >
+                                {loading ? 'Procesando...' : (editingCatalogo ? 'Actualizar' : 'Guardar')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
+        </>
     );
 };
 

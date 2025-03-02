@@ -1,4 +1,5 @@
 import React, { useState, useEffect , useRef} from 'react';
+import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
@@ -203,140 +204,179 @@ const AdminServicios = () => {
     };
 
     return (
-        <div>
-            <h1>Admin Servicios</h1>
-            
-            {error && (
+        <>
+        {error && (
                 <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
                     {error}
                 </div>
             )}
             
-            {success && (
-                <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {success}
-                </div>
-            )}
+        {success && (
+            <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {success}
+            </div>
+        )}
 
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <label htmlFor="titulo">Título:</label><br />
-                <input 
-                    type="text" 
-                    id="titulo" 
-                    name="titulo" 
-                    value={newServicio.titulo} 
-                    onChange={handleInputChange} 
-                    required 
-                    disabled={loading}
-                /><br /><br />
+        <h2 className='mt-4 mb-3'>Lista de Servicios</h2>
 
-                <label htmlFor="descripcion">Descripción:</label><br />
-                <textarea 
-                    id="descripcion" 
-                    name="descripcion" 
-                    value={newServicio.descripcion} 
-                    onChange={handleInputChange} 
-                    required 
-                    disabled={loading}
-                    rows="5"
-                    cols="50"
-                ></textarea><br /><br />
-
-                <label htmlFor="enlace_imagen">Imagen:</label><br />
-                <input 
-                    type="file" 
-                    id="enlace_imagen" 
-                    name="enlace_imagen" 
-                    onChange={handleFileChange} 
-                    required={!editingServicio}
-                    disabled={loading}
-                    accept="image/*"
-                    ref={fileInputRef} // 👈 Aquí agregas la referencia
-                />
-                <br />
-                {imagenPreview && (
-                    <div>
-                        <p>Imagen actual:</p>
-                        <img 
-                            src={imagenPreview}
-                            alt="Vista previa" 
-                            style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                        />
-                    </div>
-                )}<br />
-
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Procesando...' : (editingServicio ? 'Actualizar' : 'Guardar')}
-                </button>
-                {editingServicio && (
-                    <button 
-                        type="button" 
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        style={{ marginLeft: '10px' }}
-                    >
-                        Cancelar Edición
-                    </button>
-                )}
-            </form>
-
-            <h2>Lista de Servicios</h2>
-            {loading && <p>Cargando...</p>}
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Título</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Descripción</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Imagen</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {servicios.length === 0 ? (
+        {loading && <p>Cargando...</p>}
+        <div className={styles.contenedor_total_administrador}>
+            <div className={styles.contenedor_registros}>
+                <table className="table table-striped table-responsive align-midle">
+                    <thead className="table-dark">
                         <tr>
-                            <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                No hay servicios disponibles
-                            </td>
+                            <th scope="col" style={{width: "150px"}}>Título</th>
+                            <th scope="col" style={{width: "150px"}}>Descripción</th>
+                            <th scope="col" style={{width: "80px"}}>Imagen</th>
+                            <th scope="col" style={{width: "60px"}}>Acciones</th>
                         </tr>
-                    ) : (
-                        servicios.map((servicio) => (
-                            <tr key={servicio.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{servicio.titulo}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                    </thead>
+                    <tbody>
+                        {servicios.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                    No hay servicios disponibles
+                                </td>
+                            </tr>
+                        ) : (
+                            servicios.map((servicio) => (
+                                <tr key={servicio.id}>
+                                <td>{servicio.titulo}</td>
+                                <td>
                                     {servicio.descripcion.length > 100 
                                         ? `${servicio.descripcion.substring(0, 100)}...` 
                                         : servicio.descripcion}
                                 </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                <td>
                                     {servicio.enlace_imagen ? (
                                         <img 
                                             src={`${BASE_URL_API}${servicio.enlace_imagen}`} 
                                             alt={`Imagen de ${servicio.titulo}`} 
-                                            style={{ maxWidth: '100px', maxHeight: '100px' }} 
                                         />
                                     ) : 'No disponible'}
                                 </td>
+
+
                                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button 
-                                        onClick={() => handleEdit(servicio)} 
-                                        disabled={loading}
-                                        style={{ marginRight: '5px' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(servicio.id)} 
-                                        disabled={loading}
-                                    >
-                                        Eliminar
-                                    </button>
+                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+                                        <button 
+                                            onClick={() => handleEdit(servicio)} 
+                                            disabled={loading}
+                                            className="btn btn-primary mb-1 w-50"
+                                        >
+                                            Editar
+                                        </button>
+
+                                        <button 
+                                            onClick={() => handleDelete(servicio.id)} 
+                                            disabled={loading}
+                                            className="btn btn-danger w-50"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <div className={styles.contenedor_formulario}>
+                <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                    <h3 className="mt-3">Información</h3>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+                            <input 
+                                type="text" 
+                                id="titulo" 
+                                name="titulo" 
+                                value={newServicio.titulo} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12 fw-bold">
+                        <label className="form-label">Descripción</label>
+                        <textarea 
+                            id="descripcion" 
+                            name="descripcion" 
+                            value={newServicio.descripcion} 
+                            onChange={handleInputChange} 
+                            required 
+                            disabled={loading}
+                            rows="5"
+                            cols="50"
+
+                            className="form-control"
+                        ></textarea>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="enlace_imagen" 
+                                name="enlace_imagen" 
+                                onChange={handleFileChange} 
+                                required={!editingServicio}
+                                disabled={loading}
+                                accept="image/*"
+                                ref={fileInputRef} // 👈 Aquí agregas la referencia
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagenPreview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagenPreview}
+                                        alt="Vista previa" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="col-4 me-3">
+                        {editingServicio && (
+                            <button 
+                                type="button" 
+                                onClick={handleCancelEdit}
+                                disabled={loading}
+                                className="btn btn-danger w-100 "
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="col-4">
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="btn btn-primary w-100"
+                        >
+                            {loading ? 'Procesando...' : (editingServicio ? 'Actualizar' : 'Guardar')}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
+        </>
     );
 };
 

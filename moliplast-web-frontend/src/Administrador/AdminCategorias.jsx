@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
@@ -214,138 +215,178 @@ const AdminCategorias = () => {
     };
 
     return (
-        <div>
-            <h1>Admin Categorías</h1>
+
+        <>
+        {error && (
+            <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {error}
+            </div>
+        )}
             
-            {error && (
-                <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {error}
-                </div>
-            )}
-            
-            {success && (
-                <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-                    {success}
-                </div>
-            )}
+        {success && (
+            <div style={{ background: '#e8f5e9', color: '#2e7d32', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+                {success}
+            </div>
+        )}
+        <h2 className='mt-4 mb-3'>Lista de Categorías</h2>
 
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <label htmlFor="nombre">Nombre:</label><br />
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    name="nombre" 
-                    value={newCategoria.nombre} 
-                    onChange={handleInputChange} 
-                    required 
-                    disabled={loading}
-                /><br /><br />
-
-                <label htmlFor="descripcion">Descripción:</label><br />
-                <textarea 
-                    id="descripcion" 
-                    name="descripcion" 
-                    value={newCategoria.descripcion} 
-                    onChange={handleInputChange} 
-                    disabled={loading}
-                    rows="5"
-                    cols="50"
-                ></textarea><br /><br />
-
-                <label htmlFor="enlace_imagen">Imagen:</label><br />
-                <input 
-                    type="file" 
-                    id="enlace_imagen" 
-                    name="enlace_imagen" 
-                    onChange={handleFileChange} 
-                    disabled={loading}
-                    accept="image/*"
-                    ref={fileInputRef}
-                />
-                <br />
-                {imagenPreview && (
-                    <div>
-                        <p>Imagen actual:</p>
-                        <img 
-                            src={imagenPreview}
-                            alt="Vista previa" 
-                            style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                        />
-                    </div>
-                )}<br />
-
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Procesando...' : (editingCategoria ? 'Actualizar' : 'Guardar')}
-                </button>
-                {editingCategoria && (
-                    <button 
-                        type="button" 
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        style={{ marginLeft: '10px' }}
-                    >
-                        Cancelar Edición
-                    </button>
-                )}
-            </form>
-
-            <h2>Lista de Categorías</h2>
-            {loading && <p>Cargando...</p>}
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Nombre</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Descripción</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Imagen</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {categorias.length === 0 ? (
+        {loading && <p>Cargando...</p>}
+        <div className={styles.contenedor_total_administrador}>
+            <div className={styles.contenedor_registros}>
+                <table className="table table-striped table-responsive align-midle">
+                    <thead className="table-dark">
                         <tr>
-                            <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                No hay categorías disponibles
-                            </td>
+                            <th scope="col" style={{width: "150px"}}>Nombre</th>
+                            <th scope="col" style={{width: "150px"}}>Descripción</th>
+                            <th scope="col" style={{width: "80px"}}>Imagen</th>
+                            <th scope="col" style={{width: "60px"}}>Acciones</th>
                         </tr>
-                    ) : (
-                        categorias.map((categoria) => (
-                            <tr key={categoria.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{categoria.nombre}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                    </thead>
+                    <tbody>
+                        {categorias.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                    No hay categorías disponibles
+                                </td>
+                            </tr>
+                        ) : (
+                            categorias.map((categoria) => (
+                                <tr key={categoria.id}>
+                                <td>{categoria.nombre}</td>
+                                <td>
                                     {categoria.descripcion.length > 100 
                                         ? `${categoria.descripcion.substring(0, 100)}...` 
                                         : categoria.descripcion}
                                 </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                <td>
                                     {categoria.enlace_imagen ? (
                                         <img 
                                             src={`${BASE_URL_API}${categoria.enlace_imagen}`} 
                                             alt={`Imagen de ${categoria.nombre}`} 
-                                            style={{ maxWidth: '100px', maxHeight: '100px' }} 
                                         />
                                     ) : 'No disponible'}
                                 </td>
+
+
                                 <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button 
-                                        onClick={() => handleEdit(categoria)} 
-                                        disabled={loading}
-                                        style={{ marginRight: '5px' }}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(categoria.id)} 
-                                        disabled={loading}
-                                    >
-                                        Eliminar
-                                    </button>
+                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+                                        <button 
+                                            onClick={() => handleEdit(categoria)} 
+                                            disabled={loading}
+                                            className="btn btn-primary mb-1 w-50"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(categoria.id)} 
+                                            disabled={loading}
+                                            className="btn btn-danger w-50"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <div className={styles.contenedor_formulario}>
+                
+                <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                    <h3 className="mt-3">Información</h3>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                value={newCategoria.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12 fw-bold">
+                        <label className="form-label">Descripción</label>
+                        <textarea 
+                            id="descripcion" 
+                            name="descripcion" 
+                            value={newCategoria.descripcion} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+                            rows="4"
+                            cols="50"
+
+                            className="form-control"
+                        ></textarea>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <input 
+                                type="file" 
+                                id="enlace_imagen" 
+                                name="enlace_imagen" 
+                                onChange={handleFileChange} 
+                                disabled={loading}
+                                accept="image/*"
+                                ref={fileInputRef}
+
+                                className="form-control"
+                                aria-describedby="inputGroupFileAddon04" 
+                                aria-label="Upload"
+                            />
+                            {imagenPreview && (
+                                <div>
+                                    <p>Imagen actual:</p>
+                                    <img 
+                                        src={imagenPreview}
+                                        alt="Vista previa" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="col-4 me-3">
+                        {editingCategoria && (
+                            <button 
+                                type="button" 
+                                onClick={handleCancelEdit}
+                                disabled={loading}
+                                className="btn btn-danger w-100 "
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="col-4">
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="btn btn-primary w-100"
+                        >
+                            {loading ? 'Procesando...' : (editingCategoria ? 'Actualizar' : 'Guardar')}
+                        </button>
+                    </div>
+                </form>
+                
+            </div>
         </div>
+        </>
     );
 };
 
