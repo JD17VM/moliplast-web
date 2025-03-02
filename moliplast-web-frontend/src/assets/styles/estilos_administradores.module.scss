@@ -18,6 +18,25 @@
         width: 40%;
         border-left: 1px solid rgb(122, 122, 122);
     }
+
+
+    td, th{
+        text-align: center;
+    }
+
+    td {
+        vertical-align: middle;
+        padding: 8px;
+        > img{
+            height: 80px;
+        }
+    }
+
+    h3{
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
 }
 
 @media only screen and (max-width: 900px){

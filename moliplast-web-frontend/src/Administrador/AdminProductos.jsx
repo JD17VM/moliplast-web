@@ -482,24 +482,24 @@ const AdminProductos = () => {
                 {success}
             </div>
         )}
-        <h2 className='mt-4 mb-5'>Lista de Productos</h2>
+        <h2 className='mt-4 mb-3'>Lista de Productos</h2>
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
             <div className={styles.contenedor_registros}>
-                <table className="table">
-                    <thead>
+                <table className="table table-striped table-responsive align-midle">
+                    <thead className="table-dark">
                         <tr>
-                            <th style={{width: "150px"}}>Nombre</th>
-                            <th style={{width: "150px"}}>Categoría</th>
-                            <th style={{width: "80px"}}>Imagen</th>
-                            <th style={{width: "30px"}}>Dest</th>
-                            <th style={{width: "60px"}}>Acciones</th>
+                            <th scope="col" style={{width: "150px"}}>Nombre</th>
+                            <th scope="col" style={{width: "150px"}}>Categoría</th>
+                            <th scope="col" style={{width: "80px"}}>Imagen</th>
+                            <th scope="col" style={{width: "30px"}}>Dest</th>
+                            <th scope="col" style={{width: "60px"}}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {productos.length === 0 ? (
                             <tr>
-                                <td colSpan="5" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                                <td colSpan="5" style={{ border: '1px solid #ddd', textAlign: 'center' }}>
                                     No hay productos disponibles
                                 </td>
                             </tr>
@@ -508,29 +508,28 @@ const AdminProductos = () => {
                                 <tr key={producto.id}>
                                 <td>{producto.nombre}</td>
                                 <td>{producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                <td>
                                     {producto.imagen_1 ? (
                                         <img 
                                             src={producto.imagen_1.startsWith('http') ? producto.imagen_1 : `${BASE_URL_API}${producto.imagen_1}`}
                                             alt={`Imagen de ${producto.nombre}`} 
-                                            style={{ maxWidth: '100px', maxHeight: '100px' }} 
                                         />
                                     ) : 'No disponible'}
                                 </td>
                                 <td>{producto.destacados ? '✓' : '✗'}</td>
                                 <td>
-                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%"}}>
+                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
                                         <button 
                                             onClick={() => handleEdit(producto)} 
                                             disabled={loading}
-                                            className="btn btn-primary mb-3"
+                                            className="btn btn-primary mb-1 w-50"
                                         >
                                             Editar
                                         </button>
                                         <button 
                                             onClick={() => handleDelete(producto.id)} 
                                             disabled={loading}
-                                            className="btn btn-danger"
+                                            className="btn btn-danger w-50"
                                         >
                                             Eliminar
                                         </button>
@@ -544,6 +543,8 @@ const AdminProductos = () => {
             </div>
             <div className={styles.contenedor_formulario}>
                 <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                    <h3 className="mt-3">Imagenes</h3>
+                    
                     <div className="col-6">
                         <div className="input-group">
                             <input 
@@ -656,7 +657,7 @@ const AdminProductos = () => {
                         </div>
                     </div>
 
-                    <h2 className="mt-3">Seccion</h2>
+                    <h3 className="mt-3">Seccion</h3>
 
                     <div className="col-12">
                         <div className="input-group">
@@ -725,7 +726,7 @@ const AdminProductos = () => {
                         </div>
                     </div>
 
-                    <h2 className="mt-3">Información</h2>
+                    <h3 className="mt-3">Información</h3>
 
                     <div className="col-12">
                         <div className="input-group">
@@ -850,19 +851,21 @@ const AdminProductos = () => {
                     </div>
 
                     <div className="col-3">
-                        <input 
-                            type="checkbox" 
-                            id="destacados" 
-                            name="destacados" 
-                            checked={newProducto.destacados} 
-                            onChange={handleInputChange} 
-                            disabled={loading}
+                        <div class="form-check">
+                            <input 
+                                type="checkbox" 
+                                id="destacados" 
+                                name="destacados" 
+                                checked={newProducto.destacados} 
+                                onChange={handleInputChange} 
+                                disabled={loading}
 
-                            className="form-check-input"
-                        />
-                        <label className="form-check-label" >
-                            Destacado
-                        </label>
+                                className="form-check-input"
+                            />
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Destacado
+                            </label>
+                        </div>
                     </div>
 
 
