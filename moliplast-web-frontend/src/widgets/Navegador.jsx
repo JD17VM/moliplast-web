@@ -14,6 +14,7 @@ import { Logo_Moliplast } from '../assets/imgs/iconos/svg/Logo_Moliplast';
 import { debounce } from 'lodash';
 
 import { InputBuscador } from './Form';
+import LogoutButton  from '../Administrador/LogoutButton'
 
 import axios from 'axios'; // Importar axios
 
@@ -48,7 +49,7 @@ const dataPaginas = {
 };
 
 
-const Navegador = ({ isAdmin }) => {
+const Navegador = ({ isAdmin, setIsAdmin }) => {
 
     const dataAdmin = [
         { nombre: "Admin Productos", enlace: "/administrador/productos" },
@@ -241,26 +242,33 @@ const Navegador = ({ isAdmin }) => {
                             </li>
                         ))}
                     </ul>
-
-                    <div className={styles.cont_busqueda_tiempo_real}>
-                    <InputBuscador
-                        placeholder="Buscar productos"
-                        Icono={FaSearch}
-                        value={query} // Pasar el valor del estado `query`
-                        onChange={(e) => setQuery(e.target.value)} // Manejar cambios
-                    />
-                        <ul>
-                            {Array.isArray(results) && results.length > 0 ? (
-                                results.map(product => (
-                                    <li key={product.id}>
-                                        <Link to={`/productos/producto/${product.id}`}>{product.nombre}</Link>
-                                    </li>
-                                ))
-                            ) : (
-                                query.length > 2 && <li><p>No se encontraron productos</p></li>
-                            )}
-                        </ul>
-                    </div>
+                    
+                    {!isAdmin? (
+                        <div className={styles.cont_busqueda_tiempo_real}>
+                        <InputBuscador
+                            placeholder="Buscar productos"
+                            Icono={FaSearch}
+                            value={query} // Pasar el valor del estado `query`
+                            onChange={(e) => setQuery(e.target.value)} // Manejar cambios
+                        />
+                            <ul>
+                                {Array.isArray(results) && results.length > 0 ? (
+                                    results.map(product => (
+                                        <li key={product.id}>
+                                            <Link to={`/productos/producto/${product.id}`}>{product.nombre}</Link>
+                                        </li>
+                                    ))
+                                ) : (
+                                    query.length > 2 && <li><p>No se encontraron productos</p></li>
+                                )}
+                            </ul>
+                        </div>
+                    ):(
+                        <div>
+                            <LogoutButton setIsAdmin={setIsAdmin} />
+                        </div>
+                    )
+                    }
                 </nav>
             </div>
     

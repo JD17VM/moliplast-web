@@ -44,7 +44,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navegador isAdmin={isAdmin}/>
+      <Navegador isAdmin={isAdmin} setIsAdmin={setIsAdmin}/>
 
       <Routes>
         <Route path="/" element={<Inicio />} />
