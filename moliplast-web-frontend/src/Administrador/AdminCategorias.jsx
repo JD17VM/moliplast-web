@@ -254,15 +254,18 @@ const AdminCategorias = () => {
                                 <tr key={categoria.id}>
                                 <td>{categoria.nombre}</td>
                                 <td>
-                                    {categoria.descripcion.length > 100 
-                                        ? `${categoria.descripcion.substring(0, 100)}...` 
+                                {categoria.descripcion && categoria.descripcion.length > 100
+                                        ? `${categoria.descripcion.substring(0, 100)}...`
                                         : categoria.descripcion}
                                 </td>
                                 <td>
                                     {categoria.enlace_imagen ? (
                                         <img 
-                                            src={`${BASE_URL_API}${categoria.enlace_imagen}`} 
-                                            alt={`Imagen de ${categoria.nombre}`} 
+                                        src={categoria.enlace_imagen && categoria.enlace_imagen.startsWith('http')
+                                        ? categoria.enlace_imagen
+                                        : `${BASE_URL_API}${categoria.enlace_imagen}`}
+                                        alt={categoria.nombre}
+                                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                                         />
                                     ) : 'No disponible'}
                                 </td>
