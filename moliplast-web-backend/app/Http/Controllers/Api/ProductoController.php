@@ -49,6 +49,31 @@ class ProductoController extends Controller
         return response()->json($productos, 200);
     }*/
 
+    public function productosDestacados()
+    {
+        // Obtener productos destacados con estatus true y formatear la respuesta
+        $productos = Producto::where('estatus', true)
+            ->where('destacados', true)
+            ->select('id', 'nombre', 'imagen_1')
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'enlace_imagen' => $producto->imagen_1,
+                ];
+            });
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay productos registrados',
+                'status' => 404,
+            ], 404);
+        }
+
+        return response()->json($productos, 200);
+    }
+
     public function indexAll()
     {
         // Obtener todos los productos
