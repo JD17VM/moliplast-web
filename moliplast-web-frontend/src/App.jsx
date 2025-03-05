@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -35,9 +35,16 @@ function App() {
     AOS.refresh();
   }, []);
 
+  const [isAdmin, setIsAdmin] = useState(localStorage.getItem('adminAuth') === 'true');
+
+  const handleAdminLogin = () => {
+    localStorage.setItem('adminAuth', 'true');
+    setIsAdmin(true);
+  };
+
   return (
     <BrowserRouter>
-      <Navegador data={data}/>
+      <Navegador isAdmin={isAdmin}/>
 
       <Routes>
         <Route path="/" element={<Inicio />} />
@@ -63,7 +70,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
       </Routes>
 
-      <Footer data={data}/>
+      <Footer data={data} onAdminLogin={handleAdminLogin}/>
     </BrowserRouter>
   )
 }

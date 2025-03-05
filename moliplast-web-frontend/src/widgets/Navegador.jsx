@@ -48,12 +48,8 @@ const dataPaginas = {
 };
 
 
-const Navegador = () => {
+const Navegador = ({ isAdmin }) => {
 
-    const location = useLocation();
-    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-
-    // Definiendo dataAdmin antes de usarlo.
     const dataAdmin = [
         { nombre: "Admin Productos", enlace: "/administrador/productos" },
         { nombre: "Admin Catalogos", enlace: "/administrador/catalogos" },
@@ -68,12 +64,16 @@ const Navegador = () => {
         },
     ];
 
-    const [administrador, setAdministrador] = useState(isAuthenticated);
-    const [data, setData] = useState(administrador ? dataAdmin : dataPaginas.data);
+    const location = useLocation();
+    const [data, setData] = useState(isAdmin ? dataAdmin : dataPaginas.data);
 
+    // Definiendo dataAdmin antes de usarlo.
+    
     useEffect(() => {
-        const fetchCategorias = async () => {
-            if (!administrador) {
+        if (isAdmin) {
+            setData(dataAdmin);
+        } else {
+            const fetchCategorias = async () => {
                 try {
                     const response = await axios.get('http://127.0.0.1:8000/api/categorias-con-subcategorias');
                     const categorias = response.data;
@@ -81,7 +81,7 @@ const Navegador = () => {
                         nombre: categoria.nombre,
                         enlace: `/productos/${categoria.nombre}`
                     }));
-                    const newData = data.map(seccion => {
+                    const newData = dataPaginas.data.map(seccion => {
                         if (seccion.nombre === "Productos") {
                             return { ...seccion, subsecciones: subsecciones };
                         }
@@ -91,10 +91,10 @@ const Navegador = () => {
                 } catch (error) {
                     console.error("Error al obtener las categorías:", error);
                 }
-            }
-        };
-        fetchCategorias();
-    }, [administrador]);
+            };
+            fetchCategorias();
+        }
+    }, [isAdmin]);
 
     const [subseccion_abierta, setSubseccionAbierta] = useState(null);
     const toggleSubseccion = (index) => {
@@ -147,7 +147,7 @@ const Navegador = () => {
 
     return (
         <>
-            <div className={`${styles.cont_navegador} ${administrador ? styles.admin : ''}`}>
+            <div className={`${styles.cont_navegador} ${isAdmin? styles.admin : ''}`}>
                 <header className={scrolling ? styles['reducida'] : ''}>
                     <Link to='/' className={styles.cont_logo}>
                         <Logo_Moliplast logo="principal" className={styles.logo_front}/>

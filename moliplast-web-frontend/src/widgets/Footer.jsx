@@ -31,7 +31,7 @@ const Seccion_Hover_Footer = styled.div`
 `;
 
 
-const Footer = ({data}) => {
+const Footer = ({data, onAdminLogin}) => {
 
     const dataModificada = data.map(objeto => ({
         elemento: objeto.nombre, // Mapear "nombre" a "elemento"
@@ -61,16 +61,12 @@ const Footer = ({data}) => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        
-        // Contraseña hardcodeada (SOLO PARA DESARROLLO)
         const adminPassword = 'admin123';
-        
         if (password === adminPassword) {
-        // Guardar en localStorage que el admin está logueado
-        localStorage.setItem('adminAuth', 'true');
-        //navigate('/admin/dashboard'); // Redirigir al panel de administración
+            onAdminLogin(); // Llama a la función de actualización
+            navigate('/administrador/productos');
         } else {
-        setError('Contraseña incorrecta');
+            setError('Contraseña incorrecta');
         }
     };
 
