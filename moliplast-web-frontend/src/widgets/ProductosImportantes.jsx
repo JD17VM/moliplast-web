@@ -16,14 +16,13 @@ export const SeccionProductosImportantes = ({titulo = "Productos Importantes"}) 
         </ContenedorSeccion>
     )
 }
-
-export const SoloProductosImportantes = () => {
+//
+export const SoloProductosImportantes = ({data}) => {
     return(
         <div className={styles.contenedor_productos_destacados} data-aos="fade-up">
-            <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto1} texto="ELECTROVANNE NAANDAN 2" />
-            <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto2} texto="ELECTROBOMBA SUMERGIBLE FORAS" />
-            <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto3} texto="Biodigestor Autolimpiable 1300 Litros" />
-            <CartaProducto enlace_imagen={imageHelper.ImagenDemoProducto4} texto="GREENRAIN SYSTEM | VALVULA ELECTRICA SERIE DVF LINEAL 1” RH" />
+            {data.map((producto, index) => (
+                <CartaProducto key={index} enlace_imagen={producto.img} texto={producto.nombre} id={producto.id}/>
+            ))} 
         </div>
     )
 }
