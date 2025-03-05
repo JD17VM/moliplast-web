@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 
 import styled from 'styled-components'
@@ -6,6 +7,8 @@ import { SoloProductosImportantes } from './ProductosImportantes';
 import { ContenedorSeccion } from '../Inicio';
 
 import imageHelper from '../utils/imageHelper.js'
+
+const BASE_URL_API = "http://127.0.0.1:8000";
 
 const StyledCarousel = styled(Carousel)`
     width: 100%;
@@ -74,17 +77,50 @@ const StyledCarousel = styled(Carousel)`
 
 function SliderProductos() {
 
-  
-  const data =  [
-    { nombre: 'Item 1', img: imageHelper.Macetas, id:1 },
-    { nombre: 'Item 2', img: imageHelper.Tachos, id:2 },
-    { nombre: 'Item 3', img: imageHelper.Agri, id:3 },
-    { nombre: 'Item 4', img: imageHelper.Tapers, id:4 },
-    { nombre: 'Item 5', img: imageHelper.Tanques, id:5 },
-    { nombre: 'Item 6', img: imageHelper.Tubos, id:6 },
-  ]
+  const [productosDestacados, setProductosDestacados] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  let data_completa = [...data];
+  useEffect(() => {
+      loadProductosDestacados();
+  }, []);
+
+  const loadProductosDestacados = async () => {
+      setLoading(true);
+      try {
+          const response = await fetch(`${BASE_URL_API}/api/productos-destacados`);
+          
+          if (response.status === 404) {
+              console.log('No hay productos destacados disponibles');
+              setProductosDestacados([]);
+              setLoading(false);
+              return;
+          }
+          
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          setProductosDestacados(data);
+      } catch (error) {
+          console.error('Error fetching data:', error);
+          setError('Error al cargar los productos destacados. Por favor, intenta nuevamente.');
+          setProductosDestacados([]);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  // Función para construir la URL completa de la imagen
+  const getFullImageUrl = (path) => {
+      if (!path) return '';
+      return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+  };  
+  
+
+  const data = productosDestacados;
+
+  let data_completa = data;
 
   if(data.length % 4 == 0){
     data_completa = [...data]

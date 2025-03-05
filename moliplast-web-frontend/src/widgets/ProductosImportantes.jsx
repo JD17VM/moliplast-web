@@ -3,6 +3,11 @@ import CartaProducto from './CartaProducto';
 import imageHelper from '../utils/imageHelper.js'
 import { ContenedorSeccion } from '../Inicio';
 
+// Función para construir la URL completa de la imagen
+const getFullImageUrl = (path) => {
+    if (!path) return '';
+    return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+};  
 
 export const SeccionProductosImportantes = ({titulo = "Productos Importantes"}) => {
     return(
@@ -21,7 +26,7 @@ export const SoloProductosImportantes = ({data}) => {
     return(
         <div className={styles.contenedor_productos_destacados} data-aos="fade-up">
             {data.map((producto, index) => (
-                <CartaProducto key={index} enlace_imagen={producto.img} texto={producto.nombre} id={producto.id}/>
+                <CartaProducto key={index} enlace_imagen={producto.img || imageHelper.defaultImg} texto={producto.nombre} id={producto.id}/>
             ))} 
         </div>
     )
