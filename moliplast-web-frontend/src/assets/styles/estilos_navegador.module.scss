@@ -343,6 +343,43 @@
         }
 
     }
+
+        &.admin {
+            background-color: var(--color_negro);
+            color: var(--color_blanco);
+            >nav {
+                $color_negro_nav:#212125;
+                background-color:$color_negro_nav;
+                color: var(--color_blanco);
+    
+                >ul.cont_lista_enlaces,
+                >ul.cont_lista_enlaces_movil {
+                    >li {
+                        a {
+                            &:hover {
+                                background-color: var(--color_blanco);
+                                color: $color_negro_nav;
+                            }
+                        }
+
+                        >ul{
+                            >li{
+                                >a{
+
+                                    background-color:$color_negro_nav;
+                                    color: var(--color_blanco);
+                                    &:hover{
+                                        background-color: var(--color_blanco);
+                                        color: $color_negro_nav;
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+        }
+        
+    }
 }
 
 .espacio_nav{

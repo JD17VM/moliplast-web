@@ -51,76 +51,50 @@ const dataPaginas = {
 const Navegador = () => {
 
     const location = useLocation();
+    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
 
+    // Definiendo dataAdmin antes de usarlo.
     const dataAdmin = [
-        { 
-            nombre: "Admin Productos", 
-            enlace: "/catalogos"
-        },
-        { 
-            nombre: "Admin Catalogos", 
-            enlace: "/administrador/catalogos"
-        },
-        { 
-            nombre: "Admin Servicios", 
-            enlace: "/administrador/servicios"
-        },
-        { 
-            nombre: "Admin Categorías", 
+        { nombre: "Admin Productos", enlace: "/administrador/productos" },
+        { nombre: "Admin Catalogos", enlace: "/administrador/catalogos" },
+        { nombre: "Admin Servicios", enlace: "/administrador/servicios" },
+        {
+            nombre: "Admin Categorías",
             subsecciones: [
                 { nombre: "Categorias", enlace: "/administrador/categorias" },
                 { nombre: "Subcategorias", enlace: "/administrador/subcategorias" },
                 { nombre: "Subsubcategorias", enlace: "/administrador/subsubcategorias" },
-            ] 
+            ]
         },
-    ]
-    const [data, setData] = useState(dataPaginas.data);
-    const [administrador, setAdministrador] = useState(false);
+    ];
 
-    // Modifica el useEffect de autenticación para que se vuelva a ejecutar cuando sea necesario
-    useEffect(() => {
-        // Verificar si existe la autenticación en localStorage
-        const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-        if (isAuthenticated) {
-            setData(dataAdmin);
-            setAdministrador(true);
-        } else {
-            setData(dataPaginas.data);
-            setAdministrador(false);
-        }
-    }, [location.pathname]); // Volver a verificar cuando cambia la ruta
+    const [administrador, setAdministrador] = useState(isAuthenticated);
+    const [data, setData] = useState(administrador ? dataAdmin : dataPaginas.data);
 
-    
-
-    // Consulta a la API para obtener las categorías
     useEffect(() => {
         const fetchCategorias = async () => {
-            try {
-                const response = await axios.get('http://127.0.0.1:8000/api/categorias-con-subcategorias');
-                const categorias = response.data; // Suponiendo que la API devuelve un array de categorías
-
-                // Mapear las categorías para que coincidan con el formato de subsecciones
-                const subsecciones = categorias.map(categoria => ({
-                    nombre: categoria.nombre, // Nombre de la categoría
-                    enlace: `/productos/${categoria.nombre}` // Enlace dinámico
-                }));
-
-                // Actualizar las subsecciones de "Productos"
-                const newData = data.map(seccion => {
-                    if (seccion.nombre === "Productos") {
-                        return { ...seccion, subsecciones: subsecciones };
-                    }
-                    return seccion;
-                });
-
-                setData(newData); // Actualizar el estado con los nuevos datos
-            } catch (error) {
-                console.error("Error al obtener las categorías:", error);
+            if (!administrador) {
+                try {
+                    const response = await axios.get('http://127.0.0.1:8000/api/categorias-con-subcategorias');
+                    const categorias = response.data;
+                    const subsecciones = categorias.map(categoria => ({
+                        nombre: categoria.nombre,
+                        enlace: `/productos/${categoria.nombre}`
+                    }));
+                    const newData = data.map(seccion => {
+                        if (seccion.nombre === "Productos") {
+                            return { ...seccion, subsecciones: subsecciones };
+                        }
+                        return seccion;
+                    });
+                    setData(newData);
+                } catch (error) {
+                    console.error("Error al obtener las categorías:", error);
+                }
             }
         };
-
-        fetchCategorias(); // Llamar a la función para obtener los datos
-    }, [location.pathname]); // El efecto se ejecuta solo una vez al montar el componente
+        fetchCategorias();
+    }, [administrador]);
 
     const [subseccion_abierta, setSubseccionAbierta] = useState(null);
     const toggleSubseccion = (index) => {
@@ -130,8 +104,8 @@ const Navegador = () => {
     const [navegador_movil_activo, setNavegadorMovilActivo] = useState(false);
 
     useEffect(() => {
-        setNavegadorMovilActivo(false)
-    },[location]);
+        setNavegadorMovilActivo(false);
+    }, [location]);
 
     const [scrolling, setScrolling] = useState(false);
 
@@ -143,14 +117,11 @@ const Navegador = () => {
                 setScrolling(false);
             }
         };
-
         window.addEventListener('scroll', handleScroll);
-
-        // Limpiar el evento cuando el componente se desmonte
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [location.pathname]); // El efecto solo se ejecuta una vez al montar el componente
+    }, [location.pathname]);
 
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
@@ -167,11 +138,10 @@ const Navegador = () => {
         } else {
             setResults([]);
         }
-    }, 300); // 300ms de retraso
+    }, 300);
 
     useEffect(() => {
         debouncedSearch(query);
-        // Limpia el debounce si el componente se desmonta
         return () => debouncedSearch.cancel();
     }, [query]);
 
