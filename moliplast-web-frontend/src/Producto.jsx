@@ -62,7 +62,7 @@ const Producto = () => {
                             onClick={() => handleClick(getFullUrl(producto.imagen_1), 1)}
                             className={botonActivo === 1 ? styles.activo : ''}
                         >
-                            <img src={getFullUrl(producto.imagen_1)} alt="" />
+                            <img src={getFullUrl(producto.imagen_1) || imageHelper.defaultImg} alt="" />
                         </button>
                         
                         {producto.imagen_2 && (
@@ -95,8 +95,8 @@ const Producto = () => {
                     <div className={styles.cont_imagen}>
                         {imagenActual ? (
                             <img src={imagenActual} alt="" />
-                        ) : (
-                            <div>Cargando imagen...</div>
+                            ) : (
+                            <img src={imageHelper.defaultImg} alt="" />
                         )}
                     </div>
                 </div>
