@@ -30,13 +30,13 @@
         display: flex;
         justify-content: center;
         row-gap: 2rem;
-        column-gap: 4rem;
+        column-gap: 1.3rem;
         flex-wrap: wrap;
 
         .cont_tipo_producto{
             //background-color: green;
-            width: 350px;
-            height: 250px;
+            width: 180px;
+            height: 100px;
             display: flex;
             padding: 0.8rem 0.8rem;
             align-items: flex-end;
@@ -55,7 +55,7 @@
             p{
                 font-size: var(--fuente_tamanio_titulo_3);
                 font-weight: var(--fuente_semibold);
-                text-shadow: 3px 3px 6px rgba(0,0,0,0.88);
+                text-shadow: 3px 3px 2px rgba(0,0,0,0.9);
                 color: var(--color_blanco);
             }
         }
