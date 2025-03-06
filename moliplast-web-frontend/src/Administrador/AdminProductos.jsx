@@ -559,7 +559,7 @@ const AdminProductos = () => {
                 
                 {/* Componente de paginación */}
                 {pagination.totalPages > 1 && (
-                    <div className="pagination d-flex justify-content-center mt-3">
+                    <div className="pagination d-flex justify-content-center my-4">
                         {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
                             <button
                                 key={page}
