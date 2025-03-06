@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 
 import styles from './assets/styles/estilos_inicio.module.scss'
 import imageHelper from './utils/imageHelper.js'
@@ -9,6 +10,8 @@ import CarruselImgs from './widgets/CarruselImgs';
 
 
 import SliderProductos from './widgets/SliderProductos';
+
+const BASE_URL_API = "http://127.0.0.1:8000";
 
 export const ContenedorSeccion = (props) => {
     let claseFondo = ""
@@ -40,12 +43,55 @@ const TipoProducto = ({imagen, texto}) => {
 }
 
 const LineaDeProductos = () => {
+
+    const [categorias, setCategorias] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        loadCategorias();
+    }, []);
+
+    const loadCategorias = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch(`${BASE_URL_API}/api/categorias`);
+            
+            if (response.status === 404) {
+                console.log('No hay categorias disponibles');
+                setCategorias([]);
+                setLoading(false);
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            setCategorias(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setError('Error al cargar los categorias. Por favor, intenta nuevamente.');
+            setCategorias([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Función para construir la URL completa de la imagen
+    const getFullImageUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
     return (
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">
-                <TipoProducto imagen={imageHelper.background_Riego_Residencial_Municipal} texto="Riego Residencial Municipal"/>
-                <TipoProducto imagen={imageHelper.background_Riego_Agricultura} texto="Riego para Agricultura"/>
-                <TipoProducto imagen={imageHelper.background_Otros} texto="Otros"/>
+                {categorias.map((categoria,index) => (
+                    <TipoProducto imagen={categoria.enlace_imagen || imageHelper.defaultImg} texto={categoria.nombre}/>
+                ))}   
             </div>
         </ContenedorSeccion>
     )
