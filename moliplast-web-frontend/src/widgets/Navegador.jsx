@@ -250,6 +250,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                             Icono={FaSearch}
                             value={query} // Pasar el valor del estado `query`
                             onChange={(e) => setQuery(e.target.value)} // Manejar cambios
+                            autocomplete="off"
                         />
                             <ul>
                                 {Array.isArray(results) && results.length > 0 ? (

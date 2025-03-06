@@ -115,8 +115,8 @@ const Footer = ({data, onAdminLogin}) => {
                 linkRouter
                 />
                 {mostrarElement ? (
-                    <form onSubmit={handleLogin}>
-                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey} value={password} onChange={(e) => setPassword(e.target.value)} buttonType='submit'/>
+                    <form onSubmit={handleLogin} autocomplete="off">
+                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey}  onChange={(e) => setPassword(e.target.value)} buttonType='submit' autocomplete="off"/>
                         {/*<button type="submit">Ingresar</button>*/}
                     </form>
                 ) : null}

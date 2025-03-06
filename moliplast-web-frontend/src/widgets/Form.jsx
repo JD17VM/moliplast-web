@@ -7,6 +7,7 @@ export const InputNormal = ({
     value='',
     buttonType = 'submit',
     onChange = () => {},
+    autocomplete = "on"
 }) => {
     return (
         <div className={styles.cont_input}>
@@ -17,6 +18,7 @@ export const InputNormal = ({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}  // Añade esta línea
+                autocomplete={autocomplete}
             />
             <button type={buttonType}>
                 {Icono && <Icono />}
@@ -30,7 +32,8 @@ export const InputBuscador = ({
     placeholder = '',
     Icono = false,
     value = '',
-    onChange = () => {}
+    onChange = () => {},
+    autocomplete = "on"
 }) => {
     return (
         <div className={styles.cont_input}>
@@ -41,6 +44,7 @@ export const InputBuscador = ({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange} // Actualización en tiempo real
+                autocomplete={autocomplete}
             />
             <button>
                 {Icono && <Icono />}
