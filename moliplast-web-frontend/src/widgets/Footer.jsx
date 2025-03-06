@@ -116,8 +116,8 @@ const Footer = ({data, onAdminLogin}) => {
                 />
                 {mostrarElement ? (
                     <form onSubmit={handleLogin}>
-                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey} value={password} onChange={(e) => setPassword(e.target.value)}/>
-                        <button type="submit">Ingresar</button>
+                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey} value={password} onChange={(e) => setPassword(e.target.value)} buttonType='submit'/>
+                        {/*<button type="submit">Ingresar</button>*/}
                     </form>
                 ) : null}
             </Seccion_Hover_Footer>

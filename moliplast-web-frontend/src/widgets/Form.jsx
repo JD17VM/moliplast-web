@@ -5,6 +5,7 @@ export const InputNormal = ({
     placeholder = '',
     Icono = false,
     value='',
+    buttonType = 'submit',
     onChange = () => {},
 }) => {
     return (
@@ -17,7 +18,7 @@ export const InputNormal = ({
                 value={value}
                 onChange={onChange}  // Añade esta línea
             />
-            <button>
+            <button type={buttonType}>
                 {Icono && <Icono />}
             </button>
         </div>
