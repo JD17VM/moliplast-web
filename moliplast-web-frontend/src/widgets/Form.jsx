@@ -16,7 +16,6 @@ export const InputNormal = ({
                 id="fname"
                 name="fname"
                 placeholder={placeholder}
-                value={value}
                 onChange={onChange}  // Añade esta línea
                 autocomplete={autocomplete}
             />
