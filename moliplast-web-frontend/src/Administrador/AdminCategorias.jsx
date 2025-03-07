@@ -354,7 +354,6 @@ const AdminCategorias = () => {
                                 aria-label="Upload"
                             />
                         </div>
-                        <small className="text-muted">La imagen es opcional</small>
                         {imagenPreview && (
                             <div className="mt-2">
                                 <p>Imagen actual:</p>

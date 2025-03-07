@@ -329,7 +329,8 @@ const AdminCatalogos = () => {
                             </div>
                         </div>
 
-                        <div className="col-12">
+                        <div className="col-12 fw-bold">
+                        <label className="form-label">Imagen de portada:</label><br />
                             <div className="input-group">
                                 <input 
                                     type="file" 
@@ -358,7 +359,8 @@ const AdminCatalogos = () => {
                             </div>
                         </div>
 
-                        <div className="col-12">
+                        <div className="col-12 fw-bold">
+                            <label className="form-label">Documento PDF:</label><br />
                             <div className="input-group">
                                 <input 
                                     type="file" 

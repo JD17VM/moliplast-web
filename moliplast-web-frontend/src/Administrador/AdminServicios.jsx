@@ -332,7 +332,8 @@ const AdminServicios = () => {
                         ></textarea>
                     </div>
 
-                    <div className="col-12">
+                    <div className="col-12 fw-bold">
+                        <label className="form-label">Imagen referencial de servicio:</label><br />
                         <div className="input-group">
                             <input 
                                 type="file" 
@@ -347,7 +348,6 @@ const AdminServicios = () => {
                                 aria-label="Upload"
                             />
                         </div>
-                        <small className="text-muted">La imagen es opcional</small>
                         {imagenPreview && (
                             <div className="mt-2">
                                 <p>Imagen actual:</p>

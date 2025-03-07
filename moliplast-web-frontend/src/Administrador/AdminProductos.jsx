@@ -926,8 +926,6 @@ const AdminProductos = () => {
                             {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
                         </button>
                     </div>
-                    
-                    
                 </form>
             </div>
         </div>
