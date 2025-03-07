@@ -4,6 +4,9 @@ import styles from '../assets/styles/estilos_administradores.module.scss'
 const BASE_URL_API = "http://127.0.0.1:8000";
 
 const AdminProductos = () => {
+    // Estado para el buscador
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
@@ -31,6 +34,14 @@ const AdminProductos = () => {
         totalPages: 1,
         perPage: 200, // Puedes ajustar este valor según tus necesidades
     });
+
+    // Cargar datos al iniciar el componente
+    useEffect(() => {
+        if (!isSearching) {
+            loadProductos(pagination.currentPage);
+        }
+        loadCategorias();
+    }, [isSearching]);
     
     const [editingProducto, setEditingProducto] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -468,6 +479,19 @@ const AdminProductos = () => {
         }
     };
 
+    // Efecto para manejar la búsqueda con debounce
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchTerm) {
+                searchProductos(searchTerm);
+            } else if (isSearching) {
+                setIsSearching(false);
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
     // Obtener el nombre de la categoría por ID
     const getCategoriaName = (id) => {
         const categoria = categorias.find(cat => cat.id === id);
@@ -486,6 +510,65 @@ const AdminProductos = () => {
         return subsubcategoria ? subsubcategoria.nombre : 'No asignada';
     };
 
+    // Función para buscar productos
+    const searchProductos = async (query) => {
+        if (!query.trim()) return;
+        
+        setLoading(true);
+        setIsSearching(true);
+        setError('');
+        
+        try {
+            const response = await fetch(`${BASE_URL_API}/api/products/search?query=${encodeURIComponent(query)}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Si necesitamos más información de los productos, podemos hacer una segunda petición
+            // con los IDs obtenidos o modificar el endpoint de búsqueda para que devuelva más datos
+            if (data.length > 0) {
+                const productosCompletos = await Promise.all(
+                    data.map(async (item) => {
+                        const detailResponse = await fetch(`${BASE_URL_API}/api/productos/${item.id}`);
+                        if (detailResponse.ok) {
+                            return await detailResponse.json();
+                        }
+                        return null;
+                    })
+                );
+                
+                setProductos(productosCompletos.filter(p => p !== null));
+                // Reseteamos la paginación durante la búsqueda
+                setPagination({
+                    ...pagination,
+                    currentPage: 1,
+                    totalPages: 1,
+                });
+            } else {
+                setProductos([]);
+            }
+        } catch (error) {
+            console.error('Error searching productos:', error);
+            setError('Error al buscar productos. Por favor, intenta nuevamente.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Función para manejar el cambio en el input de búsqueda
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    // Función para limpiar la búsqueda
+    const clearSearch = () => {
+        setSearchTerm('');
+        setIsSearching(false);
+    };
+
     return (
         <>
         {error && (
@@ -499,6 +582,30 @@ const AdminProductos = () => {
             </div>
         )}
         <h2 className='mt-4 mb-3'>Administrador Productos</h2>
+        {/* Buscador de productos */}
+        <div className="mb-4">
+            <div className="input-group">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Buscar producto por nombre..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    aria-label="Buscar producto"
+                />
+                {searchTerm && (
+                    <button 
+                        className="btn btn-outline-secondary" 
+                        type="button"
+                        onClick={clearSearch}
+                    >
+                        Limpiar
+                    </button>
+                )}
+            </div>
+            {isSearching && <small className="text-muted">Mostrando resultados para: "{searchTerm}"</small>}
+        </div>
+
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
         <div className={styles.contenedor_registros}>
@@ -516,7 +623,9 @@ const AdminProductos = () => {
                         {productos.length === 0 ? (
                             <tr>
                                 <td colSpan="5" style={{ border: '1px solid #ddd', textAlign: 'center' }}>
-                                    No hay productos disponibles
+                                    {isSearching 
+                                        ? `No se encontraron productos con el término "${searchTerm}"` 
+                                        : 'No hay productos disponibles'}
                                 </td>
                             </tr>
                         ) : (
@@ -557,8 +666,8 @@ const AdminProductos = () => {
                         </tbody>
                 </table>
                 
-                {/* Componente de paginación */}
-                {pagination.totalPages > 1 && (
+                {/* Componente de paginación (solo se muestra cuando no estamos buscando) */}
+                {!isSearching && pagination.totalPages > 1 && (
                     <div className="pagination d-flex justify-content-center my-4">
                         {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
                             <button
