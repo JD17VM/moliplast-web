@@ -90,7 +90,7 @@ const LineaDeProductos = () => {
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">
                 {categorias.map((categoria,index) => (
-                    <TipoProducto imagen={categoria.enlace_imagen || imageHelper.defaultImg} texto={categoria.nombre}/>
+                    <TipoProducto imagen={categoria.enlace_imagen || imageHelper.defaultImg} texto={categoria.nombre} key={index}/>
                 ))}   
             </div>
         </ContenedorSeccion>
