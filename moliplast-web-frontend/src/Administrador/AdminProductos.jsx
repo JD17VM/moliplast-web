@@ -574,7 +574,62 @@ const AdminProductos = () => {
             </div>
             <div className={styles.contenedor_formulario}>
                 <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
-                    <h3 className="mt-3">Imagenes</h3>
+                    
+                    <h3 className="mt-3">Información</h3>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre"
+                                value={newProducto.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Codigo</span>
+                            <input 
+                                id="codigo" 
+                                name="codigo" 
+                                value={newProducto.codigo || ''} 
+                                onChange={handleInputChange} 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username"
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="col-12 fw-bold">
+                        <label className="form-label">Descripción</label>
+                        <textarea 
+                            id="descripcion" 
+                            name="descripcion" 
+                            value={newProducto.descripcion || ''} 
+                            onChange={handleInputChange} 
+                            disabled={loading}
+
+                            className="form-control"
+                            rows="4"
+                        />
+                    </div>    
+
+                    <h3 className="mt-3">Imágenes</h3>
                     
                     <div className="col-6">
                         <div className="input-group">
@@ -688,7 +743,7 @@ const AdminProductos = () => {
                         </div>
                     </div>
 
-                    <h3 className="mt-3">Seccion</h3>
+                    <h3 className="mt-3">Sección</h3>
 
                     <div className="col-12">
                         <div className="input-group">
@@ -757,61 +812,10 @@ const AdminProductos = () => {
                         </div>
                     </div>
 
-                    <h3 className="mt-3">Información</h3>
-
-                    <div className="col-12">
-                        <div className="input-group">
-                            <span className="input-group-text" id="basic-addon1">Nombre</span>
-                            <input 
-                                type="text" 
-                                id="nombre" 
-                                name="nombre"
-                                value={newProducto.nombre} 
-                                onChange={handleInputChange} 
-                                required 
-                                disabled={loading}
-
-                                className="form-control"
-                                placeholder="Username" 
-                                aria-label="Username" 
-                                aria-describedby="basic-addon1"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="col-12">
-                        <div className="input-group">
-                            <span className="input-group-text" id="basic-addon1">Codigo</span>
-                            <input 
-                                id="codigo" 
-                                name="codigo" 
-                                value={newProducto.codigo || ''} 
-                                onChange={handleInputChange} 
-                                disabled={loading}
-
-                                className="form-control"
-                                placeholder="Username"
-                                aria-label="Username" 
-                                aria-describedby="basic-addon1"
-                            />
-                        </div>
-                    </div>
+                    <h3 className="mt-3">Extras</h3>
 
                     <div className="col-12 fw-bold">
-                        <label className="form-label">Descripción</label>
-                        <textarea 
-                            id="descripcion" 
-                            name="descripcion" 
-                            value={newProducto.descripcion || ''} 
-                            onChange={handleInputChange} 
-                            disabled={loading}
-
-                            className="form-control"
-                            rows="4"
-                        />
-                    </div>
-
-                    <div className="col-12">
+                        <label className="form-label">Ficha técnica</label><br />
                         <div className="input-group">
                             <input 
                                 type="file" 
@@ -839,7 +843,7 @@ const AdminProductos = () => {
                     </div>
 
 
-                    <div className="col-12">
+                    <div className="col-12" style={{display:"none"}}>
                         <div className="input-group">
                             <input 
                                 type="file" 
@@ -867,7 +871,7 @@ const AdminProductos = () => {
                         </div>
                     </div>
 
-                    <div className="col-12">
+                    <div className="col-12 fw-bold">
                         <label className="form-label">Texto Markdown (opcional):</label><br />
                         <textarea 
                             id="texto_markdown" 

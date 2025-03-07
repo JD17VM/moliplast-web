@@ -271,27 +271,6 @@ const AdminSubcategorias = () => {
 
                     <div className="col-12">
                         <div className="input-group">
-                            <span className="input-group-text" id="basic-addon1">Nombre</span>
-
-                            <input 
-                                type="text" 
-                                id="nombre" 
-                                name="nombre" 
-                                value={newSubcategoria.nombre} 
-                                onChange={handleInputChange} 
-                                required 
-                                disabled={loading}
-
-                                className="form-control"
-                                placeholder="Username" 
-                                aria-label="Username" 
-                                aria-describedby="basic-addon1"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="col-12">
-                        <div className="input-group">
                             <label className="input-group-text">Categoria</label>
                             <select
                                 id="id_categoria"
@@ -309,6 +288,27 @@ const AdminSubcategorias = () => {
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    </div>
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                value={newSubcategoria.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
                         </div>
                     </div>
 

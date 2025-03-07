@@ -215,7 +215,7 @@ const AdminSubsubcategorias = () => {
             </div>
         )}
 
-        <h2 className='mt-4 mb-3'>Administrador Subcategorías</h2>
+        <h2 className='mt-4 mb-3'>Administrador Subsubcategorías</h2>
 
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
@@ -273,28 +273,7 @@ const AdminSubsubcategorias = () => {
 
                     <div className="col-12">
                         <div className="input-group">
-                            <span className="input-group-text" id="basic-addon1">Nombre</span>
-
-                            <input 
-                                type="text" 
-                                id="nombre" 
-                                name="nombre" 
-                                value={newSubsubcategoria.nombre} 
-                                onChange={handleInputChange} 
-                                required 
-                                disabled={loading}
-
-                                className="form-control"
-                                placeholder="Username" 
-                                aria-label="Username" 
-                                aria-describedby="basic-addon1"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="col-12">
-                        <div className="input-group">
-                            <label className="input-group-text">Categoria</label>
+                            <label className="input-group-text">Subcategoría</label>
                             <select
                                 id="id_subcategoria"
                                 name="id_subcategoria"
@@ -314,6 +293,30 @@ const AdminSubsubcategorias = () => {
                             </select>
                         </div>
                     </div>
+
+
+                    <div className="col-12">
+                        <div className="input-group">
+                            <span className="input-group-text" id="basic-addon1">Nombre</span>
+
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                value={newSubsubcategoria.nombre} 
+                                onChange={handleInputChange} 
+                                required 
+                                disabled={loading}
+
+                                className="form-control"
+                                placeholder="Username" 
+                                aria-label="Username" 
+                                aria-describedby="basic-addon1"
+                            />
+                        </div>
+                    </div>
+
+                    
 
                     <div className="col-4 me-3">
                         {editingSubsubcategoria && (
