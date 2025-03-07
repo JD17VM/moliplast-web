@@ -293,7 +293,7 @@ const AdminServicios = () => {
                 </table>
             </div>
             <div className={styles.contenedor_formulario}>
-                <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">
+                <form className="row grid gap-0 row-gap-3 my-3" onSubmit={handleSubmit} encType="multipart/form-data">
                     <h3 className="mt-3">Información</h3>
 
                     <div className="col-12">
