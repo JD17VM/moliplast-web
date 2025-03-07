@@ -224,7 +224,7 @@ const AdminServicios = () => {
             </div>
         )}
 
-        <h2 className='mt-4 mb-3'>Lista de Servicios</h2>
+        <h2 className='mt-4 mb-3'>Administrador Servicios</h2>
 
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>

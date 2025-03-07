@@ -240,7 +240,7 @@ const AdminCatalogos = () => {
                 </div>
             )}
 
-            <h2 className='mt-4 mb-3'>Lista de Catalogos</h2>
+            <h2 className='mt-4 mb-3'>Administrador Catalogos</h2>
 
             {loading && <p>Cargando...</p>}
             <div className={styles.contenedor_total_administrador}>

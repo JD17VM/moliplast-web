@@ -498,7 +498,7 @@ const AdminProductos = () => {
                 {success}
             </div>
         )}
-        <h2 className='mt-4 mb-3'>Lista de Productos</h2>
+        <h2 className='mt-4 mb-3'>Administrador Productos</h2>
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
         <div className={styles.contenedor_registros}>
