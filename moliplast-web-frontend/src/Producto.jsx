@@ -15,7 +15,18 @@ const Producto = () => {
     const [producto, setProducto] = useState(null);
     const [imagenActual, setImagenActual] = useState(null); // Inicializa con null o una imagen de carga
     const { id } = useParams();
+    
+    const [productosRelacionados, setProductosRelacionados] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
+    // Función para construir la URL completa
+    const getFullUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
+    // Cargar datos del producto
     useEffect(() => {
         const fetchProducto = async () => {
             try {
@@ -38,15 +49,42 @@ const Producto = () => {
         fetchProducto();
     }, [id]);
 
+    // Cargar productos relacionados
+    useEffect(() => {
+        const loadProductosRelacionados = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const response = await fetch(`${BASE_URL_API}/api/productos-relacionados/${id}`);
+                
+                if (response.status === 404) {
+                    console.log('No hay ProductosRelacionados disponibles');
+                    setProductosRelacionados([]);
+                    setLoading(false);
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                setProductosRelacionados(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Error al cargar los ProductosRelacionados. Por favor, intenta nuevamente.');
+                setProductosRelacionados([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProductosRelacionados();
+    }, [id]);
+
     const handleClick = (imagen, numButton) => {
         setImagenActual(imagen);
         setBotonActivo(numButton);
-    };
-
-    // Función para construir la URL completa
-    const getFullUrl = (path) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
     };
 
     if (!producto) {
@@ -119,7 +157,7 @@ const Producto = () => {
             <div className={styles.descripcion_extra}>
                 <InterpreteMarkdownHTML texto_markdown={producto.texto_markdown}/>
             </div>
-            <SeccionProductosImportantes titulo='Productos Relacionados' />
+            <SeccionProductosImportantes titulo='Productos Relacionados' data={productosRelacionados}/>
         </>
     );
 };

@@ -466,9 +466,91 @@ class ProductoController extends Controller
         return response()->json($response, 200);
     }*/
 
+    public function getProductosRelacionados($id)
+    {
+        // Obtener el producto principal
+        $producto = Producto::where('id', $id)->where('estatus', true)->first();
+
+        if (!$producto) {
+            return response()->json([
+                'message' => 'Producto no encontrado',
+                'status' => 404
+            ], 404);
+        }
+
+        // Obtener las primeras 3 letras del nombre del producto
+        $prefijo = substr($producto->nombre, 0, 3);
+
+        // Buscar productos con el mismo prefijo, excluyendo el producto actual
+        // y que estén en la misma categoría si es posible
+        $relacionados = Producto::where('id', '!=', $id)
+                            ->where('estatus', true)
+                            ->where('nombre', 'like', $prefijo . '%')
+                            ->where(function($query) use ($producto) {
+                                // Priorizar productos de la misma categoría
+                                $query->where('id_categoria', $producto->id_categoria)
+                                        ->orWhereNotNull('id');
+                            })
+                            ->select('id', 'nombre', 'imagen_1')
+                            ->limit(4)
+                            ->get();
+
+        // Si no hay suficientes productos con el mismo prefijo,
+        // completar con productos de la misma categoría
+        if ($relacionados->count() < 4) {
+            $faltantes = 4 - $relacionados->count();
+            
+            $idsExcluir = $relacionados->pluck('id')->push($id)->toArray();
+            
+            $adicionales = Producto::where('id', '!=', $id)
+                                ->whereNotIn('id', $idsExcluir)
+                                ->where('estatus', true)
+                                ->where('id_categoria', $producto->id_categoria)
+                                ->select('id', 'nombre', 'imagen_1')
+                                ->limit($faltantes)
+                                ->get();
+            
+            $relacionados = $relacionados->concat($adicionales);
+        }
+
+        // Si aún así no hay 4 productos, completar con otros productos activos
+        if ($relacionados->count() < 4) {
+            $faltantes = 4 - $relacionados->count();
+            
+            $idsExcluir = $relacionados->pluck('id')->push($id)->toArray();
+            
+            $adicionales = Producto::where('id', '!=', $id)
+                                ->whereNotIn('id', $idsExcluir)
+                                ->where('estatus', true)
+                                ->select('id', 'nombre', 'imagen_1')
+                                ->limit($faltantes)
+                                ->get();
+            
+            $relacionados = $relacionados->concat($adicionales);
+        }
+
+        if ($relacionados->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron productos relacionados',
+                'status' => 404
+            ], 404);
+        }
+
+        // Formatear la respuesta como en los métodos de carta de productos
+        $response = $relacionados->map(function ($producto) {
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'enlace_imagen' => $producto->imagen_1,
+            ];
+        });
+
+        return response()->json($response, 200);
+    }
+
     public function getCartaProductos(Request $request)
     {
-        $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50
+        $perPage = $request->input('per_page', 48); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
 
         // Obtener todos los productos con estatus true y seleccionar solo los campos necesarios
@@ -489,7 +571,7 @@ class ProductoController extends Controller
 
     public function getCartaProductosPorCategoria($categoriaNombre, Request $request)
     {
-        $perPage = $request->input('per_page', 50);
+        $perPage = $request->input('per_page', 48);
         $page = $request->input('page', 1);
 
         // Buscar la categoría por nombre
@@ -522,7 +604,7 @@ class ProductoController extends Controller
 
     public function getCartaProductosPorSubcategoria($categoriaNombre, $subcategoriaNombre, Request $request)
     {
-        $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50
+        $perPage = $request->input('per_page', 48); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
 
         // Buscar la categoría por nombre
@@ -569,7 +651,7 @@ class ProductoController extends Controller
 
     public function getCartaProductosPorSubsubcategoria($categoriaNombre, $subcategoriaNombre, $subsubcategoriaNombre, Request $request)
     {
-        $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50
+        $perPage = $request->input('per_page', 48); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
 
         // Buscar la categoría por nombre

@@ -79,6 +79,7 @@ Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); //
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
 Route::get('/productos-destacados',[ProductoController::class, 'productosDestacados']); // X
+Route::get('/productos-relacionados/{id}',[ProductoController::class, 'getProductosRelacionados']); // X
 
 Route::get('/products/search', [ProductoController::class, 'search']);
 
