@@ -17,7 +17,7 @@ export const InputNormal = ({
                 name="fname"
                 placeholder={placeholder}
                 onChange={onChange}  // Añade esta línea
-                autocomplete={autocomplete}
+                autoComplete={autocomplete}
             />
             <button type={buttonType}>
                 {Icono && <Icono />}
@@ -43,7 +43,7 @@ export const InputBuscador = ({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange} // Actualización en tiempo real
-                autocomplete={autocomplete}
+                autoComplete={autocomplete}
             />
             <button>
                 {Icono && <Icono />}
