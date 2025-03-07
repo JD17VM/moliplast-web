@@ -385,7 +385,7 @@ const AdminCategorias = () => {
                             disabled={loading}
                             className="btn btn-primary w-100"
                         >
-                            {loading ? 'Procesando...' : (editingCategoria ? 'Actualizar' : 'Guardar')}
+                            {loading ? 'Procesando...' : (editingCategoria ? 'Actualizar' : 'Crear categoría')}
                         </button>
                     </div>
                 </form>

@@ -923,7 +923,7 @@ const AdminProductos = () => {
                             disabled={loading}
                             className="btn btn-primary w-100"
                         >
-                            {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Guardar')}
+                            {loading ? 'Procesando...' : (editingProducto ? 'Actualizar' : 'Crear producto')}
                         </button>
                     </div>
                 </form>

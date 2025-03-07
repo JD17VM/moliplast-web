@@ -337,7 +337,7 @@ const AdminSubsubcategorias = () => {
                             disabled={loading}
                             className="btn btn-primary w-100"
                         >
-                            {loading ? 'Procesando...' : (editingSubsubcategoria ? 'Actualizar' : 'Guardar')}
+                            {loading ? 'Procesando...' : (editingSubsubcategoria ? 'Actualizar' : 'Crear subsubcategoría')}
                         </button>
                     </div>
                 </form>

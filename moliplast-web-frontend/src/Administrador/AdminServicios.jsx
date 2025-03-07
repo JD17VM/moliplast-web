@@ -379,7 +379,7 @@ const AdminServicios = () => {
                             disabled={loading}
                             className="btn btn-primary w-100"
                         >
-                            {loading ? 'Procesando...' : (editingServicio ? 'Actualizar' : 'Guardar')}
+                            {loading ? 'Procesando...' : (editingServicio ? 'Actualizar' : 'Crear servicio')}
                         </button>
                     </div>
                 </form>

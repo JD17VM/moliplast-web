@@ -407,7 +407,7 @@ const AdminCatalogos = () => {
                                 disabled={loading}
                                 className="btn btn-primary w-100"
                             >
-                                {loading ? 'Procesando...' : (editingCatalogo ? 'Actualizar' : 'Guardar')}
+                                {loading ? 'Procesando...' : (editingCatalogo ? 'Actualizar' : 'Crear catálogo')}
                             </button>
                         </div>
                     </form>
