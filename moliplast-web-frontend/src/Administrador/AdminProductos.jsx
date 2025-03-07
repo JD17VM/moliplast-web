@@ -35,12 +35,25 @@ const AdminProductos = () => {
         perPage: 200, // Puedes ajustar este valor según tus necesidades
     });
 
+    // Estado para controlar el tiempo entre solicitudes
+    const [requestInProgress, setRequestInProgress] = useState(false);
+    const lastRequestTimeRef = useRef(0);
+    const requestQueueRef = useRef([]);
+    const searchTimeoutRef = useRef(null);
+
     // Cargar datos al iniciar el componente
     useEffect(() => {
         if (!isSearching) {
             loadProductos(pagination.currentPage);
         }
         loadCategorias();
+        
+        // Limpieza del timeout al desmontar
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
     }, [isSearching]);
     
     const [editingProducto, setEditingProducto] = useState(null);
@@ -479,6 +492,46 @@ const AdminProductos = () => {
         }
     };
 
+    // Función para manejar solicitudes con control de tasa
+    const makeRateLimitedRequest = async (url, options = {}) => {
+        // Asegurarse de que hay al menos 300ms entre solicitudes
+        const now = Date.now();
+        const timeSinceLastRequest = now - lastRequestTimeRef.current;
+        
+        if (timeSinceLastRequest < 300) {
+            await new Promise(resolve => setTimeout(resolve, 300 - timeSinceLastRequest));
+        }
+        
+        lastRequestTimeRef.current = Date.now();
+        
+        try {
+            const response = await fetch(url, options);
+            
+            if (response.status === 429) {
+                // Extraer el tiempo de espera del encabezado Retry-After si está disponible
+                const retryAfter = response.headers.get('Retry-After');
+                const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000; // Esperar 2 segundos por defecto
+                
+                console.log(`Rate limit alcanzado. Esperando ${waitTime}ms antes de reintentar...`);
+                
+                // Esperar el tiempo indicado
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                
+                // Reintentar la solicitud
+                return makeRateLimitedRequest(url, options);
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();
+        } catch (error) {
+            console.error('Error en la solicitud:', error);
+            throw error;
+        }
+    };
+
     // Efecto para manejar la búsqueda con debounce
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -510,37 +563,46 @@ const AdminProductos = () => {
         return subsubcategoria ? subsubcategoria.nombre : 'No asignada';
     };
 
-    // Función para buscar productos
+    // Función mejorada para buscar productos
     const searchProductos = async (query) => {
-        if (!query.trim()) return;
+        if (!query.trim() || query.trim().length < 3) return;
         
         setLoading(true);
         setIsSearching(true);
         setError('');
         
         try {
-            const response = await fetch(`${BASE_URL_API}/api/products/search?query=${encodeURIComponent(query)}`);
+            // Usar la función con control de tasa
+            const data = await makeRateLimitedRequest(`${BASE_URL_API}/api/products/search?query=${encodeURIComponent(query)}`);
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Si necesitamos más información de los productos, podemos hacer una segunda petición
-            // con los IDs obtenidos o modificar el endpoint de búsqueda para que devuelva más datos
-            if (data.length > 0) {
-                const productosCompletos = await Promise.all(
-                    data.map(async (item) => {
-                        const detailResponse = await fetch(`${BASE_URL_API}/api/productos/${item.id}`);
-                        if (detailResponse.ok) {
-                            return await detailResponse.json();
+            if (data && Array.isArray(data)) {
+                // Si la API de búsqueda ya devuelve datos completos, usarlos directamente
+                if (data.length > 0 && 'nombre' in data[0] && 'id_categoria' in data[0]) {
+                    setProductos(data);
+                } 
+                // Si solo devuelve IDs o datos parciales, obtener los detalles con un límite de solicitudes
+                else if (data.length > 0) {
+                    // Limitar a 5 productos para evitar demasiadas solicitudes
+                    const limitedData = data.slice(0, 5);
+                    
+                    // Hacer las solicitudes de manera secuencial para evitar sobrecargar el servidor
+                    const productosCompletos = [];
+                    for (const item of limitedData) {
+                        try {
+                            const productoDetalle = await makeRateLimitedRequest(`${BASE_URL_API}/api/productos/${item.id}`);
+                            if (productoDetalle) {
+                                productosCompletos.push(productoDetalle);
+                            }
+                        } catch (detailError) {
+                            console.warn(`No se pudo obtener detalles para producto ${item.id}:`, detailError);
                         }
-                        return null;
-                    })
-                );
+                    }
+                    
+                    setProductos(productosCompletos);
+                } else {
+                    setProductos([]);
+                }
                 
-                setProductos(productosCompletos.filter(p => p !== null));
                 // Reseteamos la paginación durante la búsqueda
                 setPagination({
                     ...pagination,
@@ -552,7 +614,7 @@ const AdminProductos = () => {
             }
         } catch (error) {
             console.error('Error searching productos:', error);
-            setError('Error al buscar productos. Por favor, intenta nuevamente.');
+            setError('Error al buscar productos. Por favor, intenta nuevamente en unos momentos.');
         } finally {
             setLoading(false);
         }
