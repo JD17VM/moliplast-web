@@ -127,6 +127,12 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
 
+    useEffect(() => {
+        // Limpiar el input cuando la ruta cambia
+        setQuery('');
+        setResults([]);
+    }, [location.pathname])
+
     const debouncedSearch = debounce((searchQuery) => {
         if (searchQuery.length > 2) {
             axios.get(`http://127.0.0.1:8000/api/products/search?query=${searchQuery}`)

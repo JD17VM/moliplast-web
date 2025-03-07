@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 
@@ -9,7 +9,7 @@ import mailTo from "../utils/utils.js"
 import { Titulo_Lista, Titulo_Icono } from './IconoTexto';
 
 import { Icono_Facebook } from '../assets/imgs/iconos/svg/Redes_Sociales';
-
+import { Link, useLocation } from 'react-router-dom';
 import { FaKey } from "react-icons/fa";
 import { FaSquarePhone } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
@@ -32,7 +32,7 @@ const Seccion_Hover_Footer = styled.div`
 
 
 const Footer = ({data, onAdminLogin}) => {
-
+    const location = useLocation(); // Obtener la ubicación actual
     const dataModificada = data.map(objeto => ({
         elemento: objeto.nombre, // Mapear "nombre" a "elemento"
         enlace: objeto.enlace,   // Conservar la propiedad "enlace"
@@ -69,6 +69,12 @@ const Footer = ({data, onAdminLogin}) => {
             setError('Contraseña incorrecta');
         }
     };
+
+    useEffect(() => {
+        // Limpiar el input cuando la ruta cambia
+        setPassword('');
+        setShowElement(false); // Also hide the form when route changes
+    }, [location.pathname])
 
     return (
         <footer>
@@ -116,7 +122,7 @@ const Footer = ({data, onAdminLogin}) => {
                 />
                 {mostrarElement ? (
                     <form onSubmit={handleLogin} autocomplete="off">
-                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey}  onChange={(e) => setPassword(e.target.value)} buttonType='submit' autocomplete="off"/>
+                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey}  value={password} onChange={(e) => setPassword(e.target.value)} buttonType='submit' autocomplete="off"/>
                         {/*<button type="submit">Ingresar</button>*/}
                     </form>
                 ) : null}

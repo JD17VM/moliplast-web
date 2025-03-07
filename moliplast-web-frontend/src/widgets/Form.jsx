@@ -18,6 +18,7 @@ export const InputNormal = ({
                 placeholder={placeholder}
                 onChange={onChange}  // Añade esta línea
                 autoComplete={autocomplete}
+                value={value}
             />
             <button type={buttonType}>
                 {Icono && <Icono />}
