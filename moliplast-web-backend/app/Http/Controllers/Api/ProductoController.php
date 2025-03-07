@@ -17,10 +17,11 @@ class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 200); // Número de productos por página, por defecto 50
+        $perPage = $request->input('per_page', 100); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
         // Solo obtener productos con estatus true
         $productos = Producto::where('estatus', true)
+                                ->orderBy('created_at', 'desc')
                                 ->paginate($perPage, ['*'], 'page', $page);
 
         if ($productos->isEmpty()){

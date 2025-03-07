@@ -32,7 +32,7 @@ const AdminProductos = () => {
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
-        perPage: 200, // Puedes ajustar este valor según tus necesidades
+        perPage: 100, // Puedes ajustar este valor según tus necesidades
     });
 
     // Estado para controlar el tiempo entre solicitudes
