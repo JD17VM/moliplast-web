@@ -81,18 +81,18 @@ class CategoriaController extends Controller
             ], 400);
         }
 
-        // Guardar la imagen con un nombre único
+        // In the guardar method, change:
         $imagenUrl = null;
         if ($request->hasFile('enlace_imagen')) {
             $imagePath = $request->file('enlace_imagen')->store('categorias', 'public');
-            $imageUrl = Storage::url($imagePath);
+            $imagenUrl = Storage::url($imagePath);
         }
         
         // Crear la categoría
         $categoria = Categoria::create([
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
-            'enlace_imagen' => $imageUrl,
+            'enlace_imagen' => $imagenUrl,
             'estatus' => true,
         ]);
 

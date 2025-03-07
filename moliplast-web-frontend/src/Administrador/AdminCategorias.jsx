@@ -166,21 +166,25 @@ const AdminCategorias = () => {
         }
     };
 
+    // En la sección de edición de categoría
     const handleEdit = (categoria) => {
         setEditingCategoria(categoria);
         setError('');
         setSuccess('');
-    
+
         setNewCategoria({
             nombre: categoria.nombre,
-            descripcion: categoria.descripcion,
+            descripcion: categoria.descripcion || '', // Manejo de descripción nula
             enlace_imagen: null, // Input de archivo vacío
         });
-    
-        const imageUrl = categoria.enlace_imagen.startsWith('http') 
-            ? categoria.enlace_imagen 
-            : `${BASE_URL_API}${categoria.enlace_imagen}`;
-    
+
+        // Verificar si existe enlace_imagen antes de procesar
+        const imageUrl = categoria.enlace_imagen ? (
+            categoria.enlace_imagen.startsWith('http') 
+                ? categoria.enlace_imagen 
+                : `${BASE_URL_API}${categoria.enlace_imagen}`
+        ) : '';
+
         setImagenPreview(imageUrl);
     };
     
@@ -261,11 +265,11 @@ const AdminCategorias = () => {
                                 <td>
                                     {categoria.enlace_imagen ? (
                                         <img 
-                                        src={categoria.enlace_imagen && categoria.enlace_imagen.startsWith('http')
-                                        ? categoria.enlace_imagen
-                                        : `${BASE_URL_API}${categoria.enlace_imagen}`}
-                                        alt={categoria.nombre}
-                                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                                            src={categoria.enlace_imagen.startsWith('http')
+                                                ? categoria.enlace_imagen
+                                                : `${BASE_URL_API}${categoria.enlace_imagen}`} 
+                                            alt={`Imagen de ${categoria.nombre}`}
+                                            style={{maxWidth: "100px", maxHeight: "100px"}} 
                                         />
                                     ) : 'No disponible'}
                                 </td>
@@ -345,22 +349,22 @@ const AdminCategorias = () => {
                                 disabled={loading}
                                 accept="image/*"
                                 ref={fileInputRef}
-
                                 className="form-control"
                                 aria-describedby="inputGroupFileAddon04" 
                                 aria-label="Upload"
                             />
-                            {imagenPreview && (
-                                <div>
-                                    <p>Imagen actual:</p>
-                                    <img 
-                                        src={imagenPreview}
-                                        alt="Vista previa" 
-                                        style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                                    />
-                                </div>
-                            )}
                         </div>
+                        <small className="text-muted">La imagen es opcional</small>
+                        {imagenPreview && (
+                            <div className="mt-2">
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagenPreview}
+                                    alt="Vista previa" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <div className="col-4 me-3">

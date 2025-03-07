@@ -1,10 +1,10 @@
-import React, { useState, useEffect , useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 
 const BASE_URL_API = "http://127.0.0.1:8000";
 
 const AdminServicios = () => {
-    const fileInputRef = useRef(null); // 👈 Agrega esta línea
+    const fileInputRef = useRef(null);
     const [servicios, setServicios] = useState([]);
     const [newServicio, setNewServicio] = useState({
         titulo: '',
@@ -70,16 +70,23 @@ const AdminServicios = () => {
     
         try {
             let url, method;
-            
+
             if (editingServicio) {
-                url = `${BASE_URL_API}/api/servicios/${editingServicio.id}`;
-                method = 'POST'; // Laravel acepta `POST` para actualizaciones con archivos
-                formData.append('_method', 'PUT'); // Necesario para simular PUT en FormData
+                //Verificar si los campos de titulo y descripcion fueron modificados.
+                if(editingServicio.titulo === newServicio.titulo && editingServicio.descripcion === newServicio.descripcion){
+                    url = `${BASE_URL_API}/api/servicios/partial/${editingServicio.id}`;
+                    method = 'POST';
+                    formData.append('_method', 'PUT');
+                } else {
+                    url = `${BASE_URL_API}/api/servicios/${editingServicio.id}`;
+                    method = 'POST';
+                    formData.append('_method', 'PUT');
+                }
             } else {
                 url = `${BASE_URL_API}/api/servicios`;
                 method = 'POST';
             }
-                
+    
             const response = await fetch(url, {
                 method: method,
                 body: formData,
@@ -99,7 +106,7 @@ const AdminServicios = () => {
             setImagenPreview('');
             setEditingServicio(null);
 
-            // 🔥 Limpia el input de archivo después de guardar
+            // Limpia el input de archivo después de guardar
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
@@ -165,11 +172,11 @@ const AdminServicios = () => {
             enlace_imagen: null, // Input de archivo vacío
         });
     
-        const imageUrl = servicio.enlace_imagen.startsWith('http') 
+        const imageUrl = servicio.enlace_imagen && (servicio.enlace_imagen.startsWith('http') 
             ? servicio.enlace_imagen 
-            : `${BASE_URL_API}${servicio.enlace_imagen}`;
+            : `${BASE_URL_API}${servicio.enlace_imagen}`);
     
-        setImagenPreview(imageUrl);
+        setImagenPreview(imageUrl || '');
     };
     
 
@@ -194,7 +201,7 @@ const AdminServicios = () => {
         setNewServicio({ titulo: '', descripcion: '', enlace_imagen: null });
         setImagenPreview('');
 
-        // 🔥 Limpia el input de archivo después de cancelar
+        // Limpia el input de archivo después de cancelar
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
@@ -250,8 +257,11 @@ const AdminServicios = () => {
                                 <td>
                                     {servicio.enlace_imagen ? (
                                         <img 
-                                            src={`${BASE_URL_API}${servicio.enlace_imagen}`} 
-                                            alt={`Imagen de ${servicio.titulo}`} 
+                                            src={servicio.enlace_imagen.startsWith('http')
+                                                ? servicio.enlace_imagen
+                                                : `${BASE_URL_API}${servicio.enlace_imagen}`} 
+                                            alt={`Imagen de ${servicio.titulo}`}
+                                            style={{maxWidth: "100px", maxHeight: "100px"}} 
                                         />
                                     ) : 'No disponible'}
                                 </td>
@@ -329,26 +339,25 @@ const AdminServicios = () => {
                                 id="enlace_imagen" 
                                 name="enlace_imagen" 
                                 onChange={handleFileChange} 
-                                required={!editingServicio}
                                 disabled={loading}
                                 accept="image/*"
-                                ref={fileInputRef} // 👈 Aquí agregas la referencia
-
+                                ref={fileInputRef}
                                 className="form-control"
                                 aria-describedby="inputGroupFileAddon04" 
                                 aria-label="Upload"
                             />
-                            {imagenPreview && (
-                                <div>
-                                    <p>Imagen actual:</p>
-                                    <img 
-                                        src={imagenPreview}
-                                        alt="Vista previa" 
-                                        style={{ maxWidth: '200px', maxHeight: '200px' }} 
-                                    />
-                                </div>
-                            )}
                         </div>
+                        <small className="text-muted">La imagen es opcional</small>
+                        {imagenPreview && (
+                            <div className="mt-2">
+                                <p>Imagen actual:</p>
+                                <img 
+                                    src={imagenPreview}
+                                    alt="Vista previa" 
+                                    style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                                />
+                            </div>
+                        )}
                     </div>
                     
                     <div className="col-4 me-3">

@@ -68,7 +68,7 @@ class ServicioController extends Controller
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string|max:50',
             'descripcion' => 'required|string',
-            'enlace_imagen' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Imagen opcional
         ]);
 
         if ($validator->fails()) {
@@ -78,15 +78,18 @@ class ServicioController extends Controller
             ], 400);
         }
 
-        // Guardar la imagen con un nombre único
-        $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
-        $imageUrl = Storage::url($imagePath);
-
+        // Guardar la imagen con un nombre único solo si se proporcionó una
+        $imageUrl = null;
+        if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
+            $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
+            $imageUrl = Storage::url($imagePath);
+        }
+        
         // Crear el servicio
         $servicio = Servicio::create([
             'titulo' => $request->titulo,
             'descripcion' => $request->descripcion,
-            'enlace_imagen' => $imageUrl,
+            'enlace_imagen' => $imageUrl, // Puede ser null
             'estatus' => true,
         ]);
 
@@ -112,7 +115,7 @@ class ServicioController extends Controller
             $validator = Validator::make($request->all(), [
                 'titulo' => 'required|string|max:50',
                 'descripcion' => 'required|string',
-                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Imagen opcional
             ]);
 
             if ($validator->fails()) {
@@ -153,9 +156,8 @@ class ServicioController extends Controller
     public function updatePartial(Request $request, $id)
     {
         Log::info('Iniciando actualización parcial de servicio', ['id' => $id, 'data' => $request->all()]);
-        
+
         try {
-            // Solo obtener servicio con estatus true
             $servicio = Servicio::where('id', $id)->where('estatus', true)->first();
 
             if (!$servicio) {
@@ -166,13 +168,13 @@ class ServicioController extends Controller
             $validator = Validator::make($request->all(), [
                 'titulo' => 'nullable|string|max:50',
                 'descripcion' => 'nullable|string',
-                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'enlace_imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Imagen opcional
             ]);
 
             if ($validator->fails()) {
                 Log::error('Validación fallida en actualización parcial', ['errors' => $validator->errors()]);
                 return response()->json([
-                    'message' => 'Error en la validación de los datos', 
+                    'message' => 'Error en la validación de los datos',
                     'errors' => $validator->errors()
                 ], 400);
             }
@@ -186,13 +188,11 @@ class ServicioController extends Controller
             }
 
             if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
-                // Obtener la ruta relativa del archivo actual para eliminar
                 if ($servicio->enlace_imagen) {
                     $oldImagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
                     Storage::delete($oldImagePath);
                 }
-                
-                // Guardar la nueva imagen
+
                 $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
                 if (!$imagePath) {
                     Log::error('Error al guardar la imagen en actualización parcial');
