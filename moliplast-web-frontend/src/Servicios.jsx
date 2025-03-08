@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './assets/styles/estilos_servicios.module.scss';
+import { getFullUrl } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -52,12 +53,6 @@ const Servicios = () => {
         }
     };
 
-    // Función para construir la URL completa de la imagen
-    const getFullImageUrl = (path) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
-    };
-
     return (
         <>
         <div className={styles.contenedor_servicios} data-aos="fade-up">
@@ -80,7 +75,7 @@ const Servicios = () => {
                             key={servicio.id}
                             titulo={servicio.titulo}
                             descripcion={servicio.descripcion}
-                            imagen={getFullImageUrl(servicio.enlace_imagen)}
+                            imagen={getFullUrl(servicio.enlace_imagen)}
                         />
                     ))
                 )

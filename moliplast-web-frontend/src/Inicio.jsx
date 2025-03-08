@@ -86,12 +86,6 @@ const LineaDeProductos = () => {
         }
     };
 
-    // Función para construir la URL completa de la imagen
-    const getFullImageUrl = (path) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
-    };
-
     return (
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">

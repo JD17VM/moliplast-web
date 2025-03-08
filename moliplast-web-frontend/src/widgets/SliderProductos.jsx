@@ -6,8 +6,6 @@ import styled from 'styled-components'
 import { SoloProductosImportantes } from './ProductosImportantes';
 import { ContenedorSeccion } from '../Inicio';
 
-import imageHelper from '../utils/imageHelper.js'
-
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const StyledCarousel = styled(Carousel)`
@@ -110,13 +108,6 @@ function SliderProductos() {
           setLoading(false);
       }
   };
-
-  // Función para construir la URL completa de la imagen
-  const getFullImageUrl = (path) => {
-      if (!path) return '';
-      return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
-  };  
-  
 
   const data = productosDestacados;
 

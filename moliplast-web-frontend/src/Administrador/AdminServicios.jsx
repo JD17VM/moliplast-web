@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
+import { getFullUrl } from '../utils/utils';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -257,9 +258,7 @@ const AdminServicios = () => {
                                 <td>
                                     {servicio.enlace_imagen ? (
                                         <img 
-                                            src={servicio.enlace_imagen.startsWith('http')
-                                                ? servicio.enlace_imagen
-                                                : `${BASE_URL_API}${servicio.enlace_imagen}`} 
+                                            src={getFullUrl(servicio.enlace_imagen)} 
                                             alt={`Imagen de ${servicio.titulo}`}
                                             style={{maxWidth: "100px", maxHeight: "100px"}} 
                                         />

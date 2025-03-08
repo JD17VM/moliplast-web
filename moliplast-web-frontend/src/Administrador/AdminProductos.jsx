@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { Link, useLocation } from 'react-router-dom';
+import { getFullUrl } from '../utils/utils';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -707,7 +708,7 @@ const AdminProductos = () => {
                                 <td>
                                     {producto.imagen_1 ? (
                                         <img 
-                                            src={producto.imagen_1.startsWith('http') ? producto.imagen_1 : `${BASE_URL_API}${producto.imagen_1}`}
+                                            src={getFullUrl(producto.imagen_1)}
                                             alt={`Imagen de ${producto.nombre}`} 
                                         />
                                     ) : 'No disponible'}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
+import { getFullUrl } from "../utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -265,9 +266,7 @@ const AdminCategorias = () => {
                                 <td>
                                     {categoria.enlace_imagen ? (
                                         <img 
-                                            src={categoria.enlace_imagen.startsWith('http')
-                                                ? categoria.enlace_imagen
-                                                : `${BASE_URL_API}${categoria.enlace_imagen}`} 
+                                            src={getFullUrl(categoria.enlace_imagen)} 
                                             alt={`Imagen de ${categoria.nombre}`}
                                             style={{maxWidth: "100px", maxHeight: "100px"}} 
                                         />

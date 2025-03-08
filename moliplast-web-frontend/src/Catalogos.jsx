@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './assets/styles/estilos_catalogos.module.scss';
+import { getFullUrl } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -38,12 +39,6 @@ const Catalogos = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    // Función para construir la URL completa
-    const getFullUrl = (path) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
     };
 
     return (

@@ -8,6 +8,8 @@ import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
 import { useParams } from 'react-router-dom';
 
+import { getFullUrl } from "./utils/utils.js"
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const Producto = () => {
@@ -20,11 +22,7 @@ const Producto = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Función para construir la URL completa
-    const getFullUrl = (path) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
-    };
+
 
     // Cargar datos del producto
     useEffect(() => {
