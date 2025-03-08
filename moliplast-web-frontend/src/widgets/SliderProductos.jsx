@@ -8,7 +8,7 @@ import { ContenedorSeccion } from '../Inicio';
 
 import imageHelper from '../utils/imageHelper.js'
 
-const BASE_URL_API = "http://127.0.0.1:8000";
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const StyledCarousel = styled(Carousel)`
     width: 100%;
