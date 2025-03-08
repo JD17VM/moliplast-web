@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 
-const BASE_URL_API = "http://127.0.0.1:8000";
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const AdminServicios = () => {
     const fileInputRef = useRef(null);

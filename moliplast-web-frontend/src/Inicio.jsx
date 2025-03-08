@@ -11,7 +11,7 @@ import CarruselImgs from './widgets/CarruselImgs';
 
 import SliderProductos from './widgets/SliderProductos';
 
-const BASE_URL_API = "http://127.0.0.1:8000";
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 export const ContenedorSeccion = (props) => {
     let claseFondo = ""

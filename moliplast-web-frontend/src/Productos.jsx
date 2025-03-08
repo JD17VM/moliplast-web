@@ -6,7 +6,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
-const BASE_URL_API = "http://127.0.0.1:8000";
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const CheckBox = ({ id, marcado = false, children, onClick }) => {
     return (
