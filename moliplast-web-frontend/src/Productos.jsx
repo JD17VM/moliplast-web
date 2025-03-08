@@ -38,18 +38,37 @@ const Productos = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/subcategorias-por-categoria/${categoria}`);
+                // Limpiar el estado de categoriaData al cambiar de categoría
+                setCategoriaData(null);
+    
+                const response = await fetch(`${BASE_URL_API}/api/subcategorias-por-categoria/${categoria}`);
+                
+                // Si la respuesta es 404, la categoría no tiene subcategorías
+                if (response.status === 404) {
+                    setCategoriaData({ subcategorias: [] }); // Establecer subcategorías como un array vacío
+                    setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
+                    fetchProductos(); // Cargar productos directamente
+                    return;
+                }
+    
                 if (!response.ok) {
                     throw new Error('Error al obtener las subcategorías');
                 }
+    
                 const data = await response.json();
                 setCategoriaData(data);
+    
+                // Si no hay subcategorías, forzar la carga de productos
+                if (!data.subcategorias || data.subcategorias.length === 0) {
+                    setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
+                    fetchProductos(); // Cargar productos directamente
+                }
             } catch (error) {
                 console.error('Error:', error);
                 setError('No se pudieron cargar las subcategorías');
             }
         };
-
+    
         if (categoria) {
             fetchData();
         }
@@ -60,7 +79,6 @@ const Productos = () => {
         setIsLoading(true);
         setError(null);
         try {
-            // Construir la URL base
             let url = `${BASE_URL_API}/api/productos/carta/${categoria}`;
     
             // Agregar subcategoría si existe y no es "todos"
@@ -76,21 +94,20 @@ const Productos = () => {
             // Agregar parámetro de paginación
             url += `?page=${page}`;
     
-            // Hacer la solicitud a la API
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Error al obtener los productos');
             }
             const data = await response.json();
-            setProductos(data.data); // Actualizar productos
+            setProductos(data.data);
             setPagination({
-                currentPage: data.current_page, // Página actual
-                totalPages: data.last_page // Total de páginas
+                currentPage: data.current_page,
+                totalPages: data.last_page
             });
-            setIsLoading(false);
         } catch (error) {
             console.error('Error:', error);
             setError('No se pudieron cargar los productos');
+        } finally {
             setIsLoading(false);
         }
     };
@@ -183,19 +200,20 @@ const Productos = () => {
     return (
         <div className={styles.seccion_productos}>
             <div className={`${styles.cont_panel_filtros_busqueda} ${mostrarElemento ? styles.mostrar : styles.ocultar}`}>
-                <div className={styles.panel_filtros}>
-                    <h2>Panel de Filtros</h2>
-                    <ul>
-                        <li>
-                            <CheckBox
-                                id="todos"
-                                onClick={() => handleClick('todos', 'subcategoria')}
-                                marcado={checkedElement.subcategoria === 'todos'}
-                            >
-                                Todos
-                            </CheckBox>
-                        </li>
-                        {categoriaData.subcategorias.map(subcategoriaItem => (
+            <div className={styles.panel_filtros}>
+                <h2>Panel de Filtros</h2>
+                <ul>
+                    <li>
+                        <CheckBox
+                            id="todos"
+                            onClick={() => handleClick('todos', 'subcategoria')}
+                            marcado={checkedElement.subcategoria === 'todos'}
+                        >
+                            Todos
+                        </CheckBox>
+                    </li>
+                    {categoriaData && categoriaData.subcategorias && categoriaData.subcategorias.length > 0 ? (
+                        categoriaData.subcategorias.map(subcategoriaItem => (
                             <li key={subcategoriaItem.id}>
                                 <CheckBox
                                     id={subcategoriaItem.id}
@@ -204,7 +222,7 @@ const Productos = () => {
                                 >
                                     {subcategoriaItem.nombre}
                                 </CheckBox>
-                                {subcategoriaItem.subsubcategorias.length > 0 && (
+                                {subcategoriaItem.subsubcategorias && subcategoriaItem.subsubcategorias.length > 0 && (
                                     <ul>
                                         {subcategoriaItem.subsubcategorias.map(subsubcategoriaItem => (
                                             <li key={subsubcategoriaItem.id}>
@@ -220,10 +238,13 @@ const Productos = () => {
                                     </ul>
                                 )}
                             </li>
-                        ))}
-                    </ul>
-                    <button onClick={handleClickPanel}><IoIosCloseCircle /></button>
-                </div>
+                        ))
+                    ) : (
+                        <li>No hay subcategorías disponibles</li>
+                    )}
+                </ul>
+                <button onClick={handleClickPanel}><IoIosCloseCircle /></button>
+            </div>
             </div>
             <div className={styles.titulo_boton_menu}>
                 <h1>{categoria ? categoria : 'Elementos'}</h1>
@@ -239,22 +260,14 @@ const Productos = () => {
                 ) : productos.length === 0 ? (
                     <div>No hay productos disponibles</div>
                 ) : (
-                    productos.map((producto) => {
-                        const enlaceImagen = producto.enlace_imagen
-                            ? producto.enlace_imagen.startsWith('http')
-                                ? producto.enlace_imagen
-                                : `${BASE_URL_API}${producto.enlace_imagen}`
-                            : false;
-
-                        return (
-                            <CartaProducto
-                                key={producto.id}
-                                enlace_imagen={getFullUrl(producto.imagen_1) || imageHelper.defaultImg}
-                                texto={producto.nombre}
-                                id={producto.id}
-                            />
-                        );
-                    })
+                    productos.map((producto) => (
+                        <CartaProducto
+                            key={producto.id}
+                            enlace_imagen={getFullUrl(producto.imagen_1) || imageHelper.defaultImg}
+                            texto={producto.nombre}
+                            id={producto.id}
+                        />
+                    ))
                 )}
             </div>
 
