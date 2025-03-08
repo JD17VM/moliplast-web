@@ -20,6 +20,7 @@ import LogoutButton  from '../Administrador/LogoutButton'
 
 import axios from 'axios'; // Importar axios
 
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 // Definir dataPaginas directamente en el archivo
 const dataPaginas = {
     data: [
@@ -78,7 +79,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
         } else {
             const fetchCategorias = async () => {
                 try {
-                    const response = await axios.get('http://127.0.0.1:8000/api/categorias-con-subcategorias');
+                    const response = await axios.get(`${BASE_URL_API}/api/categorias-con-subcategorias`);
                     const categorias = response.data;
                     const subsecciones = categorias.map(categoria => ({
                         nombre: categoria.nombre,
@@ -137,7 +138,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
 
     const debouncedSearch = debounce((searchQuery) => {
         if (searchQuery.length > 2) {
-            axios.get(`http://127.0.0.1:8000/api/products/search?query=${searchQuery}`)
+            axios.get(`${BASE_URL_API}/api/products/search?query=${searchQuery}`)
                 .then(response => {
                     setResults(response.data);
                 })
