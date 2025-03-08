@@ -31,7 +31,7 @@ export const ContenedorSeccion = (props) => {
 
 const TipoProducto = ({imagen, texto}) => {
     return (
-        <Link 
+        <Link to={`/productos/${texto}`}
             className={styles.cont_tipo_producto} 
             style={{
                 backgroundImage: `url(${imagen})`,
