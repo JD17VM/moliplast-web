@@ -73,6 +73,17 @@
 }
 
 
+@media only screen and (max-width: 500px){
+
+    .contenedor_linea_productos{
+        //background-color: red;
+        width: 100%;
+        column-gap: 0.5rem;
+    }
+    
+    }
+
+
 
 
 
