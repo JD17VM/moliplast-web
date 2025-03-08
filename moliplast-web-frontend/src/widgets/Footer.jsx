@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import styles from '../assets/styles/estilos_footer.module.css'
 import imageHelper from '../utils/imageHelper.js'
-import mailTo from "../utils/utils.js"
+import { mailTo } from "../utils/utils.js"
 
 import { Titulo_Lista, Titulo_Icono } from './IconoTexto';
 

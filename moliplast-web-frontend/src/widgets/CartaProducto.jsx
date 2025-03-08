@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import styles from '../assets/styles/estilos_carta_producto.module.scss'
+import { convertirATitulo } from "../utils/utils.js"
 
 const CartaProducto = ({enlace_imagen, texto, id}) => {
     return (
@@ -8,7 +9,7 @@ const CartaProducto = ({enlace_imagen, texto, id}) => {
                 <img src={enlace_imagen} alt="" />
             </div>
             <div className={styles.cont_nombre_producto}>
-                <p>{texto}</p>
+                <p>{convertirATitulo(texto)}</p>
             </div>
         </Link>
     )

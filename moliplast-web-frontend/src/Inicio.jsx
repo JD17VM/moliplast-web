@@ -7,7 +7,7 @@ import imageHelper from './utils/imageHelper.js'
 import SliderImgs from './widgets/SliderImgs';
 
 import CarruselImgs from './widgets/CarruselImgs';
-
+import { convertirATitulo } from "./utils/utils.js"
 
 import SliderProductos from './widgets/SliderProductos';
 
@@ -52,6 +52,12 @@ const LineaDeProductos = () => {
         loadCategorias();
     }, []);
 
+    // Función para construir la URL completa
+    const getFullUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
     const loadCategorias = async () => {
         setLoading(true);
         setError('');
@@ -90,7 +96,7 @@ const LineaDeProductos = () => {
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">
                 {categorias.map((categoria,index) => (
-                    <TipoProducto imagen={categoria.enlace_imagen || imageHelper.defaultImg} texto={categoria.nombre} key={index}/>
+                    <TipoProducto imagen={getFullUrl(categoria.enlace_imagen) || imageHelper.defaultImg} texto={convertirATitulo(categoria.nombre)} key={index}/>
                 ))}   
             </div>
         </ContenedorSeccion>

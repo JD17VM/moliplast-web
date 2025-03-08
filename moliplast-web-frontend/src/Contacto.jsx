@@ -1,6 +1,6 @@
 import styles from './assets/styles/estilos_contacto.module.scss'
 import React, { useState } from 'react';
-import mailTo from "./utils/utils.js"
+import { mailTo } from "./utils/utils.js"
 import {
     APIProvider,
     Map,

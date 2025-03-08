@@ -2,6 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import styles from '../assets/styles/estilos_navegador.module.scss'
 import { Icono_Facebook_Colores, Icono_Whatsapp_Colores } from '../assets/imgs/iconos/svg/Redes_Sociales';
 
+import { convertirATitulo } from "../utils/utils.js"
+
 import React, { useState, useEffect } from 'react';
 
 //import dataPaginas from '../data/data_paginas'
@@ -207,7 +209,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                                         onMouseLeave={() => toggleSubseccion(index)}
                                     >
                                         {seccion.subsecciones.map((subseccion,subIndex) => (
-                                            <li key={subIndex}><Link to={subseccion.enlace} >{subseccion.nombre}</Link></li>
+                                            <li key={subIndex}><Link to={subseccion.enlace} >{convertirATitulo(subseccion.nombre)}</Link></li>
                                         ))}
                                     </ul>
                                     </>

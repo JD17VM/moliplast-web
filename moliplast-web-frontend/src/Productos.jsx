@@ -28,6 +28,12 @@ const Productos = () => {
     const [error, setError] = useState(null);
     const { categoria, subcategoria, subsubcategoria } = useParams();
 
+    // Función para construir la URL completa
+    const getFullUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
     // Obtener datos de subcategorías
     useEffect(() => {
         const fetchData = async () => {
@@ -243,7 +249,7 @@ const Productos = () => {
                         return (
                             <CartaProducto
                                 key={producto.id}
-                                enlace_imagen={enlaceImagen || imageHelper.defaultImg}
+                                enlace_imagen={getFullUrl(producto.imagen_1) || imageHelper.defaultImg}
                                 texto={producto.nombre}
                                 id={producto.id}
                             />
