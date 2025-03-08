@@ -85,7 +85,7 @@ class CategoriaController extends Controller
         $imagenUrl = null;
         if ($request->hasFile('enlace_imagen')) {
             $imagePath = $request->file('enlace_imagen')->store('categorias', 'public');
-            $imagenUrl = Storage::url($imagePath);
+            $imagenUrl = url('storage/app/public/' . $imagePath);
         }
         
         // Crear la categoría
@@ -131,12 +131,12 @@ class CategoriaController extends Controller
             // Actualizar la imagen solo si se ha proporcionado una nueva
             if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
                 if ($categoria->enlace_imagen) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $categoria->enlace_imagen);
+                    $oldImagePath  = 'public/' . str_replace(url('storage/app/public/'), '', $categoria->enlace_imagen);
                     Storage::delete($oldImagePath);
                 }
 
                 $imagePath = $request->file('enlace_imagen')->store('categorias', 'public');
-                $categoria->enlace_imagen = Storage::url($imagePath);
+                $categoria->enlace_imagen = url('storage/app/public/' . $imagePath);
             }
 
             $categoria->nombre = $request->nombre;
@@ -193,7 +193,7 @@ class CategoriaController extends Controller
             if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
                 // Obtener la ruta relativa del archivo actual para eliminar
                 if ($categoria->enlace_imagen) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $categoria->enlace_imagen);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $categoria->enlace_imagen);
                     Storage::delete($oldImagePath);
                 }
                 
@@ -203,7 +203,7 @@ class CategoriaController extends Controller
                     Log::error('Error al guardar la imagen en actualización parcial');
                     return response()->json(['message' => 'Error al guardar la imagen'], 500);
                 }
-                $categoria->enlace_imagen = Storage::url($imagePath);
+                $categoria->enlace_imagen = url('storage/app/public/' . $imagePath);
             }
 
             $categoria->save();

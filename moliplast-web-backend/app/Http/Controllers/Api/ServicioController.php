@@ -82,7 +82,7 @@ class ServicioController extends Controller
         $imageUrl = null;
         if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
             $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
-            $imageUrl = Storage::url($imagePath);
+            $imageUrl = url('storage/app/public/' . $imagePath);
         }
         
         // Crear el servicio
@@ -128,12 +128,12 @@ class ServicioController extends Controller
             // Actualizar la imagen solo si se ha proporcionado una nueva
             if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
                 if ($servicio->enlace_imagen) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $servicio->enlace_imagen);
                     Storage::delete($oldImagePath);
                 }
 
                 $imagePath = $request->file('enlace_imagen')->store('servicios', 'public');
-                $servicio->enlace_imagen = Storage::url($imagePath);
+                $servicio->enlace_imagen = url('storage/app/public/' . $imagePath);
             }
 
             $servicio->titulo = $request->titulo;
@@ -189,7 +189,7 @@ class ServicioController extends Controller
 
             if ($request->hasFile('enlace_imagen') && $request->file('enlace_imagen')->isValid()) {
                 if ($servicio->enlace_imagen) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $servicio->enlace_imagen);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $servicio->enlace_imagen);
                     Storage::delete($oldImagePath);
                 }
 
@@ -198,7 +198,7 @@ class ServicioController extends Controller
                     Log::error('Error al guardar la imagen en actualización parcial');
                     return response()->json(['message' => 'Error al guardar la imagen'], 500);
                 }
-                $servicio->enlace_imagen = Storage::url($imagePath);
+                $servicio->enlace_imagen = url('storage/app/public/' . $imagePath);
             }
 
             $servicio->save();

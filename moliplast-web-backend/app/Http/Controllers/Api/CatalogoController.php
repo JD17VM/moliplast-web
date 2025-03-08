@@ -83,11 +83,11 @@ class CatalogoController extends Controller
 
         // Guardar el documento con un nombre único
         $documentPath = $request->file('enlace_documento')->store('documents', 'public');
-        $documentUrl = Storage::url($documentPath);
+        $documentUrl = url('storage/app/public/' . $documentPath);
 
         // Guardar la imagen con un nombre único
         $imagePath = $request->file('enlace_imagen_portada')->store('images', 'public');
-        $imageUrl = Storage::url($imagePath);
+        $imageUrl = url('storage/app/public/' . $imagePath);
 
         // Crear el catálogo
         $catalogo = Catalogo::create([
@@ -135,7 +135,7 @@ class CatalogoController extends Controller
             if ($request->hasFile('enlace_documento') && $request->file('enlace_documento')->isValid()) {
                 // Obtener la ruta relativa del archivo actual para eliminar
                 if ($catalogo->enlace_documento) {
-                    $oldDocumentPath = str_replace('/storage/', 'public/', $catalogo->enlace_documento);
+                    $oldDocumentPath = 'public/' . str_replace(url('storage/app/public/'), '', $catalogo->enlace_documento);
                     Storage::delete($oldDocumentPath);
                 }
                 
@@ -145,14 +145,14 @@ class CatalogoController extends Controller
                     Log::error('Error al guardar el documento en actualización');
                     return response()->json(['message' => 'Error al guardar el documento'], 500);
                 }
-                $catalogo->enlace_documento = Storage::url($documentPath);
+                $catalogo->enlace_documento = url('storage/app/public/' . $documentPath);
             }
 
             // Actualizar la imagen si se proporciona una nueva
             if ($request->hasFile('enlace_imagen_portada') && $request->file('enlace_imagen_portada')->isValid()) {
                 // Obtener la ruta relativa del archivo actual para eliminar
                 if ($catalogo->enlace_imagen_portada) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $catalogo->enlace_imagen_portada);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $catalogo->enlace_imagen_portada);
                     Storage::delete($oldImagePath);
                 }
                 
@@ -162,7 +162,7 @@ class CatalogoController extends Controller
                     Log::error('Error al guardar la imagen en actualización');
                     return response()->json(['message' => 'Error al guardar la imagen'], 500);
                 }
-                $catalogo->enlace_imagen_portada = Storage::url($imagePath);
+                $catalogo->enlace_imagen_portada = url('storage/app/public/' . $imagePath);
             }
 
             $catalogo->nombre = $request->nombre;
@@ -215,7 +215,7 @@ class CatalogoController extends Controller
             if ($request->hasFile('enlace_documento') && $request->file('enlace_documento')->isValid()) {
                 // Obtener la ruta relativa del archivo actual para eliminar
                 if ($catalogo->enlace_documento) {
-                    $oldDocumentPath = str_replace('/storage/', 'public/', $catalogo->enlace_documento);
+                    $oldDocumentPath = 'public/' . str_replace(url('storage/app/public/'), '', $catalogo->enlace_documento);
                     Storage::delete($oldDocumentPath);
                 }
                 
@@ -225,13 +225,13 @@ class CatalogoController extends Controller
                     Log::error('Error al guardar el documento en actualización parcial');
                     return response()->json(['message' => 'Error al guardar el documento'], 500);
                 }
-                $catalogo->enlace_documento = Storage::url($documentPath);
+                $catalogo->enlace_documento = url('storage/app/public/' . $documentPath);
             }
 
             if ($request->hasFile('enlace_imagen_portada') && $request->file('enlace_imagen_portada')->isValid()) {
                 // Obtener la ruta relativa del archivo actual para eliminar
                 if ($catalogo->enlace_imagen_portada) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $catalogo->enlace_imagen_portada);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $catalogo->enlace_imagen_portada);
                     Storage::delete($oldImagePath);
                 }
                 
@@ -241,7 +241,7 @@ class CatalogoController extends Controller
                     Log::error('Error al guardar la imagen en actualización parcial');
                     return response()->json(['message' => 'Error al guardar la imagen'], 500);
                 }
-                $catalogo->enlace_imagen_portada = Storage::url($imagePath);
+                $catalogo->enlace_imagen_portada = url('storage/app/public/' . $imagePath);
             }
 
             $catalogo->save();

@@ -17,7 +17,7 @@ class ProductoController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 100); // Número de productos por página, por defecto 50
+        $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
         // Solo obtener productos con estatus true
         $productos = Producto::where('estatus', true)
@@ -743,37 +743,37 @@ class ProductoController extends Controller
         $imagen1Url = null;
         if ($request->hasFile('imagen_1')) {
             $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-            $imagen1Url = Storage::url($imagen1Path);
+            $imagen1Url = url('storage/app/public/' . $imagen1Path);
         }
 
         $imagen2Url = null;
         if ($request->hasFile('imagen_2')) {
             $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-            $imagen2Url = Storage::url($imagen2Path);
+            $imagen2Url = url('storage/app/public/' . $imagen2Path);
         }
 
         $imagen3Url = null;
         if ($request->hasFile('imagen_3')) {
             $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-            $imagen3Url = Storage::url($imagen3Path);
+            $imagen3Url = url('storage/app/public/' . $imagen3Path);
         }
 
         $imagen4Url = null;
         if ($request->hasFile('imagen_4')) {
             $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
-            $imagen4Url = Storage::url($imagen4Path);
+            $imagen4Url = url('storage/app/public/' . $imagen4Path);
         }
 
         $fichaTecnicaUrl = null;
         if ($request->hasFile('enlace_ficha_tecnica')) {
             $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-            $fichaTecnicaUrl = Storage::url($fichaTecnicaPath);
+            $fichaTecnicaUrl = url('storage/app/public/' . $fichaTecnicaPath);
         }
 
         $qrImageUrl = null;
         if ($request->hasFile('enlace_imagen_qr')) {
             $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-            $qrImageUrl = Storage::url($qrImagePath);
+            $qrImageUrl = url('storage/app/public/' . $qrImagePath);
         }
 
         // Crear el producto
@@ -841,58 +841,59 @@ class ProductoController extends Controller
             // Actualizar las imágenes si se proporcionan
             if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
                 if ($producto->imagen_1) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_1);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_1);
                     Storage::delete($oldImagePath);
                 }
                 $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-                $producto->imagen_1 = Storage::url($imagen1Path);
+                $producto->imagen_1 = url('storage/app/public/' . $imagen1Path);
             }
 
             if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
                 if ($producto->imagen_2) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_2);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_2);
                     Storage::delete($oldImagePath);
                 }
                 $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-                $producto->imagen_2 = Storage::url($imagen2Path);
+                $producto->imagen_2 = url('storage/app/public/' . $imagen2Path);
             }
 
             if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
                 if ($producto->imagen_3) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_3);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_3);
                     Storage::delete($oldImagePath);
                 }
                 $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-                $producto->imagen_3 = Storage::url($imagen3Path);
+                $producto->imagen_3 = url('storage/app/public/' . $imagen3Path);
             }
 
             if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
                 if ($producto->imagen_4) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_4);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_4);
                     Storage::delete($oldImagePath);
                 }
                 $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
                 $producto->imagen_4 = Storage::url($imagen4Path);
+                $producto->imagen_4 = url('storage/app/public/' . $imagen4Path);
             }
 
             // Actualizar el archivo de ficha técnica si se proporciona
             if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
                 if ($producto->enlace_ficha_tecnica) {
-                    $oldFichaPath = str_replace('/storage/', 'public/', $producto->enlace_ficha_tecnica);
+                    $oldFichaPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_ficha_tecnica);
                     Storage::delete($oldFichaPath);
                 }
                 $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-                $producto->enlace_ficha_tecnica = Storage::url($fichaTecnicaPath);
+                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $fichaTecnicaPath);
             }
 
             // Actualizar la imagen QR si se proporciona
             if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
                 if ($producto->enlace_imagen_qr) {
-                    $oldQrPath = str_replace('/storage/', 'public/', $producto->enlace_imagen_qr);
+                    $oldQrPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_imagen_qr);
                     Storage::delete($oldQrPath);
                 }
                 $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-                $producto->enlace_imagen_qr = Storage::url($qrImagePath);
+                $producto->enlace_imagen_qr = url('storage/app/public/' . $qrImagePath);
             }
 
             $producto->id_categoria = $request->id_categoria ?? $producto->id_categoria;
@@ -977,56 +978,56 @@ class ProductoController extends Controller
 
             if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
                 if ($producto->imagen_1) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_1);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_1);
                     Storage::delete($oldImagePath);
                 }
                 $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-                $producto->imagen_1 = Storage::url($imagen1Path);
+                $producto->imagen_1 = url('storage/app/public/' . $imagen1Path);
             }
 
             if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
                 if ($producto->imagen_2) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_2);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_2);
                     Storage::delete($oldImagePath);
                 }
                 $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-                $producto->imagen_2 = Storage::url($imagen2Path);
+                $producto->imagen_2 = url('storage/app/public/' . $imagen2Path);
             }
 
             if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
                 if ($producto->imagen_3) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_3);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_3);
                     Storage::delete($oldImagePath);
                 }
                 $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-                $producto->imagen_3 = Storage::url($imagen3Path);
+                $producto->imagen_3 = url('storage/app/public/' . $imagen3Path);
             }
 
             if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
                 if ($producto->imagen_4) {
-                    $oldImagePath = str_replace('/storage/', 'public/', $producto->imagen_4);
+                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_4);
                     Storage::delete($oldImagePath);
                 }
                 $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
-                $producto->imagen_4 = Storage::url($imagen4Path);
+                $producto->imagen_4 = url('storage/app/public/' . $imagen4Path);
             }
 
             if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
                 if ($producto->enlace_ficha_tecnica) {
-                    $oldFichaPath = str_replace('/storage/', 'public/', $producto->enlace_ficha_tecnica);
+                    $oldFichaPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_ficha_tecnica);
                     Storage::delete($oldFichaPath);
                 }
                 $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-                $producto->enlace_ficha_tecnica = Storage::url($fichaTecnicaPath);
+                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $fichaTecnicaPath);
             }
 
             if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
                 if ($producto->enlace_imagen_qr) {
-                    $oldQrPath = str_replace('/storage/', 'public/', $producto->enlace_imagen_qr);
+                    $oldQrPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_imagen_qr);
                     Storage::delete($oldQrPath);
                 }
                 $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-                $producto->enlace_imagen_qr = Storage::url($qrImagePath);
+                $producto->enlace_imagen_qr = url('storage/app/public/' . $qrImagePath);
             }
 
             if ($request->has('texto_markdown')) {
