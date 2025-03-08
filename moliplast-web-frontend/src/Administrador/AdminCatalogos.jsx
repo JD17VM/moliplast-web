@@ -23,6 +23,12 @@ const AdminCatalogos = () => {
         loadCatalogos();
     }, []);
 
+    // Función para construir la URL completa
+    const getFullUrl = (path) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
+    };
+
     const loadCatalogos = async () => {
         setLoading(true);
         setError('');
@@ -267,7 +273,7 @@ const AdminCatalogos = () => {
                                     <td>{catalogo.nombre}</td>
                                     <td>
                                         {catalogo.enlace_documento ? (
-                                            <a href={`${BASE_URL_API}${catalogo.enlace_documento}`} target="_blank" rel="noopener noreferrer">
+                                            <a href={getFullUrl(catalogo.enlace_documento)} target="_blank" rel="noopener noreferrer">
                                                 Ver documento
                                             </a>
                                         ) : 'No disponible'}
@@ -275,7 +281,7 @@ const AdminCatalogos = () => {
                                     <td>
                                         {catalogo.enlace_imagen_portada ? (
                                             <img 
-                                                src={`${BASE_URL_API}${catalogo.enlace_imagen_portada}`} 
+                                                src={getFullUrl(catalogo.enlace_imagen_portada)} 
                                                 alt={`Portada de ${catalogo.nombre}`} 
                                             />
                                         ) : 'No disponible'}
