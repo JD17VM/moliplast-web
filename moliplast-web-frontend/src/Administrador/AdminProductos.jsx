@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
+import { Link, useLocation } from 'react-router-dom';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -548,19 +549,19 @@ const AdminProductos = () => {
     // Obtener el nombre de la categoría por ID
     const getCategoriaName = (id) => {
         const categoria = categorias.find(cat => cat.id === id);
-        return categoria ? categoria.nombre : 'No asignada';
+        return categoria ? categoria.nombre : '';
     };
 
     // Obtener el nombre de la subcategoría por ID
     const getSubcategoriaName = (id) => {
         const subcategoria = subcategorias.find(subcat => subcat.id === id);
-        return subcategoria ? subcategoria.nombre : 'No asignada';
+        return subcategoria ? subcategoria.nombre : '';
     };
 
     // Obtener el nombre de la subsubcategoría por ID
     const getSubsubcategoriaName = (id) => {
         const subsubcategoria = subsubcategorias.find(subsubcat => subsubcat.id === id);
-        return subsubcategoria ? subsubcategoria.nombre : 'No asignada';
+        return subsubcategoria ? subsubcategoria.nombre : '';
     };
 
     // Función mejorada para buscar productos
@@ -674,11 +675,12 @@ const AdminProductos = () => {
                 <table className="table table-striped table-responsive align-midle">
                     <thead className="table-dark">
                         <tr>
+                            <th scope="col" style={{width: "50px"}}>Código</th>
                             <th scope="col" style={{width: "150px"}}>Nombre</th>
-                            <th scope="col" style={{width: "150px"}}>Categoría</th>
+                            <th scope="col" style={{width: "50px"}}>Categoría</th>
                             <th scope="col" style={{width: "80px"}}>Imagen</th>
-                            <th scope="col" style={{width: "30px"}}>Dest</th>
-                            <th scope="col" style={{width: "60px"}}>Acciones</th>
+                            <th scope="col" style={{width: "10px"}}>Dest</th>
+                            <th scope="col" style={{width: "50px"}}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -693,8 +695,15 @@ const AdminProductos = () => {
                         ) : (
                             productos.map((producto) => (
                                 <tr key={producto.id}>
-                                <td>{producto.nombre}</td>
-                                <td>{producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}</td>
+                                <td>{producto.codigo}</td>
+                                <td><Link Link to={`/productos/producto/${producto.id}`}>{producto.nombre}</Link></td>
+                                <td>
+                                    <ul>
+                                        <li>▪︎ {producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}</li>
+                                        <li>▪︎ {producto.id_subcategoria ? getSubcategoriaName(producto.id_subcategoria) : ''}</li>
+                                        <li>▪︎ {producto.id_subsubcategoria ? getSubsubcategoriaName(producto.id_subsubcategoria) : ''}</li>
+                                    </ul>
+                                </td>
                                 <td>
                                     {producto.imagen_1 ? (
                                         <img 
