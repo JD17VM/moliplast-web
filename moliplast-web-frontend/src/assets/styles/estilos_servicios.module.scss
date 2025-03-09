@@ -4,7 +4,7 @@ article{
     background-color: white;
     font-size: var(--fuente_tamanio_titulo_4);
     column-gap: 3rem;
-    width: 100%;
+    width: 49%;
     align-items: flex-start;
     max-width: 1300px;
     justify-content: center;
@@ -48,7 +48,8 @@ article{
 
 .contenedor_servicios{
     display: flex;
-    flex-direction: column;
+    flex-wrap:wrap;
+    justify-content: space-between;
     align-items: center;
     padding: 45px;
     background-color: #EBEBEB;
@@ -58,6 +59,7 @@ article{
         font-size: var(--fuente_tamanio_titulo_1);
         font-weight: var(--fuente_semibold);
         align-self: flex-start;
+        width: 100%;
     }
 
 }
@@ -100,6 +102,10 @@ article{
 
 @media only screen and (max-width: 600px){
     
+    article{
+        width: 100%;
+    }
+
     .contenedor_servicios{
         padding: 20px 1.2rem;   
         
