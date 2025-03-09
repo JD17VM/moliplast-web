@@ -21,7 +21,7 @@ class ProductoController extends Controller
         $page = $request->input('page', 1); // Página actual, por defecto 1
         // Solo obtener productos con estatus true
         $productos = Producto::where('estatus', true)
-                                ->orderBy('created_at', 'desc')
+                                ->orderBy('nombre', 'asc')
                                 ->paginate($perPage, ['*'], 'page', $page);
 
         if ($productos->isEmpty()){
@@ -90,16 +90,37 @@ class ProductoController extends Controller
         return response()->json($productos, 200);
     }
 
-    // En tu controlador (ProductController.php)
     public function search(Request $request)
     {
         $query = $request->input('query');
+        $words = explode(' ', $query); // Divide la consulta en palabras
 
-        $productos = Producto::where('nombre', 'like', '%' . $query . '%')
-                        ->select('id', 'nombre')
-                        ->where('estatus', true)
-                        ->limit(10) // Limita los resultados para no sobrecargar el frontend
-                        ->get();
+        $productos = Producto::where(function ($queryBuilder) use ($words) {
+            foreach ($words as $word) {
+                $queryBuilder->where('nombre', 'like', '%' . $word . '%');
+            }
+        })
+        ->select('id', 'nombre')
+        ->where('estatus', true)
+        ->limit(10)
+        ->get();
+
+        return response()->json($productos);
+    }
+
+    public function completeSearch(Request $request)
+    {
+        $query = $request->input('query');
+        $words = explode(' ', $query); // Divide la consulta en palabras
+
+        $productos = Producto::where(function ($queryBuilder) use ($words) {
+            foreach ($words as $word) {
+                $queryBuilder->where('nombre', 'like', '%' . $word . '%');
+            }
+        })
+        ->select('id', 'nombre', 'imagen_1')
+        ->where('estatus', true)
+        ->get();
 
         return response()->json($productos);
     }

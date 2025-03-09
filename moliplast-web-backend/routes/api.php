@@ -82,6 +82,7 @@ Route::get('/productos-destacados',[ProductoController::class, 'productosDestaca
 Route::get('/productos-relacionados/{id}',[ProductoController::class, 'getProductosRelacionados']); // X
 
 Route::get('/products/search', [ProductoController::class, 'search']);
+Route::get('/products/complete-search', [ProductoController::class, 'completeSearch']);
 
 Route::get('/productos-carta', [ProductoController::class, 'getCartaProductos']);
 
