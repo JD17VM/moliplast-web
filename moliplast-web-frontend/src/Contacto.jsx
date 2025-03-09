@@ -114,16 +114,21 @@ const Contacto = () => {
                         titulo = "959-600-464"
                         enlace = "https://wa.me/+51959600464?text=Hola,%20estoy%20interesado%20en%20..."
                         />
-                        <Titulo_Icono 
-                        Icono = { Icono_Whatsapp }
-                        titulo = "997-166-725"
-                        enlace = "https://wa.me/+51997166725?text=Hola,%20estoy%20interesado%20en%20..."
-                        />
                         <Titulo_Icono  
                         Icono = { Icono_Whatsapp }
                         titulo = "987-790-419"
                         enlace = "https://wa.me/+51987790419?text=Hola,%20estoy%20interesado%20en%20..."
                         />
+
+                        <Titulo_Lista 
+                        react_icon
+                        Icono = { FaSquarePhone }
+                        titulo = "Pedregal"
+                        elementos_lista={[
+                            {elemento: "940-755-986", enlace: "https://wa.me/+51940755986?text=Hola,%20estoy%20interesado%20en%20..."},
+                        ]}/>
+
+
 
                         <Titulo_Lista 
                         react_icon
@@ -140,7 +145,7 @@ const Contacto = () => {
                         titulo = "Correo"
                         elementos_lista={[
                             {elemento: "jose.ramos@moliplast.com", enlace: mailTo("jose.ramos@moliplast.com")},
-                            {elemento: "jose112ramos@gmail.com", enlace: mailTo("jose112ramos@gmail.com")},
+                            {elemento: "jose1112ramos@gmail.com", enlace: mailTo("jose112ramos@gmail.com")},
                         ]}/>
 
                         <Titulo_Lista 
