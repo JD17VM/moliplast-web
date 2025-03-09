@@ -173,7 +173,10 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                         <div>
                             <MdEmail/>
                             <p>Correo Electrónico</p>
-                            <p>ventas1@moliplast.com</p>
+                            <ul>
+                                <li>ventas1@moliplast.com</li>
+                                <li>ventas09@moliplast.com</li>
+                            </ul>
                         </div>
                     </div>
                     <div className={styles.cont_redes_sociales}>
