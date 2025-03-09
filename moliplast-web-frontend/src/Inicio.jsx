@@ -130,6 +130,8 @@ export const Marcas = () => {
 
 export const Inicio = () => {
 
+    
+
     const items = [
         { name: 'Item 1', enlace_imagen: imageHelper.Macetas },
         { name: 'Item 2', enlace_imagen: imageHelper.Tachos },
@@ -141,6 +143,11 @@ export const Inicio = () => {
 
     return(
         <>
+            <title>Moliplast</title>
+            <meta name="description" content="Moliplast S.R.L.: Expertos en sistemas de riego tecnificado, tubos PVC/PEAD, tanques y biodigestores. Productos de alta calidad y atención personalizada en Arequipa, Pedregal y La Joya." />
+            <meta property="og:title" content="Moliplast S.R.L" />
+            <link rel="canonical" href="https://moliplast.com" />
+
             <div data-aos="fade-up">
                 <SliderImgs images={items}/>
             </div>
