@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from "../utils/utils.js"
-import { fetchData } from '../utils/api.js';
+import { fetchData, deleteResource } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -102,42 +102,7 @@ const AdminCatalogos = () => {
     };
     
     const handleDelete = async (id) => {
-        if (window.confirm("¿Estás seguro de eliminar este catálogo?")) {
-            setLoading(true);
-            setError('');
-            
-            try {
-                const response = await fetch(`${BASE_URL_API}/api/catalogos/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                // Intentar obtener la respuesta incluso si hay un error
-                let responseData;
-                try {
-                    responseData = await response.json();
-                } catch (e) {
-                    console.error('Error al parsear la respuesta JSON:', e);
-                }
-                
-                if (!response.ok) {
-                    if (responseData && responseData.message) {
-                        throw new Error(responseData.message);
-                    }
-                    throw new Error(`Error del servidor: ${response.status}`);
-                }
-                
-                setSuccess('Catálogo eliminado exitosamente!');
-                loadCatalogos();
-            } catch (error) {
-                console.error('Error eliminando catálogo:', error);
-                setError(`Error: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        }
+        await deleteResource(`${BASE_URL_API}/api/catalogos`, id,setLoading,setError,setSuccess,loadCatalogos);
     };
 
     const handleEdit = (catalogo) => {

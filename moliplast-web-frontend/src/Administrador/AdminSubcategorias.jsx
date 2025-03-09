@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
-import { fetchData } from '../utils/api.js';
+import { fetchData, deleteResource } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -90,44 +90,9 @@ const AdminSubcategorias = () => {
             setLoading(false);
         }
     };
-    
+
     const handleDelete = async (id) => {
-        if (window.confirm("¿Estás seguro de eliminar esta subcategoría?")) {
-            setLoading(true);
-            setError('');
-            
-            try {
-                const response = await fetch(`${BASE_URL_API}/api/subcategorias/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                // Intentar obtener la respuesta incluso si hay un error
-                let responseData;
-                try {
-                    responseData = await response.json();
-                } catch (e) {
-                    console.error('Error al parsear la respuesta JSON:', e);
-                }
-                
-                if (!response.ok) {
-                    if (responseData && responseData.message) {
-                        throw new Error(responseData.message);
-                    }
-                    throw new Error(`Error del servidor: ${response.status}`);
-                }
-                
-                setSuccess('Subcategoría eliminada exitosamente!');
-                loadSubcategorias();
-            } catch (error) {
-                console.error('Error eliminando subcategoría:', error);
-                setError(`Error: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        }
+        await deleteResource(`${BASE_URL_API}/api/subcategorias`,id,setLoading,setError,setSuccess,loadSubcategorias);
     };
 
     const handleEdit = (subcategoria) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from '../utils/utils';
-import { fetchData } from '../utils/api.js';
+import { fetchData, deleteResource } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -26,35 +26,6 @@ const AdminServicios = () => {
     useEffect(() => {
         loadServicios();
     }, []);
-
-    /*
-    const loadServicios = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/servicios`);
-            
-            if (response.status === 404) {
-                console.log('No hay servicios disponibles');
-                setServicios([]);
-                setLoading(false);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setServicios(data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Error al cargar los servicios. Por favor, intenta nuevamente.');
-            setServicios([]);
-        } finally {
-            setLoading(false);
-        }
-    };*/
 
     const handleInputChange = (e) => {
         setNewServicio({ ...newServicio, [e.target.name]: e.target.value });
@@ -128,44 +99,8 @@ const AdminServicios = () => {
         }
     };
     
-    
     const handleDelete = async (id) => {
-        if (window.confirm("¿Estás seguro de eliminar este servicio?")) {
-            setLoading(true);
-            setError('');
-            
-            try {
-                const response = await fetch(`${BASE_URL_API}/api/servicios/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                // Intentar obtener la respuesta incluso si hay un error
-                let responseData;
-                try {
-                    responseData = await response.json();
-                } catch (e) {
-                    console.error('Error al parsear la respuesta JSON:', e);
-                }
-                
-                if (!response.ok) {
-                    if (responseData && responseData.message) {
-                        throw new Error(responseData.message);
-                    }
-                    throw new Error(`Error del servidor: ${response.status}`);
-                }
-                
-                setSuccess('Servicio eliminado exitosamente!');
-                loadServicios();
-            } catch (error) {
-                console.error('Error eliminando servicio:', error);
-                setError(`Error: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        }
+        await deleteResource(`${BASE_URL_API}/api/servicios`,id,setLoading,setError,setSuccess,loadServicios);
     };
 
     const handleEdit = (servicio) => {
