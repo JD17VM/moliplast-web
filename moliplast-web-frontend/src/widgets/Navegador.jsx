@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from '../assets/styles/estilos_navegador.module.scss'
 import { Icono_Facebook_Colores, Icono_Whatsapp_Colores } from '../assets/imgs/iconos/svg/Redes_Sociales';
 
@@ -53,6 +53,14 @@ const dataPaginas = {
 
 
 const Navegador = ({ isAdmin, setIsAdmin }) => {
+
+    const navigate = useNavigate(); // Inicializar useNavigate
+
+    const handleSearch = () => {
+        if (query.trim()) { // Verificar que la búsqueda no esté vacía
+            navigate(`/productos/search/${encodeURIComponent(query)}`); // Navegar a la página de búsqueda
+        }
+    };
 
     const dataAdmin = [
         { nombre: "Admin Productos", enlace: "/administrador/productos" },
@@ -260,9 +268,10 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                         <InputBuscador
                             placeholder="Buscar productos"
                             Icono={FaSearch}
-                            value={query} // Pasar el valor del estado `query`
-                            onChange={(e) => setQuery(e.target.value)} // Manejar cambios
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
                             autocomplete="off"
+                            onSearch={handleSearch} // Pasar la función handleSearch
                         />
                             <ul>
                                 {Array.isArray(results) && results.length > 0 ? (

@@ -33,22 +33,28 @@ export const InputBuscador = ({
     Icono = false,
     value = '',
     onChange = () => {},
-    autocomplete = "on"
+    autocomplete = "on",
+    onSearch = () => {}
 }) => {
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Evitar el comportamiento de envío predeterminado del formulario
+        onSearch(); // Llamar a la función de búsqueda
+    };
+
     return (
-        <div className={styles.cont_input}>
+        <form className={styles.cont_input} onSubmit={handleSubmit}>
             <input
-                type="text" // Siempre será un input de texto
+                type="text"
                 id="search"
                 name="search"
                 placeholder={placeholder}
                 value={value}
-                onChange={onChange} // Actualización en tiempo real
+                onChange={onChange}
                 autoComplete={autocomplete}
             />
-            <button>
+            <button type="submit"> {/* Cambiar el tipo del botón a "submit" */}
                 {Icono && <Icono />}
             </button>
-        </div>
+        </form>
     );
 };

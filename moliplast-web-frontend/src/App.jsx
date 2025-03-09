@@ -15,6 +15,8 @@ import Servicios from './Servicios'
 import Catalogos from './Catalogos'
 import Contacto from './Contacto'
 
+import ProductosSearch from './ProductosSearch'
+
 import AdminCatalogos from './Administrador/AdminCatalogos'
 import AdminServicios from './Administrador/AdminServicios'
 import AdminCategorias from './Administrador/AdminCategorias'
@@ -55,6 +57,7 @@ function App() {
         <Route path="/productos/:categoria/:subcategoria" element={<Productos />} />
         <Route path="/productos/:categoria/:subcategoria/:subsubcategoria" element={<Productos />} />
         <Route path="/productos/producto/:id" element={<Producto />} />
+        <Route path="/productos/search/:texto" element={<ProductosSearch />} />
 
         <Route path="/servicios" element={<Servicios />}/>
 
