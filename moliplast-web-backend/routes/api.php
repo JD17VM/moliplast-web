@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ServicioController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\SubcategoriaController;
-use App\Http\Controllers\Api\SubSubcategoriaController;
+use App\Http\Controllers\Api\SubsubcategoriaController;
 use App\Http\Controllers\Api\ProductoController;
 use App\Http\Controllers\Api\AdministradorController;
 
