@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { Link, useLocation } from 'react-router-dom';
 import { getFullUrl } from '../utils/utils';
+import { fetchData } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -173,73 +174,16 @@ const AdminProductos = () => {
         loadProductos(newPage);
     };
 
-    // Cargar categorías con su estructura completa
     const loadCategorias = async () => {
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/categorias-con-subcategorias`);
-            
-            if (response.status === 404) {
-                console.log('No hay categorías disponibles');
-                setCategorias([]);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setCategorias(data);
-        } catch (error) {
-            console.error('Error fetching categorias:', error);
-            setCategorias([]);
-        }
+        fetchData(`${BASE_URL_API}/api/categorias-con-subcategorias`,setCategorias,setLoading,setError);
     };
 
-    // Carga de subcategorías desde la API
     const loadSubcategorias = async (categoriaId) => {
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/subcategorias?categoria_id=${categoriaId}`);
-            
-            if (response.status === 404) {
-                console.log('No hay subcategorías disponibles');
-                setSubcategorias([]);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setSubcategorias(data);
-        } catch (error) {
-            console.error('Error fetching subcategorias:', error);
-            setSubcategorias([]);
-        }
+        fetchData(`${BASE_URL_API}/api/subcategorias?categoria_id=${categoriaId}`,setSubcategorias,setLoading,setError);
     };
 
-    // Carga de subsubcategorías desde la API
     const loadSubsubcategorias = async (subcategoriaId) => {
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/subsubcategorias?subcategoria_id=${subcategoriaId}`);
-            
-            if (response.status === 404) {
-                console.log('No hay subsubcategorías disponibles');
-                setSubsubcategorias([]);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setSubsubcategorias(data);
-        } catch (error) {
-            console.error('Error fetching subsubcategorias:', error);
-            setSubsubcategorias([]);
-        }
+        fetchData(`${BASE_URL_API}/api/subsubcategorias?subcategoria_id=${subcategoriaId}`,setSubsubcategorias,setLoading,setError);
     };
 
     // Manejo de cambios en los inputs de texto y select

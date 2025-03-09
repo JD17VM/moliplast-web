@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from "../utils/utils.js"
+import { fetchData } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -18,37 +19,13 @@ const AdminCategorias = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const loadCategorias = async () => {
+        await fetchData(`${BASE_URL_API}/api/categorias`, setCategorias, setLoading, setError);
+    };
+
     useEffect(() => {
         loadCategorias();
     }, []);
-
-    const loadCategorias = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/categorias`);
-            
-            if (response.status === 404) {
-                console.log('No hay categorías disponibles');
-                setCategorias([]);
-                setLoading(false);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setCategorias(data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Error al cargar las categorías. Por favor, intenta nuevamente.');
-            setCategorias([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleInputChange = (e) => {
         setNewCategoria({ ...newCategoria, [e.target.name]: e.target.value });

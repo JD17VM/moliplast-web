@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
+import { fetchData } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -15,66 +16,18 @@ const AdminSubcategorias = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const loadSubcategorias = async () => {
+        await fetchData(`${BASE_URL_API}/api/subcategorias`, setSubcategorias, setLoading, setError);
+    };
+
+    const loadCategorias = async () => {
+        await fetchData(`${BASE_URL_API}/api/categorias`, setCategorias, setLoading, setError);
+    };
+
     useEffect(() => {
         loadSubcategorias();
         loadCategorias();
     }, []);
-
-    const loadSubcategorias = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/subcategorias`);
-            
-            if (response.status === 404) {
-                console.log('No hay subcategorías disponibles');
-                setSubcategorias([]);
-                setLoading(false);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setSubcategorias(data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Error al cargar las subcategorías. Por favor, intenta nuevamente.');
-            setSubcategorias([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const loadCategorias = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/categorias`);
-            
-            if (response.status === 404) {
-                console.log('No hay categorías disponibles');
-                setCategorias([]);
-                setLoading(false);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setCategorias(data);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            setError('Error al cargar las categorías. Por favor, intenta nuevamente.');
-            setCategorias([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleInputChange = (e) => {
         setNewSubcategoria({ ...newSubcategoria, [e.target.name]: e.target.value });

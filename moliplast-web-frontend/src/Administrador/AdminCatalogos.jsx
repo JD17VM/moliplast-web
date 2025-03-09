@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from "../utils/utils.js"
+import { fetchData } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -20,37 +21,13 @@ const AdminCatalogos = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const loadCatalogos = async () => {
+        await fetchData(`${BASE_URL_API}/api/catalogos`, setCatalogos, setLoading, setError);
+    };
+
     useEffect(() => {
         loadCatalogos();
     }, []);
-
-    const loadCatalogos = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${BASE_URL_API}/api/catalogos`);
-            
-            if (response.status === 404) {
-                console.log('No hay catálogos disponibles');
-                setCatalogos([]);
-                setLoading(false);
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setCatalogos(data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Error al cargar los catálogos. Por favor, intenta nuevamente.');
-            setCatalogos([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleInputChange = (e) => {
         setNewCatalogo({ ...newCatalogo, [e.target.name]: e.target.value });

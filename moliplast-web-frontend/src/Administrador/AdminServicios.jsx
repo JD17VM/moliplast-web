@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from '../utils/utils';
+import { fetchData } from '../utils/api.js';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -18,10 +19,15 @@ const AdminServicios = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const loadServicios = async () => {
+        await fetchData(`${BASE_URL_API}/api/servicios`, setServicios, setLoading, setError);
+    };
+
     useEffect(() => {
         loadServicios();
     }, []);
 
+    /*
     const loadServicios = async () => {
         setLoading(true);
         setError('');
@@ -48,7 +54,7 @@ const AdminServicios = () => {
         } finally {
             setLoading(false);
         }
-    };
+    };*/
 
     const handleInputChange = (e) => {
         setNewServicio({ ...newServicio, [e.target.name]: e.target.value });
