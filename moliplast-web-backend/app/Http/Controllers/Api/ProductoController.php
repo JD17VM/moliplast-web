@@ -93,7 +93,8 @@ class ProductoController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
-        $words = explode(' ', $query); // Divide la consulta en palabras
+        $words = explode(' ', $query); // Divide la consulta en 
+        $firstWord = $words[0]; // Obtiene la primera palabra
 
         $productos = Producto::where(function ($queryBuilder) use ($words) {
             foreach ($words as $word) {
@@ -102,6 +103,7 @@ class ProductoController extends Controller
         })
         ->select('id', 'nombre')
         ->where('estatus', true)
+        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$firstWord . '%'])
         ->limit(10)
         ->get();
 
@@ -112,6 +114,7 @@ class ProductoController extends Controller
     {
         $query = $request->input('query');
         $words = explode(' ', $query); // Divide la consulta en palabras
+        $firstWord = $words[0]; // Obtiene la primera palabra
 
         $productos = Producto::where(function ($queryBuilder) use ($words) {
             foreach ($words as $word) {
@@ -120,6 +123,7 @@ class ProductoController extends Controller
         })
         ->select('id', 'nombre', 'imagen_1')
         ->where('estatus', true)
+        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$firstWord . '%'])
         ->get();
 
         return response()->json($productos);
