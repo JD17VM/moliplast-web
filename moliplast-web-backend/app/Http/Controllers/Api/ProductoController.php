@@ -99,10 +99,16 @@ class ProductoController extends Controller
         // Lista de palabras vacías en español
         $stopWords = ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'a', 'en', 'por', 'para', 'y', 'o'];
 
-        // Filtrar las palabras vacías
-        $filteredWords = array_filter($words, function ($word) use ($stopWords) {
-            return !in_array(strtolower($word), $stopWords);
-        });
+        // Filtrar las palabras vacías y eliminar la "s" final
+        $filteredWords = array_map(function ($word) use ($stopWords) {
+            $word = strtolower($word);
+            if (!in_array($word, $stopWords)) {
+                return rtrim($word, 's'); // Elimina la "s" final
+            }
+            return null; // Elimina las palabras vacías
+        }, $words);
+
+        $filteredWords = array_filter($filteredWords); // Elimina los elementos nulos (palabras vacías)
 
         $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
             foreach ($filteredWords as $word) {
@@ -127,10 +133,16 @@ class ProductoController extends Controller
         // Lista de palabras vacías en español
         $stopWords = ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'a', 'en', 'por', 'para', 'y', 'o'];
 
-        // Filtrar las palabras vacías
-        $filteredWords = array_filter($words, function ($word) use ($stopWords) {
-            return !in_array(strtolower($word), $stopWords);
-        });
+        // Filtrar las palabras vacías y eliminar la "s" final
+        $filteredWords = array_map(function ($word) use ($stopWords) {
+            $word = strtolower($word);
+            if (!in_array($word, $stopWords)) {
+                return rtrim($word, 's'); // Elimina la "s" final
+            }
+            return null; // Elimina las palabras vacías
+        }, $words);
+
+        $filteredWords = array_filter($filteredWords); // Elimina los elementos nulos (palabras vacías)
 
         $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
             foreach ($filteredWords as $word) {
