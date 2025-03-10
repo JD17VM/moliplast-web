@@ -96,8 +96,16 @@ class ProductoController extends Controller
         $words = explode(' ', $query); // Divide la consulta en 
         $firstWord = $words[0]; // Obtiene la primera palabra
 
-        $productos = Producto::where(function ($queryBuilder) use ($words) {
-            foreach ($words as $word) {
+        // Lista de palabras vacías en español
+        $stopWords = ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'a', 'en', 'por', 'para', 'y', 'o'];
+
+        // Filtrar las palabras vacías
+        $filteredWords = array_filter($words, function ($word) use ($stopWords) {
+            return !in_array(strtolower($word), $stopWords);
+        });
+
+        $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
+            foreach ($filteredWords as $word) {
                 $queryBuilder->where('nombre', 'like', '%' . $word . '%');
             }
         })
@@ -116,8 +124,16 @@ class ProductoController extends Controller
         $words = explode(' ', $query); // Divide la consulta en palabras
         $firstWord = $words[0]; // Obtiene la primera palabra
 
-        $productos = Producto::where(function ($queryBuilder) use ($words) {
-            foreach ($words as $word) {
+        // Lista de palabras vacías en español
+        $stopWords = ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'a', 'en', 'por', 'para', 'y', 'o'];
+
+        // Filtrar las palabras vacías
+        $filteredWords = array_filter($words, function ($word) use ($stopWords) {
+            return !in_array(strtolower($word), $stopWords);
+        });
+
+        $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
+            foreach ($filteredWords as $word) {
                 $queryBuilder->where('nombre', 'like', '%' . $word . '%');
             }
         })
