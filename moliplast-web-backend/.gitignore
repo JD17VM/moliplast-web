@@ -20,3 +20,6 @@ yarn-error.log
 
 texto.txt
 texto2.txt
+
+.env.remote
+.env.local
