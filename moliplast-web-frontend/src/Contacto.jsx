@@ -17,6 +17,8 @@ import { FaMapMarkerAlt} from "react-icons/fa";
 import { FaSquarePhone } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 
+import MetaData from './widgets/Metadata'
+
 
 const Mapa = ({ latitud, longitud, defaultZoom }) => {
     const position = { lat: latitud, lng: longitud };
@@ -69,6 +71,11 @@ const Contacto = () => {
 
     return (
         <>
+        <MetaData 
+            title='Contacto'
+            canonical = "https://www.moliplast.com/contacto"
+         />
+
         <div className={styles.contenedor_contacto} data-aos="fade-up">
             <h1>Contacto</h1>
             <div>

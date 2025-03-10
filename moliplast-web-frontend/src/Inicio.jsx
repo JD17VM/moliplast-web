@@ -11,6 +11,8 @@ import { convertirATitulo } from "./utils/utils.js"
 
 import SliderProductos from './widgets/SliderProductos';
 
+import MetaData from './widgets/Metadata';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 export const ContenedorSeccion = (props) => {
@@ -143,10 +145,7 @@ export const Inicio = () => {
 
     return(
         <>
-            <title>Moliplast</title>
-            <meta name="description" content="Moliplast S.R.L.: Expertos en sistemas de riego tecnificado, tubos PVC/PEAD, tanques y biodigestores. Productos de alta calidad y atención personalizada en Arequipa, Pedregal y La Joya." />
-            <meta property="og:title" content="Moliplast S.R.L" />
-            <link rel="canonical" href="https://moliplast.com" />
+            <MetaData />
 
             <div data-aos="fade-up">
                 <SliderImgs images={items}/>

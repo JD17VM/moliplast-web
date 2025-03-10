@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './assets/styles/estilos_servicios.module.scss';
 import { getFullUrl } from "./utils/utils.js"
+import MetaData from './widgets/Metadata'
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -55,6 +56,11 @@ const Servicios = () => {
 
     return (
         <>
+        <MetaData 
+            title='Servicios'
+            canonical = "https://www.moliplast.com/servicios"
+         />
+
         <div className={styles.contenedor_servicios} data-aos="fade-up">
             <h1>Servicios</h1>
             

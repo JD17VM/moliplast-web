@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './assets/styles/estilos_catalogos.module.scss';
 import { getFullUrl } from "./utils/utils.js"
+import MetaData from './widgets/Metadata'
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -42,6 +43,11 @@ const Catalogos = () => {
     };
 
     return (
+        <>
+        <MetaData 
+            title='Catálogos'
+            canonical = "https://www.moliplast.com/catalogos"
+         />
         <div className={styles.cont_seccion_catalogos} data-aos="fade-up">
             <h1>Catálogos</h1>
             
@@ -76,6 +82,7 @@ const Catalogos = () => {
                 </div>
             )}
         </div>
+        </>
     );
 };
 
