@@ -110,6 +110,9 @@ class ProductoController extends Controller
 
         $filteredWords = array_filter($filteredWords); // Elimina los elementos nulos (palabras vacías)
 
+        // Obtener la primera palabra filtrada (sin la "s" si la tenía)
+        $filteredFirstWord = $filteredWords[0] ?? $firstWord; // Si filteredWords esta vacio, usa la original.
+
         $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
             foreach ($filteredWords as $word) {
                 $queryBuilder->where('nombre', 'like', '%' . $word . '%');
@@ -117,7 +120,7 @@ class ProductoController extends Controller
         })
         ->select('id', 'nombre')
         ->where('estatus', true)
-        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$firstWord . '%'])
+        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$filteredFirstWord . '%']) // Usa la primera palabra FILTRADA
         ->limit(10)
         ->get();
 
@@ -144,6 +147,9 @@ class ProductoController extends Controller
 
         $filteredWords = array_filter($filteredWords); // Elimina los elementos nulos (palabras vacías)
 
+        // Obtener la primera palabra filtrada (sin la "s" si la tenía)
+        $filteredFirstWord = $filteredWords[0] ?? $firstWord; // Si filteredWords esta vacio, usa la original.
+
         $productos = Producto::where(function ($queryBuilder) use ($filteredWords) {
             foreach ($filteredWords as $word) {
                 $queryBuilder->where('nombre', 'like', '%' . $word . '%');
@@ -151,7 +157,7 @@ class ProductoController extends Controller
         })
         ->select('id', 'nombre', 'imagen_1')
         ->where('estatus', true)
-        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$firstWord . '%'])
+        ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$filteredFirstWord . '%'])
         ->get();
 
         return response()->json($productos);
