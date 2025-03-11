@@ -7,10 +7,6 @@ import imageHelper from './utils/imageHelper'
 const Nosotros = () => {
     return (
         <>
-         <MetaData 
-            title='Nosotros'
-            canonical = "https://www.moliplast.com/nosotros"
-         />
 
         <div className={styles.contenedor_nosotros} data-aos="fade-up">
             <h1>Nosotros</h1>

@@ -44,10 +44,6 @@ const Catalogos = () => {
 
     return (
         <>
-        <MetaData 
-            title='Catálogos'
-            canonical = "https://www.moliplast.com/catalogos"
-         />
         <div className={styles.cont_seccion_catalogos} data-aos="fade-up">
             <h1>Catálogos</h1>
             

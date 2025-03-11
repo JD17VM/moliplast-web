@@ -71,10 +71,6 @@ const Contacto = () => {
 
     return (
         <>
-        <MetaData 
-            title='Contacto'
-            canonical = "https://www.moliplast.com/contacto"
-         />
 
         <div className={styles.contenedor_contacto} data-aos="fade-up">
             <h1>Contacto</h1>

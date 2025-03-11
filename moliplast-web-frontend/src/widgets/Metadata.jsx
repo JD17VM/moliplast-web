@@ -15,13 +15,13 @@ const MetaData = ({
       <title>{title}</title> {/* Navegadores y motores de búsqueda. */}
       <meta name="description" content={description}/>
       {/*  og - Redes sociales y plataformas Open Graph. */}
-      <meta property="og:title" content={ogTitle} /> {/* Redes sociales y plataformas Open Graph. */}
-      <meta property="og:type" content="website" />
+      {/*<meta property="og:title" content={ogTitle} /> {/* Redes sociales y plataformas Open Graph. */}
+      {/*<meta property="og:type" content="website" />
       <meta property="og:url" content={ogUrl} />
       {/* <meta property="og:image" content={ogImage} /> */}
-
-      <meta name="robots" content={robots} /> {/* indexar y seguir la pagina */}
-      <link rel="canonical" href={canonical} />
+      {/* indexar y seguir la pagina */}
+      {/*<meta name="robots" content={robots} /> 
+      <link rel="canonical" href={canonical} /> PUEDE SER*/}
       {/*  
         El canonical es una herramienta fundamental para evitar problemas de contenido duplicado causados por parámetros extra en las URLs.
         Permite indicar a los motores de búsqueda cuál es la versión preferida de una página, consolidando las señales de clasificación y mejorando el SEO. 
