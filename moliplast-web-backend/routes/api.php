@@ -105,3 +105,5 @@ Route::get('/productos/categoria/{categoria}/subcategoria/{subcategoria}/subsubc
 Route::post('/administradores',[AdministradorController::class, 'register']);
 Route::get('/administradores',[AdministradorController::class, 'index']);
 Route::post('/administradores/login',[AdministradorController::class, 'login']);
+
+Route::get('/producto/redirect/{id}', [ProductoController::class, 'redirect']);

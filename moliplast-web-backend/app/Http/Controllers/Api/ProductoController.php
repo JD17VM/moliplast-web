@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use App\Models\Producto;
 use App\Models\Categoria;
@@ -849,16 +850,39 @@ class ProductoController extends Controller
             'enlace_ficha_tecnica' => $fichaTecnicaUrl,
             'texto_markdown' => $request->texto_markdown,
             'destacados' => $request->destacados ?? false,
-            'enlace_imagen_qr' => $qrImageUrl,
             'codigo' => $request->codigo,
             'estatus' => true,
         ]);
+
+        // Generar código QR con el ID del producto
+        $urlRedirect = url('api/producto/redirect/' . $producto->id);
+        $qrCode = QrCode::format('png')->size(300)->generate($urlRedirect);
+        $qrCodeName = 'qr-' . $producto->id . '.png';
+        Storage::disk('public')->put('qr_codes/' . $qrCodeName, $qrCode);
+        $qrImageUrl = url('storage/app/public/qr_codes/' . $qrCodeName);
+
+        // Actualizar el producto con la URL del QR
+        $producto->update(['enlace_imagen_qr' => $qrImageUrl]);
 
         if (!$producto) {
             return response()->json(['message' => 'Error al guardar el producto'], 500);
         }
 
         return response()->json($producto, 201);
+    }
+
+    public function redirect($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        // Construir la URL del producto en el frontend
+        $frontendUrl = 'https://www.moliplast.com/productos/producto/' . $producto->id; // Ajusta según tu frontend
+
+        return redirect()->away($frontendUrl);
     }
 
     public function update(Request $request, $id)
