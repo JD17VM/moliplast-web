@@ -590,6 +590,7 @@ const AdminProductos = () => {
                             <th scope="col" style={{width: "80px"}}>Imagen</th>
                             <th scope="col" style={{width: "10px"}}>Dest</th>
                             <th scope="col" style={{width: "50px"}}>Acciones</th>
+                            <th scope="col" style={{width: "80px"}}>QR</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -639,6 +640,14 @@ const AdminProductos = () => {
                                             Eliminar
                                         </button>
                                     </div>
+                                </td>
+                                <td>
+                                    {producto.enlace_imagen_qr ? (
+                                        <img 
+                                            src={getFullUrl(producto.enlace_imagen_qr)}
+                                            alt={`Imagen de ${producto.nombre}`} 
+                                        />
+                                    ) : 'No disponible'}
                                 </td>
                             </tr>
                             ))
