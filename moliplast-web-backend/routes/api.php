@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\SubcategoriaController;
 use App\Http\Controllers\Api\SubsubcategoriaController;
 use App\Http\Controllers\Api\ProductoController;
 use App\Http\Controllers\Api\AdministradorController;
+use App\Http\Controllers\Api\CatalogoGeneratorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -107,3 +108,5 @@ Route::get('/administradores',[AdministradorController::class, 'index']);
 Route::post('/administradores/login',[AdministradorController::class, 'login']);
 
 Route::get('/producto/redirect/{id}', [ProductoController::class, 'redirect']);
+
+Route::get('/generar-catalogo', [CatalogoGeneratorController::class, 'generarCatalogo']);
