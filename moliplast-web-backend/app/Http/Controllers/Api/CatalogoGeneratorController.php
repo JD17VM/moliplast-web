@@ -23,6 +23,8 @@ class CatalogoGeneratorController extends Controller
             // ... más productos
         ];
 
+        $rutaImagen = storage_path('app/public/productos/48EsN3i5upnxbCmT14bPPaDUAtAG8NlTQlSUSH7M.jpg');
+
         // Preparar los valores para el reemplazo en bloque
         $replacements = [];
         foreach ($productos as $producto) {
@@ -35,6 +37,16 @@ class CatalogoGeneratorController extends Controller
         // Clonar el bloque con los valores
         $templateProcessor->cloneBlock('PRODUCTO', 0, true, false, $replacements);
 
+        // Asegúrate de que la imagen existe antes de procesarla
+        if (file_exists($rutaImagen)) {
+            // Incluir la imagen en el documento de Word
+            $templateProcessor->setImageValue('imagen_producto', $rutaImagen);
+        } else {
+            // Si la imagen no existe, puedes usar una imagen por defecto
+            $rutaImagenDefault = public_path('images/no-image.jpg');
+            $templateProcessor->setImageValue('imagen_producto', $rutaImagenDefault);
+        }
+
         // Guardar el documento generado
         $outputPath = storage_path('app/catalogo_generado.docx');
         $templateProcessor->saveAs($outputPath);
@@ -43,3 +55,11 @@ class CatalogoGeneratorController extends Controller
         return response()->download($outputPath)->deleteFileAfterSend(true);
     }
 }
+
+/*
+// Para un archivo en el storage público
+$rutaImagen = storage_path('app/public/' . $nombreArchivo);
+
+// Para un archivo en el storage privado
+$rutaImagen = storage_path('app/' . $nombreArchivo);
+*/
