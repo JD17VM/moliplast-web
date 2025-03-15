@@ -23,7 +23,7 @@ class CatalogoGeneratorController extends Controller
             // ... más productos
         ];
 
-        $rutaImagen = storage_path('app/public/productos/48EsN3i5upnxbCmT14bPPaDUAtAG8NlTQlSUSH7M.jpg');
+        $rutaImagen = storage_path('app/public/qr_codes/qr-5175.png');
 
         // Preparar los valores para el reemplazo en bloque
         $replacements = [];
@@ -40,7 +40,13 @@ class CatalogoGeneratorController extends Controller
         // Asegúrate de que la imagen existe antes de procesarla
         if (file_exists($rutaImagen)) {
             // Incluir la imagen en el documento de Word
-            $templateProcessor->setImageValue('imagen_producto', $rutaImagen);
+            $templateProcessor->setImageValue('imagen_producto', [
+                'path' => $rutaImagen,
+                'width' => "2.3cm",    // ancho en pixels
+                'height' => "2.3cm",   // alto en pixels
+                'ratio' => true    // mantener la proporción (true) o forzar tamaño exacto (false)
+            ]);
+            
         } else {
             // Si la imagen no existe, puedes usar una imagen por defecto
             $rutaImagenDefault = public_path('images/no-image.jpg');
