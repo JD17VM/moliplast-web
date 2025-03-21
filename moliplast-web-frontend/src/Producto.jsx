@@ -146,7 +146,7 @@ const Producto = () => {
                             </BtnIconoTexto>
                         )}
                         
-                        <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51922900787/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
+                        <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
                             Comprar por Whatsapp
                         </BtnIconoTexto>
                     </div>
