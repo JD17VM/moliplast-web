@@ -164,7 +164,17 @@ class ProductoController extends Controller
                 $queryBuilder->where('nombre', 'like', '%' . $word . '%');
             }
         })
-        ->select('id', 'nombre', 'imagen_1')
+        ->select(
+            'id',
+            'codigo',
+            'nombre',
+            'id_categoria',
+            'id_subcategoria',
+            'id_subsubcategoria',
+            'imagen_1',
+            'destacados',
+            'enlace_imagen_qr'
+        )
         ->where('estatus', true)
         ->orderByRaw("CASE WHEN nombre LIKE ? THEN 0 ELSE 1 END, nombre", [$filteredFirstWord . '%'])
         ->get();

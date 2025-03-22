@@ -476,52 +476,26 @@ const AdminProductos = () => {
     // Función mejorada para buscar productos
     const searchProductos = async (query) => {
         if (!query.trim() || query.trim().length < 3) return;
-        
+    
         setLoading(true);
         setIsSearching(true);
         setError('');
-        
+    
         try {
-            // Usar la función con control de tasa
-            const data = await makeRateLimitedRequest(`${BASE_URL_API}/api/products/search?query=${encodeURIComponent(query)}`);
-            
+            const data = await makeRateLimitedRequest(`${BASE_URL_API}/api/products/complete-search?query=${encodeURIComponent(query)}`);
+    
             if (data && Array.isArray(data)) {
-                // Si la API de búsqueda ya devuelve datos completos, usarlos directamente
-                if (data.length > 0 && 'nombre' in data[0] && 'id_categoria' in data[0]) {
-                    setProductos(data);
-                } 
-                // Si solo devuelve IDs o datos parciales, obtener los detalles con un límite de solicitudes
-                else if (data.length > 0) {
-                    // Limitar a 5 productos para evitar demasiadas solicitudes
-                    const limitedData = data.slice(0, 5);
-                    
-                    // Hacer las solicitudes de manera secuencial para evitar sobrecargar el servidor
-                    const productosCompletos = [];
-                    for (const item of limitedData) {
-                        try {
-                            const productoDetalle = await makeRateLimitedRequest(`${BASE_URL_API}/api/productos/${item.id}`);
-                            if (productoDetalle) {
-                                productosCompletos.push(productoDetalle);
-                            }
-                        } catch (detailError) {
-                            console.warn(`No se pudo obtener detalles para producto ${item.id}:`, detailError);
-                        }
-                    }
-                    
-                    setProductos(productosCompletos);
-                } else {
-                    setProductos([]);
-                }
-                
-                // Reseteamos la paginación durante la búsqueda
-                setPagination({
-                    ...pagination,
-                    currentPage: 1,
-                    totalPages: 1,
-                });
+                setProductos(data);
             } else {
                 setProductos([]);
             }
+    
+            // Reseteamos la paginación durante la búsqueda
+            setPagination({
+                ...pagination,
+                currentPage: 1,
+                totalPages: 1,
+            });
         } catch (error) {
             console.error('Error searching productos:', error);
             setError('Error al buscar productos. Por favor, intenta nuevamente en unos momentos.');
@@ -539,6 +513,14 @@ const AdminProductos = () => {
     const clearSearch = () => {
         setSearchTerm('');
         setIsSearching(false);
+    };
+
+    const [selectedRowId, setSelectedRowId] = useState(null);
+
+    const handleEditarFilaEstilo = (idFila, item) => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setSelectedRowId(prevId => (prevId === idFila ? null : idFila));
     };
 
     return (
@@ -596,7 +578,7 @@ const AdminProductos = () => {
                     <tbody>
                         {productos.length === 0 ? (
                             <tr>
-                                <td colSpan="5" style={{ border: '1px solid #ddd', textAlign: 'center' }}>
+                                <td colSpan="7" style={{ border: '1px solid #ddd', textAlign: 'center' }}>
                                     {isSearching 
                                         ? `No se encontraron productos con el término "${searchTerm}"` 
                                         : 'No hay productos disponibles'}
@@ -604,7 +586,7 @@ const AdminProductos = () => {
                             </tr>
                         ) : (
                             productos.map((producto) => (
-                            <tr key={producto.id}>
+                            <tr key={producto.id} className={selectedRowId === producto.id ? styles.selected : ''}> {/* Aplica la clase condicionalmente */}
                                 <TableData>{producto.codigo}</TableData>
                                 <TableData link_to={`/productos/producto/${producto.id}`}>{producto.nombre}</TableData>
                                 <TableData list={[
@@ -614,7 +596,7 @@ const AdminProductos = () => {
                                 ]}/>
                                 <TableData image_src={producto.imagen_1}>{producto.nombre}</TableData>
                                 <TableData>{producto.destacados ? '✓' : '✗'}</TableData>
-                                <TableDataActions item={producto} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
+                                <TableDataActions item={producto} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading} handleEditarFila={handleEditarFilaEstilo} />
                                 <TableData image_src={producto.enlace_imagen_qr}>{producto.nombre}</TableData>
                             </tr>
                             ))
@@ -951,7 +933,7 @@ const AdminProductos = () => {
                     </div>
 
                     <div className="col-3">
-                        <div class="form-check">
+                        <div className="form-check">
                             <input 
                                 type="checkbox" 
                                 id="destacados" 
@@ -962,7 +944,7 @@ const AdminProductos = () => {
 
                                 className="form-check-input"
                             />
-                            <label class="form-check-label" for="flexCheckDefault">
+                            <label className="form-check-label" for="flexCheckDefault">
                                 Destacado
                             </label>
                         </div>

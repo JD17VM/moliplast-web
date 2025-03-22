@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { getFullUrl } from "../../utils/utils.js"
+import { getFullUrl, scrollToTop } from "../../utils/utils.js"
 
 export const TableData = ({image_src = false, link_to = false, children = false, list = false, a_href = false}) => {
     if(image_src){
@@ -49,12 +49,16 @@ export const TableData = ({image_src = false, link_to = false, children = false,
     
 }
 
-export const TableDataActions = ({ item, handleEdit, handleDelete, loading }) => {
+export const TableDataActions = ({ item, handleEdit, handleEditarFila, handleDelete, loading }) => {
     return (
         <td>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <button
-                onClick={() => handleEdit(item)}
+                onClick={() => {
+                    handleEdit(item); // Primero ejecuta la función handleEdit
+                    scrollToTop();    // Luego ejecuta la función scrollToTop
+                    handleEditarFila(item.id, item); // Llama a handleEditarFila con la información del item
+                }}
                 disabled={loading}
                 className="btn btn-primary mb-1 w-50"
                 >

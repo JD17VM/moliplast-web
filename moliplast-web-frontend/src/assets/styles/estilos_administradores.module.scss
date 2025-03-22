@@ -57,7 +57,12 @@
         font-weight: 600;
     }
 
+    tr.selected, tr.selected>td{
+        background-color: rgb(234, 255, 43);
+    }
 }
+
+
 
 @media only screen and (max-width: 900px){
     .contenedor_total_administrador{

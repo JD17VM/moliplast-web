@@ -14,3 +14,10 @@ export const getFullUrl = (path) => {
     if (!path) return '';
     return path.startsWith('http') ? path : `${BASE_URL_API}${path}`;
 };
+
+export function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Agrega un desplazamiento suave
+    });
+}
