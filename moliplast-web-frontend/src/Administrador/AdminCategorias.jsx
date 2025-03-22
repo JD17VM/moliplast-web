@@ -178,6 +178,7 @@ const AdminCategorias = () => {
             </div>
         )}
         <h2 className='mt-4 mb-3'>Administrador Categorías</h2>
+        <a href='/Lato.zip' style={{marginBottom: '20px', display: 'block', textDecoration: 'Underline'}}>Descargar fuente de letra Moliplast para generar Catalogo</a>
 
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
@@ -189,6 +190,8 @@ const AdminCategorias = () => {
                             <th scope="col" style={{width: "150px"}}>Descripción</th>
                             <th scope="col" style={{width: "80px"}}>Imagen</th>
                             <th scope="col" style={{width: "60px"}}>Acciones</th>
+                            <th scope="col" style={{width: "60px"}}>Doc QRs</th>
+                            <th scope="col" style={{width: "60px"}}>Catálogo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -209,6 +212,8 @@ const AdminCategorias = () => {
                                     </td>
                                     <TableData image_src={categoria.enlace_imagen}>{categoria.nombre}</TableData>
                                     <TableDataActions item={categoria} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
+                                    <TableData><a href={`https://www.moliplast.com/api/api/generar-documento-qrs-imprimir/categoria/${categoria.id}`}>Generar doc QRs</a></TableData>
+                                    <TableData><a href={`https://www.moliplast.com/api/api/generar-documento-catalogo/categoria/${categoria.id}`}>Generar Catalogo</a></TableData>
                                 </tr>
                             ))
                         )}
