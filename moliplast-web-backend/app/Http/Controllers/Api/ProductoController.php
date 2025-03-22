@@ -172,6 +172,9 @@ class ProductoController extends Controller
             'id_subcategoria',
             'id_subsubcategoria',
             'imagen_1',
+            'imagen_2',  // Añadir estas tres imágenes
+            'imagen_3',
+            'imagen_4',
             'destacados',
             'enlace_imagen_qr'
         )

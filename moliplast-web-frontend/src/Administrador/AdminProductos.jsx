@@ -328,66 +328,80 @@ const AdminProductos = () => {
         setEditingProducto(producto);
         setError('');
         setSuccess('');
-        
-        // Al editar, configuramos la información del producto a editar, sin establecer archivos
+
+        // Al editar, configuramos la información del producto a editar.
+        // **Importante: No establecer las imágenes a null en newProducto.**
         setNewProducto({
             id_categoria: producto.id_categoria || '',
             id_subcategoria: producto.id_subcategoria || '',
             id_subsubcategoria: producto.id_subsubcategoria || '',
             nombre: producto.nombre || '',
             descripcion: producto.descripcion || '',
-            imagen_1: null, // No establecemos los archivos directamente
-            imagen_2: null,
-            imagen_3: null,
-            imagen_4: null,
+            // **Mantén estos campos vacíos ('') para que los inputs file no muestren un valor simulado.**
+            imagen_1: '',
+            imagen_2: '',
+            imagen_3: '',
+            imagen_4: '',
             enlace_ficha_tecnica: null,
             texto_markdown: producto.texto_markdown || '',
             destacados: producto.destacados || false,
             enlace_imagen_qr: null,
-            codigo: null,
+            codigo: producto.codigo || '',
         });
-        
-        // Guardamos las URLs originales para mostrar previews
+
+        // **Carga las URLs de las imágenes existentes para las previsualizaciones.**
         if (producto.imagen_1) {
-            const imagen1Url = producto.imagen_1.startsWith('http') 
-                ? producto.imagen_1 
+            const imagen1Url = producto.imagen_1.startsWith('http')
+                ? producto.imagen_1
                 : `${BASE_URL_API}${producto.imagen_1}`;
             setImagen1Preview(imagen1Url);
+        } else {
+            setImagen1Preview('');
         }
-        
+
         if (producto.imagen_2) {
-            const imagen2Url = producto.imagen_2.startsWith('http') 
-                ? producto.imagen_2 
+            const imagen2Url = producto.imagen_2.startsWith('http')
+                ? producto.imagen_2
                 : `${BASE_URL_API}${producto.imagen_2}`;
             setImagen2Preview(imagen2Url);
+        } else {
+            setImagen2Preview('');
         }
-        
+
         if (producto.imagen_3) {
-            const imagen3Url = producto.imagen_3.startsWith('http') 
-                ? producto.imagen_3 
+            const imagen3Url = producto.imagen_3.startsWith('http')
+                ? producto.imagen_3
                 : `${BASE_URL_API}${producto.imagen_3}`;
             setImagen3Preview(imagen3Url);
+        } else {
+            setImagen3Preview('');
         }
-        
+
         if (producto.imagen_4) {
-            const imagen4Url = producto.imagen_4.startsWith('http') 
-                ? producto.imagen_4 
+            const imagen4Url = producto.imagen_4.startsWith('http')
+                ? producto.imagen_4
                 : `${BASE_URL_API}${producto.imagen_4}`;
             setImagen4Preview(imagen4Url);
+        } else {
+            setImagen4Preview('');
         }
-        
+
         if (producto.enlace_ficha_tecnica) {
-            const fichaUrl = producto.enlace_ficha_tecnica.startsWith('http') 
-                ? producto.enlace_ficha_tecnica 
+            const fichaUrl = producto.enlace_ficha_tecnica.startsWith('http')
+                ? producto.enlace_ficha_tecnica
                 : `${BASE_URL_API}${producto.enlace_ficha_tecnica}`;
             setFichaTecnicaPreview(fichaUrl);
+        } else {
+            setFichaTecnicaPreview('');
         }
-        
+
         if (producto.enlace_imagen_qr) {
-            const qrUrl = producto.enlace_imagen_qr.startsWith('http') 
-                ? producto.enlace_imagen_qr 
+            const qrUrl = producto.enlace_imagen_qr.startsWith('http')
+                ? producto.enlace_imagen_qr
                 : `${BASE_URL_API}${producto.enlace_imagen_qr}`;
             setImagenQRPreview(qrUrl);
+        } else {
+            setImagenQRPreview('');
         }
     };
 
