@@ -133,7 +133,9 @@ class generarDocumentoDeQRsController extends Controller
         }
 
         // Obtener los productos (con límite de 100)
-        $productos = $query->limit(100)->get();
+        //$productos = $query->limit(100)->get();
+
+        $productos = $query->get();
 
         if ($productos->isEmpty()) {
             $message = $categoriaId 
