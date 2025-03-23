@@ -3,6 +3,8 @@ import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from "../utils/utils.js"
 import { fetchData, deleteResource } from '../utils/api.js';
 
+import { TableData, TableDataActions } from './widgets/Table';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const AdminCatalogos = () => {
@@ -205,46 +207,16 @@ const AdminCatalogos = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                catalogos.map((catalogo) => (
-                                    <tr key={catalogo.id}>
-                                    <td>{catalogo.nombre}</td>
-                                    <td>
-                                        {catalogo.enlace_documento ? (
-                                            <a href={getFullUrl(catalogo.enlace_documento)} target="_blank" rel="noopener noreferrer">
-                                                Ver documento
-                                            </a>
-                                        ) : 'No disponible'}
-                                    </td>
-                                    <td>
-                                        {catalogo.enlace_imagen_portada ? (
-                                            <img 
-                                                src={getFullUrl(catalogo.enlace_imagen_portada)} 
-                                                alt={`Portada de ${catalogo.nombre}`} 
-                                            />
-                                        ) : 'No disponible'}
-                                    </td>
-                                    <td>
-                                        <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-                                            <button 
-                                                onClick={() => handleEdit(catalogo)} 
-                                                disabled={loading}
-                                                className="btn btn-primary mb-1 w-50"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(catalogo.id)} 
-                                                disabled={loading}
-                                                className="btn btn-danger w-50"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </div>
-                                    </td>
+                            catalogos.map((catalogo) => (
+                                <tr key={catalogo.id}>
+                                    <TableData>{catalogo.nombre}</TableData>
+                                    <TableData a_href={getFullUrl(catalogo.enlace_documento)}>Ver documento</TableData>
+                                    <TableData image_src={catalogo.enlace_imagen_portada}>{catalogo.nombre}</TableData>
+                                    <TableDataActions item={catalogo} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
                                 </tr>
-                                ))
+                            ))
                             )}
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
 

@@ -3,6 +3,8 @@ import styles from '../assets/styles/estilos_administradores.module.scss'
 import { getFullUrl } from "../utils/utils.js"
 import { fetchData, deleteResource } from '../utils/api.js';
 
+import { TableData, TableDataActions } from './widgets/Table';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const AdminCategorias = () => {
@@ -199,42 +201,15 @@ const AdminCategorias = () => {
                         ) : (
                             categorias.map((categoria) => (
                                 <tr key={categoria.id}>
-                                <td>{categoria.nombre}</td>
-                                <td>
-                                {categoria.descripcion && categoria.descripcion.length > 100
-                                        ? `${categoria.descripcion.substring(0, 100)}...`
-                                        : categoria.descripcion}
-                                </td>
-                                <td>
-                                    {categoria.enlace_imagen ? (
-                                        <img 
-                                            src={getFullUrl(categoria.enlace_imagen)} 
-                                            alt={`Imagen de ${categoria.nombre}`}
-                                            style={{maxWidth: "100px", maxHeight: "100px"}} 
-                                        />
-                                    ) : 'No disponible'}
-                                </td>
-
-
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-                                        <button 
-                                            onClick={() => handleEdit(categoria)} 
-                                            disabled={loading}
-                                            className="btn btn-primary mb-1 w-50"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(categoria.id)} 
-                                            disabled={loading}
-                                            className="btn btn-danger w-50"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                    <TableData>{categoria.nombre}</TableData>
+                                    <td>
+                                    {categoria.descripcion && categoria.descripcion.length > 100
+                                            ? `${categoria.descripcion.substring(0, 100)}...`
+                                            : categoria.descripcion}
+                                    </td>
+                                    <TableData image_src={categoria.enlace_imagen}>{categoria.nombre}</TableData>
+                                    <TableDataActions item={categoria} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
+                                </tr>
                             ))
                         )}
                     </tbody>

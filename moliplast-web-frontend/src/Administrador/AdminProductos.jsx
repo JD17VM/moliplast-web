@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
-import { Link, useLocation } from 'react-router-dom';
-import { getFullUrl } from '../utils/utils';
 import { fetchData, deleteResource } from '../utils/api.js';
+
+import { TableData, TableDataActions } from './widgets/Table';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
@@ -604,51 +604,18 @@ const AdminProductos = () => {
                             </tr>
                         ) : (
                             productos.map((producto) => (
-                                <tr key={producto.id}>
-                                <td>{producto.codigo}</td>
-                                <td><Link Link to={`/productos/producto/${producto.id}`}>{producto.nombre}</Link></td>
-                                <td>
-                                    <ul>
-                                        <li>▪︎ {producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada'}</li>
-                                        <li>▪︎ {producto.id_subcategoria ? getSubcategoriaName(producto.id_subcategoria) : ''}</li>
-                                        <li>▪︎ {producto.id_subsubcategoria ? getSubsubcategoriaName(producto.id_subsubcategoria) : ''}</li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    {producto.imagen_1 ? (
-                                        <img 
-                                            src={getFullUrl(producto.imagen_1)}
-                                            alt={`Imagen de ${producto.nombre}`} 
-                                        />
-                                    ) : 'No disponible'}
-                                </td>
-                                <td>{producto.destacados ? '✓' : '✗'}</td>
-                                <td>
-                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-                                        <button 
-                                            onClick={() => handleEdit(producto)} 
-                                            disabled={loading}
-                                            className="btn btn-primary mb-1 w-50"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(producto.id)} 
-                                            disabled={loading}
-                                            className="btn btn-danger w-50"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    {producto.enlace_imagen_qr ? (
-                                        <img 
-                                            src={getFullUrl(producto.enlace_imagen_qr)}
-                                            alt={`Imagen de ${producto.nombre}`} 
-                                        />
-                                    ) : 'No disponible'}
-                                </td>
+                            <tr key={producto.id}>
+                                <TableData>{producto.codigo}</TableData>
+                                <TableData link_to={`/productos/producto/${producto.id}`}>{producto.nombre}</TableData>
+                                <TableData list={[
+                                    producto.id_categoria ? getCategoriaName(producto.id_categoria) : 'No asignada',
+                                    producto.id_subcategoria ? getSubcategoriaName(producto.id_subcategoria) : '',
+                                    producto.id_subsubcategoria ? getSubsubcategoriaName(producto.id_subsubcategoria) : '',
+                                ]}/>
+                                <TableData image_src={producto.imagen_1}>{producto.nombre}</TableData>
+                                <TableData>{producto.destacados ? '✓' : '✗'}</TableData>
+                                <TableDataActions item={producto} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
+                                <TableData image_src={producto.enlace_imagen_qr}>{producto.nombre}</TableData>
                             </tr>
                             ))
                         )}

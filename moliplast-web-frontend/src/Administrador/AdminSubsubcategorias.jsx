@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss'
 import { fetchData, deleteResource } from '../utils/api.js';
 
+import { TableData, TableDataActions } from './widgets/Table';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const AdminSubsubcategorias = () => {
@@ -155,29 +157,10 @@ const AdminSubsubcategorias = () => {
                             </tr>
                         ) : (
                             subsubcategorias.map((subsubcategoria) => (
-                                <tr key={subsubcategoria.id}>
-                                <td>{subsubcategoria.nombre}</td>
-                                <td>
-                                    {getSubcategoryName(subsubcategoria.id_subcategoria)}
-                                </td>
-                                <td>
-                                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-                                        <button 
-                                            onClick={() => handleEdit(subsubcategoria)} 
-                                            disabled={loading}
-                                            className="btn btn-primary mb-1 w-50"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(subsubcategoria.id)} 
-                                            disabled={loading}
-                                            className="btn btn-danger w-50"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </td>
+                            <tr key={subsubcategoria.id}>
+                                <TableData>{subsubcategoria.nombre}</TableData>
+                                <TableData>{getSubcategoryName(subsubcategoria.id_subcategoria)}</TableData>
+                                <TableDataActions item={subsubcategoria} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
                             </tr>
                             ))
                         )}
