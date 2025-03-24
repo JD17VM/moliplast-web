@@ -1063,20 +1063,21 @@ class ProductoController extends Controller
                 return response()->json(['message' => 'Producto no encontrado'], 404);
             }
 
+            // Validamos sin restricciones estrictas para los campos de imagen
             $validator = Validator::make($request->all(), [
                 'id_categoria' => 'nullable|exists:categorias,id',
                 'id_subcategoria' => 'nullable|exists:subcategorias,id',
                 'id_subsubcategoria' => 'nullable|exists:subsubcategorias,id',
                 'nombre' => 'nullable|string|max:100',
                 'descripcion' => 'nullable|string|max:200',
-                'imagen_1' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-                'imagen_2' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-                'imagen_3' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-                'imagen_4' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-                'enlace_ficha_tecnica' => 'nullable|file|mimes:pdf,doc,docx',
+                'imagen_1' => 'nullable',
+                'imagen_2' => 'nullable',
+                'imagen_3' => 'nullable',
+                'imagen_4' => 'nullable',
+                'enlace_ficha_tecnica' => 'nullable',
                 'texto_markdown' => 'nullable|string',
                 'destacados' => 'nullable|boolean',
-                'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'enlace_imagen_qr' => 'nullable',
                 'codigo' => 'nullable|string|max:9',
             ]);
 
@@ -1088,6 +1089,7 @@ class ProductoController extends Controller
                 ], 400);
             }
 
+            // Manejo de campos regulares
             if ($request->has('id_categoria')) {
                 $producto->id_categoria = $request->id_categoria;
             }
@@ -1108,60 +1110,6 @@ class ProductoController extends Controller
                 $producto->descripcion = $request->descripcion;
             }
 
-            if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
-                if ($producto->imagen_1) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_1);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-                $producto->imagen_1 = url('storage/app/public/' . $imagen1Path);
-            }
-
-            if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
-                if ($producto->imagen_2) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_2);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-                $producto->imagen_2 = url('storage/app/public/' . $imagen2Path);
-            }
-
-            if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
-                if ($producto->imagen_3) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_3);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-                $producto->imagen_3 = url('storage/app/public/' . $imagen3Path);
-            }
-
-            if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
-                if ($producto->imagen_4) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_4);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
-                $producto->imagen_4 = url('storage/app/public/' . $imagen4Path);
-            }
-
-            if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
-                if ($producto->enlace_ficha_tecnica) {
-                    $oldFichaPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_ficha_tecnica);
-                    Storage::delete($oldFichaPath);
-                }
-                $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $fichaTecnicaPath);
-            }
-
-            if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
-                if ($producto->enlace_imagen_qr) {
-                    $oldQrPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_imagen_qr);
-                    Storage::delete($oldQrPath);
-                }
-                $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-                $producto->enlace_imagen_qr = url('storage/app/public/' . $qrImagePath);
-            }
-
             if ($request->has('texto_markdown')) {
                 $producto->texto_markdown = $request->texto_markdown;
             }
@@ -1172,6 +1120,111 @@ class ProductoController extends Controller
 
             if ($request->has('destacados')) {
                 $producto->destacados = $request->destacados;
+            }
+
+            // Manejo de eliminación de imágenes (string vacío)
+            $imageFields = [
+                'imagen_1',
+                'imagen_2',
+                'imagen_3',
+                'imagen_4',
+                'enlace_ficha_tecnica',
+                'enlace_imagen_qr'
+            ];
+
+            // Modifica la parte de manejo de eliminación de imágenes así:
+            foreach ($imageFields as $field) {
+                // Verifica si el campo existe y es string vacío o null
+                if ($request->has($field) && ($request->input($field) === '' || $request->input($field) === null)) {
+                    Log::info("Eliminar imagen: {$field} para producto {$id}");
+                    
+                    // Si hay una imagen existente, eliminarla del almacenamiento
+                    if (!empty($producto->$field)) {
+                        try {
+                            $relativePath = parse_url($producto->$field, PHP_URL_PATH);
+                            // Manejar casos donde parse_url no devuelve lo esperado
+                            if ($relativePath) {
+                                $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                                
+                                if (Storage::exists($storagePath)) {
+                                    Storage::delete($storagePath);
+                                    Log::info("Archivo eliminado: {$storagePath}");
+                                } else {
+                                    Log::warning("Archivo no encontrado: {$storagePath}");
+                                }
+                            } else {
+                                Log::warning("No se pudo parsear la URL: {$producto->$field}");
+                            }
+                        } catch (\Exception $e) {
+                            Log::error("Error al procesar la imagen {$field}: " . $e->getMessage());
+                        }
+                    }
+                    
+                    // Establecer el campo como null en la base de datos
+                    $producto->$field = "";
+                }
+            }
+
+            // Manejo de subida de nuevas imágenes/archivos
+            if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
+                // Eliminar imagen antigua si existe
+                if ($producto->imagen_1) {
+                    $relativePath = parse_url($producto->imagen_1, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
+                $producto->imagen_1 = '/storage/' . $imagen1Path;
+            }
+
+            if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
+                if ($producto->imagen_2) {
+                    $relativePath = parse_url($producto->imagen_2, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
+                $producto->imagen_2 = '/storage/' . $imagen2Path;
+            }
+
+            if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
+                if ($producto->imagen_3) {
+                    $relativePath = parse_url($producto->imagen_3, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
+                $producto->imagen_3 = '/storage/' . $imagen3Path;
+            }
+
+            if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
+                if ($producto->imagen_4) {
+                    $relativePath = parse_url($producto->imagen_4, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
+                $producto->imagen_4 = '/storage/' . $imagen4Path;
+            }
+
+            if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
+                if ($producto->enlace_ficha_tecnica) {
+                    $relativePath = parse_url($producto->enlace_ficha_tecnica, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
+                $producto->enlace_ficha_tecnica = '/storage/' . $fichaTecnicaPath;
+            }
+
+            if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
+                if ($producto->enlace_imagen_qr) {
+                    $relativePath = parse_url($producto->enlace_imagen_qr, PHP_URL_PATH);
+                    $storagePath = 'public' . str_replace('/storage', '', $relativePath);
+                    Storage::delete($storagePath);
+                }
+                $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
+                $producto->enlace_imagen_qr = '/storage/' . $qrImagePath;
             }
 
             $producto->save();
