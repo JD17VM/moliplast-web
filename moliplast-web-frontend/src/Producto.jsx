@@ -93,7 +93,7 @@ const Producto = () => {
 
     return (
         <>
-            <MetaData title={producto.nombre} canonical={`/productos/producto/${producto.nombre}`}/>
+            <MetaData title={producto.nombre} canonical={`/productos/producto/${producto.id}`}/>
             <div className={styles.contenedor_producto}>
                 <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>
