@@ -258,6 +258,7 @@ $padding_x_y: 45px;
             column-gap: 0.1rem;
             row-gap: 0.5rem;
             grid-template-columns: repeat(auto-fill, 170px);
+            justify-content: space-around;
         }
     }
     
