@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getFullUrl } from "./utils/utils.js";
 
+import MetaData from './widgets/Metadata'
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const ProductosSearch = () => {
@@ -38,6 +40,8 @@ const ProductosSearch = () => {
     }, [texto]);
 
     return (
+        <>
+        <MetaData title={`Buscar: ${texto}`} robots="noindex"/>
         <div className={styles.seccion_productos}>
             <div className={styles.titulo_boton_menu}>
                 <h1>Resultados de búsqueda para: {texto}</h1>
@@ -61,6 +65,7 @@ const ProductosSearch = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

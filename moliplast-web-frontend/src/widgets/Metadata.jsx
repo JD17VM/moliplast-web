@@ -7,9 +7,12 @@ const MetaData = ({
     ogUrl = "https://moliplast.com",
     ogImage = "URL_DE_TU_IMAGEN_DESTACADA",
     robots = "index, follow",
-    canonical = "https://moliplast.com",
-    icon = "/icono_moliplast.ico"
+    canonical = "",
+    icon = "/icono_moliplast.ico",
+    icon_dark = "/icono_moliplast_dark.ico",
+    icon_light = "/icono_moliplast.ico"
 }) => {
+  const baseUrl = "https://www.moliplast.com";
   return (
     <>
       <title>{title}</title> {/* Navegadores y motores de búsqueda. */}
@@ -20,14 +23,15 @@ const MetaData = ({
       <meta property="og:url" content={ogUrl} />
       {/* <meta property="og:image" content={ogImage} /> */}
       {/* indexar y seguir la pagina */}
-      {/*<meta name="robots" content={robots} /> 
-      <link rel="canonical" href={canonical} /> PUEDE SER*/}
+      <meta name="robots" content={robots} /> 
+      <link rel="canonical" href={`${baseUrl}${canonical}`} />
       {/*  
         El canonical es una herramienta fundamental para evitar problemas de contenido duplicado causados por parámetros extra en las URLs.
         Permite indicar a los motores de búsqueda cuál es la versión preferida de una página, consolidando las señales de clasificación y mejorando el SEO. 
       */}
-      <link rel="icon" type="image/x-icon" href={icon} />
-      <html lang="es" />
+      <link rel="icon" type="image/x-icon" href={icon}/>
+      <link rel="icon" type="image/x-icon" href={icon_dark} media="(prefers-color-scheme: dark)"/>
+      <link rel="icon" type="image/x-icon" href={icon_light} media="(prefers-color-scheme: light)"/>
     </>
   );
 };

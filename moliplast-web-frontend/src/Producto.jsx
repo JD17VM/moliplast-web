@@ -8,6 +8,8 @@ import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
 import { useParams } from 'react-router-dom';
 
+import MetaData from './widgets/Metadata'
+
 import { getFullUrl } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
@@ -91,6 +93,7 @@ const Producto = () => {
 
     return (
         <>
+            <MetaData title={producto.nombre} canonical={`/productos/producto/${producto.nombre}`}/>
             <div className={styles.contenedor_producto}>
                 <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>

@@ -71,7 +71,7 @@ const Contacto = () => {
 
     return (
         <>
-
+        <MetaData title='Contacto' canonical="/contacto"/>
         <div className={styles.contenedor_contacto} data-aos="fade-up">
             <h1>Contacto</h1>
             <div>

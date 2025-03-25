@@ -8,6 +8,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 
 import { getFullUrl } from "./utils/utils.js"
 
+import MetaData from './widgets/Metadata'
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const CheckBox = ({ id, marcado = false, children, onClick }) => {
@@ -194,6 +196,8 @@ const Productos = () => {
     }
 
     return (
+        <>
+        <MetaData title={`${categoria}`} canonical={`/productos/${categoria}`}/>
         <div className={styles.seccion_productos}>
             <div className={`${styles.cont_panel_filtros_busqueda} ${mostrarElemento ? styles.mostrar : styles.ocultar}`}>
             <div className={styles.panel_filtros}>
@@ -281,6 +285,7 @@ const Productos = () => {
             </div>
             
         </div>
+        </>
     );
 };
 
