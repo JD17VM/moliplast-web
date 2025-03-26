@@ -88,7 +88,12 @@ const Producto = () => {
     };
 
     if (!producto) {
-        return <div>Cargando...</div>;
+        return (
+        <>
+            <MetaData title="Producto" canonical={`/productos/producto/${id}`}/>
+            <div>Cargando...</div>
+        </>
+        );
     }
 
     return (

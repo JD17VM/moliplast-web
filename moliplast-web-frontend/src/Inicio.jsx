@@ -145,7 +145,7 @@ export const Inicio = () => {
 
     return(
         <>
-            <MetaData title='Inicio'/>
+            <MetaData title='Moliplast'/>
             <div data-aos="fade-up">
                 <SliderImgs images={items}/>
             </div>

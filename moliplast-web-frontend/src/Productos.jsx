@@ -192,7 +192,12 @@ const Productos = () => {
     };
 
     if (!categoriaData) {
-        return <div>Cargando...</div>;
+        return (
+        <>
+            <MetaData title={`${categoria}`} canonical={`/productos/${categoria}`}/>
+            <div>Cargando...</div>
+        </>
+        );
     }
 
     return (

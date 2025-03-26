@@ -3,8 +3,6 @@ import React from 'react';
 const MetaData = ({
     title = "Moliplast", 
     description = "Moliplast S.R.L.: Expertos en sistemas de riego tecnificado, tubos PVC/PEAD, tanques y biodigestores. Productos de alta calidad y atención personalizada en Arequipa, Pedregal y La Joya.",
-    ogTitle = "Moliplast S.R.L",
-    ogUrl = "https://moliplast.com",
     ogImage = "URL_DE_TU_IMAGEN_DESTACADA",
     robots = "index, follow",
     canonical = "",
@@ -18,9 +16,9 @@ const MetaData = ({
       <title>{title}</title> {/* Navegadores y motores de búsqueda. */}
       <meta name="description" content={description}/>
       {/*  og - Redes sociales y plataformas Open Graph. */}
-      {/*<meta property="og:title" content={ogTitle} /> {/* Redes sociales y plataformas Open Graph. */}
-      {/*<meta property="og:type" content="website" />
-      <meta property="og:url" content={ogUrl} />
+      <meta property="og:title" content={title} /> {/* Redes sociales y plataformas Open Graph. */}
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={`${baseUrl}${canonical}`} />
       {/* <meta property="og:image" content={ogImage} /> */}
       {/* indexar y seguir la pagina */}
       <meta name="robots" content={robots} /> 
