@@ -4,6 +4,8 @@ export const InputNormal = ({
     type = 'input',
     placeholder = '',
     Icono = false,
+    value='',
+    onChange = () => {},
 }) => {
     return (
         <div className={styles.cont_input}>
@@ -12,6 +14,8 @@ export const InputNormal = ({
                 id="fname"
                 name="fname"
                 placeholder={placeholder}
+                value={value}
+                onChange={onChange}  // Añade esta línea
             />
             <button>
                 {Icono && <Icono />}
@@ -19,6 +23,7 @@ export const InputNormal = ({
         </div>
     );
 };
+
 
 export const InputBuscador = ({
     placeholder = '',
