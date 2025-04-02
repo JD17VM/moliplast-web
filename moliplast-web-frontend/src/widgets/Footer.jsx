@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 
 import styles from '../assets/styles/estilos_footer.module.css'
@@ -21,6 +22,11 @@ import { InputNormal } from './Form';
 const Seccion_Hover_Footer = styled.div`
   .hovered{
     color:white;
+  }
+
+  form{
+    width:100%;
+    max-width:150px;
   }
 `;
 
@@ -47,6 +53,25 @@ const Footer = ({data}) => {
         // Si el usuario suelta antes de 5 segundos, se cancela el temporizador
         clearTimeout(timer);
         //setShowElement(false);
+    };
+
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        
+        // Contraseña hardcodeada (SOLO PARA DESARROLLO)
+        const adminPassword = 'admin123';
+        
+        if (password === adminPassword) {
+        // Guardar en localStorage que el admin está logueado
+        localStorage.setItem('adminAuth', 'true');
+        //navigate('/admin/dashboard'); // Redirigir al panel de administración
+        } else {
+        setError('Contraseña incorrecta');
+        }
     };
 
     return (
@@ -94,7 +119,10 @@ const Footer = ({data}) => {
                 linkRouter
                 />
                 {mostrarElement ? (
-                    <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey}/>
+                    <form onSubmit={handleLogin}>
+                        <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey} value={password} onChange={(e) => setPassword(e.target.value)}/>
+                        <button type="submit">Ingresar</button>
+                    </form>
                 ) : null}
             </Seccion_Hover_Footer>
 
