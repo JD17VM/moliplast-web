@@ -35,6 +35,8 @@ import ImagenDemoProducto4 from '../assets/imgs/demos/Producto_Valvula_demo.webp
 
 import Fachada_Moliplast from '../assets/imgs/Fachada_Moliplast.webp'
 
+import defaultImg from '../assets/imgs/default_square_img.png'
+
 const imageHelper = {
     logo_moliplast_blanco,
 
@@ -72,6 +74,8 @@ const imageHelper = {
     ImagenDemoProducto4,
 
     Fachada_Moliplast,
+
+    defaultImg,
 }
 
 export default imageHelper;

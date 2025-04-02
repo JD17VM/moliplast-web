@@ -225,14 +225,22 @@ const Productos = () => {
                 ) : productos.length === 0 ? (
                     <div>No hay productos disponibles</div>
                 ) : (
-                    productos.map((producto) => (
+                    productos.map((producto) => {
+                    const enlaceImagen = producto.enlace_imagen
+                        ? producto.enlace_imagen.startsWith('http')
+                        ? producto.enlace_imagen
+                        : `${BASE_URL_API}${producto.enlace_imagen}`
+                        : false;
+
+                    return (
                         <CartaProducto
-                            key={producto.id}
-                            enlace_imagen={producto.enlace_imagen.startsWith('http') ? producto.enlace_imagen : `${BASE_URL_API}${producto.enlace_imagen}`}
-                            texto={producto.nombre}
-                            id = {producto.id}
+                        key={producto.id}
+                        enlace_imagen={enlaceImagen || imageHelper.defaultImg} // Usamos la variable definida
+                        texto={producto.nombre}
+                        id={producto.id}
                         />
-                    ))
+                    );
+                    })
                 )}
             </div>
         </div>
