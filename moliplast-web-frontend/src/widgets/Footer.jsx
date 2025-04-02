@@ -13,7 +13,7 @@ import { FaKey } from "react-icons/fa";
 import { FaSquarePhone } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { FaMapMarkerAlt} from "react-icons/fa";
-import { InputButton } from './Form';
+import { InputNormal } from './Form';
 
 
 
@@ -94,7 +94,7 @@ const Footer = ({data}) => {
                 linkRouter
                 />
                 {mostrarElement ? (
-                    <InputButton placeholder='Contraseña' type='password' Icono = {FaKey}/>
+                    <InputNormal placeholder='Contraseña' type='password' Icono = {FaKey}/>
                 ) : null}
             </Seccion_Hover_Footer>
 
