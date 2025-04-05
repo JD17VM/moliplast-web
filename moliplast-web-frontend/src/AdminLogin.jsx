@@ -43,3 +43,41 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
+/*
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const LogoutButton = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Eliminar la autenticación del localStorage
+    localStorage.removeItem('adminAuth');
+    // Redirigir al usuario a la página de inicio de sesión (o donde desees)
+    navigate('/');
+  };
+
+  return (
+    <button onClick={handleLogout}>Cerrar Sesión</button>
+  );
+};
+
+export default LogoutButton;
+
+import React from 'react';
+import LogoutButton from './LogoutButton'; // Asegúrate de la ruta correcta
+
+const AdminDashboard = () => {
+  return (
+    <div>
+      <h2>Panel de Administración</h2>
+
+      <LogoutButton />
+    </div>
+  );
+};
+
+export default AdminDashboard;
+
+*/
