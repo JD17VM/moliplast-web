@@ -25,6 +25,13 @@ const AdminProductos = () => {
         codigo: '',
     });
     
+    // Estado para la paginación
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        perPage: 200, // Puedes ajustar este valor según tus necesidades
+    });
+    
     const [editingProducto, setEditingProducto] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -46,7 +53,7 @@ const AdminProductos = () => {
 
     // Cargar datos al iniciar el componente
     useEffect(() => {
-        loadProductos();
+        loadProductos(pagination.currentPage);
         loadCategorias();
     }, []);
 
@@ -94,12 +101,12 @@ const AdminProductos = () => {
         }
     }, [newProducto.id_subcategoria, subcategorias]);
 
-    // Carga de productos desde la API
-    const loadProductos = async () => {
+    // Carga de productos desde la API con paginación
+    const loadProductos = async (page = 1) => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`${BASE_URL_API}/api/productos`);
+            const response = await fetch(`${BASE_URL_API}/api/productos?page=${page}&per_page=${pagination.perPage}`);
             
             if (response.status === 404) {
                 console.log('No hay productos disponibles');
@@ -120,7 +127,12 @@ const AdminProductos = () => {
             }
             
             const data = await response.json();
-            setProductos(data);
+            setProductos(data.data); // Accede a los datos paginados
+            setPagination({
+                ...pagination,
+                currentPage: data.current_page,
+                totalPages: data.last_page,
+            });
         } catch (error) {
             console.error('Error fetching productos:', error);
             setError('Error al cargar los productos. Por favor, intenta nuevamente.');
@@ -128,6 +140,11 @@ const AdminProductos = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Cambiar de página
+    const handlePageChange = (newPage) => {
+        loadProductos(newPage);
     };
 
     // Cargar categorías con su estructura completa
@@ -291,7 +308,7 @@ const AdminProductos = () => {
             resetForm();
             
             setSuccess(editingProducto ? 'Producto actualizado exitosamente!' : 'Producto guardado exitosamente!');
-            loadProductos();
+            loadProductos(pagination.currentPage); // Recargar la página actual después de guardar/actualizar
         } catch (error) {
             console.error(editingProducto ? 'Error actualizando producto:' : 'Error guardando producto:', error);
             setError(`Error: ${error.message}`);
@@ -412,7 +429,6 @@ const AdminProductos = () => {
     };
 
     // Eliminar un producto
-
     const handleDelete = async (id) => {
         if (window.confirm("¿Estás seguro de eliminar este producto?")) {
             setLoading(true);
@@ -442,7 +458,7 @@ const AdminProductos = () => {
                 }
                 
                 setSuccess('Producto eliminado exitosamente!');
-                loadProductos();
+                loadProductos(pagination.currentPage); // Mantener en la misma página después de eliminar
             } catch (error) {
                 console.error('Error eliminando producto:', error);
                 setError(`Error: ${error.message}`);
@@ -485,7 +501,7 @@ const AdminProductos = () => {
         <h2 className='mt-4 mb-3'>Lista de Productos</h2>
         {loading && <p>Cargando...</p>}
         <div className={styles.contenedor_total_administrador}>
-            <div className={styles.contenedor_registros}>
+        <div className={styles.contenedor_registros}>
                 <table className="table table-striped table-responsive align-midle">
                     <thead className="table-dark">
                         <tr>
@@ -540,6 +556,21 @@ const AdminProductos = () => {
                         )}
                         </tbody>
                 </table>
+                
+                {/* Componente de paginación */}
+                {pagination.totalPages > 1 && (
+                    <div className="pagination d-flex justify-content-center mt-3">
+                        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                className={`btn ${pagination.currentPage === page ? 'btn-primary' : 'btn-outline-primary'} mx-1`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
             <div className={styles.contenedor_formulario}>
                 <form className="row grid gap-0 row-gap-3 mt-3" onSubmit={handleSubmit} encType="multipart/form-data">

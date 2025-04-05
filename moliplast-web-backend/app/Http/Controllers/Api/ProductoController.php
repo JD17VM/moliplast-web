@@ -15,7 +15,26 @@ use App\Models\Subsubcategoria;
 
 class ProductoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
+    {
+        $perPage = $request->input('per_page', 200); // Número de productos por página, por defecto 50
+        $page = $request->input('page', 1); // Página actual, por defecto 1
+        // Solo obtener productos con estatus true
+        $productos = Producto::where('estatus', true)
+                                ->paginate($perPage, ['*'], 'page', $page);
+
+        if ($productos->isEmpty()){
+            return response()->json([
+                'message' => 'No hay productos registrados',
+                'status' => 404
+            ], 404);
+        }
+
+        return response()->json($productos, 200);
+    }
+
+    /*
+    public function index(Request $request)
     {
         // Solo obtener productos con estatus true
         $productos = Producto::where('estatus', true)->get();
@@ -28,7 +47,7 @@ class ProductoController extends Controller
         }
 
         return response()->json($productos, 200);
-    }
+    }*/
 
     public function indexAll()
     {
