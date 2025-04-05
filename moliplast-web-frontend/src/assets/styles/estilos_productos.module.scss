@@ -5,10 +5,11 @@ $padding_x_y: 45px;
     display:grid;
     width: 100%;
     grid-template-columns: auto 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas: 
     "cont_panel_filtros_busqueda titulo_boton_menu"
     "cont_panel_filtros_busqueda contenedor_productos"
+    "pagination pagination"
     ;
     column-gap: 2rem;
     row-gap: 1.5rem;
@@ -87,6 +88,34 @@ $padding_x_y: 45px;
         justify-content: space-between;
     }
 
+    & > .pagination{
+        margin-top: 1.5rem;
+        grid-area: pagination;
+        --background-color: red;
+        width: 100%;
+        display: flex;
+        column-gap: 1rem;
+        row-gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        & > button{
+            
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--color_negro);
+            
+            &.active{
+                background-color: var(--color_azul_1);
+                color: var(--color_blanco);
+            }
+
+        }
+    }
+
 }
 
 //---------------------------------------------------------------------
@@ -139,6 +168,7 @@ $padding_x_y: 45px;
     grid-template-areas: 
     "titulo_boton_menu"
     "contenedor_productos"
+    "pagination"
     ;
     column-gap: 0;
     row-gap: 0;

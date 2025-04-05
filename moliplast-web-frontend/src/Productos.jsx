@@ -21,6 +21,7 @@ const Productos = () => {
     const navigate = useNavigate();
     const [categoriaData, setCategoriaData] = useState(null);
     const [productos, setProductos] = useState([]);
+    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 }); // Estado de paginación
     const [checkedElement, setCheckedElement] = useState({ subcategoria: 'todos', subsubcategoria: null });
     const [mostrarElemento, setMostrarElemento] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -48,60 +49,73 @@ const Productos = () => {
         }
     }, [categoria]);
 
-    // Obtener productos
-    useEffect(() => {
-        const fetchProductos = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                let url = `http://127.0.0.1:8000/api/productos/carta/${categoria}`;
-
-                if (subcategoria && subcategoria !== 'todos') {
-                    url += `/${subcategoria}`;
-                }
-                if (subsubcategoria) {
-                    url += `/${subsubcategoria}`;
-                }
-
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Error al obtener los productos');
-                }
-                const data = await response.json();
-                setProductos(data);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error:', error);
-                setError('No se pudieron cargar los productos');
-                setIsLoading(false);
+    // Obtener productos con paginación
+    const fetchProductos = async (page = 1) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            // Construir la URL base
+            let url = `${BASE_URL_API}/api/productos/carta/${categoria}`;
+    
+            // Agregar subcategoría si existe y no es "todos"
+            if (subcategoria && subcategoria !== 'todos') {
+                url += `/${subcategoria}`;
             }
-        };
+    
+            // Agregar subsubcategoría si existe
+            if (subsubcategoria) {
+                url += `/${subsubcategoria}`;
+            }
+    
+            // Agregar parámetro de paginación
+            url += `?page=${page}`;
+    
+            // Hacer la solicitud a la API
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Error al obtener los productos');
+            }
+            const data = await response.json();
+            setProductos(data.data); // Actualizar productos
+            setPagination({
+                currentPage: data.current_page, // Página actual
+                totalPages: data.last_page // Total de páginas
+            });
+            setIsLoading(false);
+        } catch (error) {
+            console.error('Error:', error);
+            setError('No se pudieron cargar los productos');
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (categoria) {
             fetchProductos();
         }
     }, [categoria, subcategoria, subsubcategoria]);
 
+    // Cambiar de página
+    const handlePageChange = (newPage) => {
+        fetchProductos(newPage);
+    };
+
     // Marcar el CheckBox según la subcategoria o subsubcategoria en la URL
     useEffect(() => {
         if (categoriaData) {
-            // Si no hay subcategoria ni subsubcategoria, marcar el checkbox "Todos"
             if (!subcategoria || subcategoria === 'todos') {
                 setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
             } else {
-                // Buscar la subcategoria en los datos
                 const subcategoriaEncontrada = categoriaData.subcategorias.find(
                     (sub) => sub.nombre === subcategoria
                 );
 
                 if (subcategoriaEncontrada) {
-                    // Si hay una subcategoria en la URL, marcar su CheckBox
                     setCheckedElement({
                         subcategoria: subcategoriaEncontrada.id,
                         subsubcategoria: null
                     });
 
-                    // Si también hay una subsubcategoria en la URL, buscar y marcar su CheckBox
                     if (subsubcategoria) {
                         const subsubcategoriaEncontrada = subcategoriaEncontrada.subsubcategorias.find(
                             (subsub) => subsub.nombre === subsubcategoria
@@ -122,11 +136,9 @@ const Productos = () => {
     const handleClick = (id, type) => {
         if (type === 'subcategoria') {
             if (id === 'todos') {
-                // Navegar a la ruta base de la categoría
                 navigate(`/productos/${categoria}`);
                 setCheckedElement({ subcategoria: 'todos', subsubcategoria: null });
             } else {
-                // Encontrar el nombre de la subcategoría
                 const subcategoriaItem = categoriaData.subcategorias.find(sub => sub.id === id);
                 if (subcategoriaItem) {
                     navigate(`/productos/${categoria}/${subcategoriaItem.nombre}`);
@@ -134,16 +146,15 @@ const Productos = () => {
                 }
             }
         } else if (type === 'subsubcategoria') {
-            // Encontrar la subcategoría actual y el nombre de la subsubcategoría
             const currentSubcategoria = categoriaData.subcategorias.find(
                 sub => sub.subsubcategorias.some(subsub => subsub.id === id)
             );
-    
+
             if (currentSubcategoria) {
                 const subsubcategoriaItem = currentSubcategoria.subsubcategorias.find(
                     subsub => subsub.id === id
                 );
-    
+
                 if (subsubcategoriaItem) {
                     navigate(`/productos/${categoria}/${currentSubcategoria.nombre}/${subsubcategoriaItem.nombre}`);
                     setCheckedElement({
@@ -169,7 +180,6 @@ const Productos = () => {
                 <div className={styles.panel_filtros}>
                     <h2>Panel de Filtros</h2>
                     <ul>
-                        {/* Checkbox "Todos" */}
                         <li>
                             <CheckBox
                                 id="todos"
@@ -179,8 +189,6 @@ const Productos = () => {
                                 Todos
                             </CheckBox>
                         </li>
-
-                        {/* Lista de subcategorías */}
                         {categoriaData.subcategorias.map(subcategoriaItem => (
                             <li key={subcategoriaItem.id}>
                                 <CheckBox
@@ -226,23 +234,37 @@ const Productos = () => {
                     <div>No hay productos disponibles</div>
                 ) : (
                     productos.map((producto) => {
-                    const enlaceImagen = producto.enlace_imagen
-                        ? producto.enlace_imagen.startsWith('http')
-                        ? producto.enlace_imagen
-                        : `${BASE_URL_API}${producto.enlace_imagen}`
-                        : false;
+                        const enlaceImagen = producto.enlace_imagen
+                            ? producto.enlace_imagen.startsWith('http')
+                                ? producto.enlace_imagen
+                                : `${BASE_URL_API}${producto.enlace_imagen}`
+                            : false;
 
-                    return (
-                        <CartaProducto
-                        key={producto.id}
-                        enlace_imagen={enlaceImagen || imageHelper.defaultImg} // Usamos la variable definida
-                        texto={producto.nombre}
-                        id={producto.id}
-                        />
-                    );
+                        return (
+                            <CartaProducto
+                                key={producto.id}
+                                enlace_imagen={enlaceImagen || imageHelper.defaultImg}
+                                texto={producto.nombre}
+                                id={producto.id}
+                            />
+                        );
                     })
                 )}
             </div>
+
+            {/* Paginación */}
+            <div className={styles.pagination}>
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={pagination.currentPage === page ? styles.active : ''}
+                    >
+                        {page}
+                    </button>
+                ))}
+            </div>
+            
         </div>
     );
 };

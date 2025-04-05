@@ -13,7 +13,7 @@ import { TiThMenu } from "react-icons/ti";
 import { Logo_Moliplast } from '../assets/imgs/iconos/svg/Logo_Moliplast';
 import { debounce } from 'lodash';
 
-import { InputButton } from './Form';
+import { InputBuscador } from './Form';
 
 import axios from 'axios'; // Importar axios
 
@@ -43,14 +43,54 @@ const dataPaginas = {
         { 
             nombre: "Contacto", 
             enlace: "/contacto"
-        }
+        },
     ]
 };
 
 
 const Navegador = () => {
 
+    const location = useLocation();
+
+    const dataAdmin = [
+        { 
+            nombre: "Admin Productos", 
+            enlace: "/catalogos"
+        },
+        { 
+            nombre: "Admin Catalogos", 
+            enlace: "/administrador/catalogos"
+        },
+        { 
+            nombre: "Admin Servicios", 
+            enlace: "/administrador/servicios"
+        },
+        { 
+            nombre: "Admin Categorías", 
+            subsecciones: [
+                { nombre: "Categorias", enlace: "/administrador/categorias" },
+                { nombre: "Subcategorias", enlace: "/administrador/subcategorias" },
+                { nombre: "Subsubcategorias", enlace: "/administrador/subsubcategorias" },
+            ] 
+        },
+    ]
     const [data, setData] = useState(dataPaginas.data);
+    const [administrador, setAdministrador] = useState(false);
+
+    // Modifica el useEffect de autenticación para que se vuelva a ejecutar cuando sea necesario
+    useEffect(() => {
+        // Verificar si existe la autenticación en localStorage
+        const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
+        if (isAuthenticated) {
+            setData(dataAdmin);
+            setAdministrador(true);
+        } else {
+            setData(dataPaginas.data);
+            setAdministrador(false);
+        }
+    }, [location.pathname]); // Volver a verificar cuando cambia la ruta
+
+    
 
     // Consulta a la API para obtener las categorías
     useEffect(() => {
@@ -80,7 +120,7 @@ const Navegador = () => {
         };
 
         fetchCategorias(); // Llamar a la función para obtener los datos
-    }, []); // El efecto se ejecuta solo una vez al montar el componente
+    }, [location.pathname]); // El efecto se ejecuta solo una vez al montar el componente
 
     const [subseccion_abierta, setSubseccionAbierta] = useState(null);
     const toggleSubseccion = (index) => {
@@ -88,7 +128,6 @@ const Navegador = () => {
     };
 
     const [navegador_movil_activo, setNavegadorMovilActivo] = useState(false);
-    const location = useLocation();
 
     useEffect(() => {
         setNavegadorMovilActivo(false)
@@ -138,7 +177,7 @@ const Navegador = () => {
 
     return (
         <>
-            <div className={styles.cont_navegador}>
+            <div className={`${styles.cont_navegador} ${administrador ? styles.admin : ''}`}>
                 <header className={scrolling ? styles['reducida'] : ''}>
                     <Link to='/' className={styles.cont_logo}>
                         <Logo_Moliplast logo="principal" className={styles.logo_front}/>
@@ -169,7 +208,7 @@ const Navegador = () => {
                         <TiThMenu />
                     </button>
                 </header>
-                <nav>
+                <nav className=''>
                     {/* Este es el ul de una pantalla de monitor */}
                     <ul className={`${styles.cont_lista_enlaces}`}>
                         {data.map((seccion, index) => (
@@ -234,7 +273,7 @@ const Navegador = () => {
                     </ul>
 
                     <div className={styles.cont_busqueda_tiempo_real}>
-                    <InputButton
+                    <InputBuscador
                         placeholder="Buscar productos"
                         Icono={FaSearch}
                         value={query} // Pasar el valor del estado `query`
