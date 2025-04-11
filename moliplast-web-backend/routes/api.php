@@ -115,6 +115,7 @@ Route::get('/producto/redirect/{id}', [ProductoController::class, 'redirect']);
 
 Route::get('/generar-documento-qrs-imprimir', [generarDocumentoDeQRsController::class, 'generarDocumentoDeQRsParaImprimirPorCategoria']);
 Route::get('/generar-documento-qrs-imprimir/categoria/{categoriaId}', [generarDocumentoDeQRsController::class, 'generarDocumentoDeQRsParaImprimirPorCategoria']);
+Route::post('/generar-documento-qrs-imprimir/productos-seleccionados', [GenerarDocumentoDeQRsController::class, 'generarDocumentoDeQRsPorIds']);
 
 Route::get('/generar-documento-catalogo-uno/categoria/{categoriaId}', [generarDocumentoCatalogoPorCategoriaController::class, 'generarDocumentoCatalogoPorCategoriaUnProductoPorIteracion']);
 Route::get('/generar-documento-catalogo/categoria/{categoriaId}', [generarDocumentoCatalogoPorCategoriaController::class, 'generarDocumentoCatalogoPorCategoriaDosProductosPorIteracion']);

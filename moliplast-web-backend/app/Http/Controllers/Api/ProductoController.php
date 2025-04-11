@@ -937,7 +937,7 @@ class ProductoController extends Controller
     public function update(Request $request, $id)
     {
         Log::info('Iniciando actualización de producto', ['id' => $id, 'data' => $request->all()]);
-        
+
         try {
             $producto = Producto::where('id', $id)->where('estatus', true)->first();
 
@@ -961,73 +961,94 @@ class ProductoController extends Controller
                 'destacados' => 'boolean',
                 'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
                 'codigo' => 'nullable|string|max:9',
+                'delete_imagen_1' => 'nullable|in:0,1',
+                'delete_imagen_2' => 'nullable|in:0,1',
+                'delete_imagen_3' => 'nullable|in:0,1',
+                'delete_imagen_4' => 'nullable|in:0,1',
+                'delete_enlace_ficha_tecnica' => 'nullable|in:0,1',
+                'delete_enlace_imagen_qr' => 'nullable|in:0,1',
             ]);
 
             if ($validator->fails()) {
+                 Log::error('Error de validación en update de producto', ['errors' => $validator->errors()]);
                 return response()->json([
-                    'message' => 'Error en la validación de los datos', 
+                    'message' => 'Error en la validación de los datos',
                     'errors' => $validator->errors()
                 ], 400);
             }
 
-            // Actualizar las imágenes si se proporcionan
-            if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
-                if ($producto->imagen_1) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_1);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-                $producto->imagen_1 = url('storage/app/public/' . $imagen1Path);
+            $fileFields = [
+                'imagen_1',
+                'imagen_2',
+                'imagen_3',
+                'imagen_4',
+                'enlace_ficha_tecnica',
+                'enlace_imagen_qr',
+            ];
+
+            foreach ($fileFields as $field) {
+                 $deleteFlag = 'delete_' . $field;
+
+                 // Check if the file is marked for deletion (flag sent as '1') AND no new file is uploaded
+                 if ($request->has($deleteFlag) && $request->input($deleteFlag) == '1' && !$request->hasFile($field)) {
+                     Log::info("Procesando eliminación para el campo {$field} en producto ID {$id}. Delete flag es '1' y no hay nuevo archivo.");
+                     if ($producto->$field) {
+                         Log::info("Producto tiene URL existente para {$field}: {$producto->$field}. Intentando obtener ruta de storage.");
+                         // ** USAR LA FUNCIÓN HELPER MEJORADA **
+                         $filePath = $this->getStoragePathFromUrl($producto->$field);
+                         Log::info("Ruta de storage obtenida para {$field}: " . ($filePath ?? 'null'));
+
+                         if ($filePath && Storage::disk('public')->exists($filePath)) { // Especificar disco 'public'
+                             Log::info("Archivo encontrado en storage: {$filePath}. Procediendo a eliminar.");
+                             Storage::disk('public')->delete($filePath); // Especificar disco 'public'
+                              Log::info("Archivo eliminado del storage para campo {$field}: {$filePath}");
+                         } else {
+                              Log::warning("Intento de eliminar archivo no encontrado en storage para campo {$field}: {$filePath}. URL original en DB: {$producto->$field}");
+                         }
+                     } else {
+                          Log::info("Campo {$field} ya está vacío en la DB para producto ID {$id}. No hay archivo para eliminar.");
+                     }
+                     // Set the database field to NULL regardless of whether a physical file was found/deleted
+                     $producto->$field = null;
+                     Log::info("Campo {$field} establecido a NULL en el modelo para producto ID {$id}.");
+
+                 }
+                 // Check if a new file is being uploaded
+                 elseif ($request->hasFile($field) && $request->file($field)->isValid()) {
+                      Log::info("Procesando subida de nuevo archivo para campo {$field} en producto ID {$id}.");
+                     // If there was an old file, delete it before saving the new one
+                     if ($producto->$field) {
+                          Log::info("Producto tiene URL existente para {$field}: {$producto->$field}. Intentando eliminar archivo anterior.");
+                          // ** USAR LA FUNCIÓN HELPER MEJORADA **
+                          $oldFilePath = $this->getStoragePathFromUrl($producto->$field);
+                           Log::info("Ruta de storage obtenida para archivo anterior {$field}: " . ($oldFilePath ?? 'null'));
+                           if ($oldFilePath && Storage::disk('public')->exists($oldFilePath)) { // Especificar disco 'public'
+                              Log::info("Archivo anterior encontrado: {$oldFilePath}. Procediendo a eliminar.");
+                              Storage::disk('public')->delete($oldFilePath); // Especificar disco 'public'
+                              Log::info("Archivo anterior eliminado del storage para campo {$field}: {$oldFilePath}");
+                          } else {
+                               Log::warning("Intento de eliminar archivo anterior no encontrado en storage para campo {$field}: {$oldFilePath}. URL original en DB: {$producto->$field}");
+                          }
+                     } else {
+                           Log::info("Campo {$field} estaba vacío en la DB. No hay archivo anterior para eliminar.");
+                     }
+                     // Determine storage folder
+                     $folder = 'productos';
+                     if ($field === 'enlace_ficha_tecnica') $folder = 'fichas_tecnicas';
+                     if ($field === 'enlace_imagen_qr') $folder = 'qr_images'; // Si permites subir QR manualmente
+
+                     // Store the new file
+                     $filePath = $request->file($field)->store($folder, 'public'); // Especificar disco 'public'
+                     // Get the URL for the stored file
+                     $producto->$field = url(Storage::disk('public')->url($filePath)); // Usar Storage::disk('public')->url
+
+                     Log::info("Nuevo archivo subido para campo {$field}: {$producto->$field}");
+                 }
+                 // If neither delete flag is true nor a new file is uploaded, the existing value is kept.
             }
 
-            if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
-                if ($producto->imagen_2) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_2);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-                $producto->imagen_2 = url('storage/app/public/' . $imagen2Path);
-            }
 
-            if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
-                if ($producto->imagen_3) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_3);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-                $producto->imagen_3 = url('storage/app/public/' . $imagen3Path);
-            }
-
-            if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
-                if ($producto->imagen_4) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_4);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
-                $producto->imagen_4 = Storage::url($imagen4Path);
-                $producto->imagen_4 = url('storage/app/public/' . $imagen4Path);
-            }
-
-            // Actualizar el archivo de ficha técnica si se proporciona
-            if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
-                if ($producto->enlace_ficha_tecnica) {
-                    $oldFichaPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_ficha_tecnica);
-                    Storage::delete($oldFichaPath);
-                }
-                $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $fichaTecnicaPath);
-            }
-
-            // Actualizar la imagen QR si se proporciona
-            if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
-                if ($producto->enlace_imagen_qr) {
-                    $oldQrPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_imagen_qr);
-                    Storage::delete($oldQrPath);
-                }
-                $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-                $producto->enlace_imagen_qr = url('storage/app/public/' . $qrImagePath);
-            }
-
+            // Actualizar otros campos no-archivo
             $producto->id_categoria = $request->id_categoria ?? $producto->id_categoria;
             $producto->id_subcategoria = $request->id_subcategoria ?? $producto->id_subcategoria;
             $producto->id_subsubcategoria = $request->id_subsubcategoria ?? $producto->id_subsubcategoria;
@@ -1036,19 +1057,82 @@ class ProductoController extends Controller
             $producto->texto_markdown = $request->texto_markdown ?? $producto->texto_markdown;
             $producto->destacados = $request->destacados ?? $producto->destacados;
             $producto->codigo = $request->codigo ?? $producto->codigo;
+
             $producto->save();
 
             Log::info('Producto actualizado exitosamente', ['id' => $producto->id]);
             return response()->json($producto, 200);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en actualizar producto', [
                 'id' => $id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error inesperado al actualizar producto: ' . $e->getMessage()], 500);
         }
+    }
+
+    protected function getStoragePathFromUrl(?string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        // Intenta parsear la URL para obtener solo la ruta (ej. /api/storage/...)
+        $path = parse_url($url, PHP_URL_PATH);
+        if ($path === false || $path === null) {
+             Log::warning("getStoragePathFromUrl: No se pudo parsear la URL para obtener la ruta: {$url}");
+             return null;
+        }
+
+        // Busca el segmento '/storage/'
+        $storageSegment = '/storage/';
+        $storagePos = strpos($path, $storageSegment);
+
+        if ($storagePos !== false) {
+            // Obtiene la parte de la ruta después de '/storage/'
+            $relativePath = substr($path, $storagePos + strlen($storageSegment));
+
+            // La ruta real en el disco 'public' suele empezar con 'public/'.
+            // A veces, dependiendo de cómo se configure el link simbólico,
+            // la URL podría incluir 'app/public/' o solo 'public/'.
+            // Queremos la ruta relativa *dentro* del disco 'public'.
+            // Ej: si la URL lleva a .../storage/productos/foto.jpg, la ruta en disco es 'productos/foto.jpg'
+            // Ej: si la URL lleva a .../storage/app/public/productos/foto.jpg, la ruta en disco es 'productos/foto.jpg'
+
+            // Normalizamos la ruta. Quitamos 'app/public/' si existe al inicio.
+            if (str_starts_with($relativePath, 'app/public/')) {
+                 return substr($relativePath, strlen('app/public/'));
+            } elseif (str_starts_with($relativePath, 'public/')) {
+                 // Si ya empieza con public/, quitamos solo 'public/'
+                 return substr($relativePath, strlen('public/'));
+            } else {
+                // Si no empieza con 'app/public/' ni 'public/', asumimos que la ruta
+                // después de '/storage/' es la ruta relativa al disco 'public'.
+                // Esto depende mucho de la configuración del symlink y del disco.
+                // La mayoría de setups estándar con 'php artisan storage:link' mapean
+                // /storage/ a storage/app/public/, así que la parte después de /storage/
+                // debería ser la ruta dentro de public.
+                 return $relativePath;
+            }
+             // Nota: En la mayoría de los casos estándar de Laravel, la ruta correcta
+             // para Storage::disk('public')->delete() es la parte de la URL *después* de '/storage/',
+             // porque el symlink '/storage' apunta a 'storage/app/public'.
+             // Por ejemplo, URL `.../storage/productos/foto.jpg` mapea a `storage/app/public/productos/foto.jpg`.
+             // Para `Storage::disk('public')->delete()`, la ruta es `productos/foto.jpg`.
+             // La lógica simple `substr($path, $storagePos + strlen($storageSegment))` suele ser suficiente
+             // si tu symlink es estándar. La versión con `app/public` y `public/` check es más defensiva
+             // para URL structures slightly different. Let's simplify to the standard expected format for delete:
+
+            // Simplificado para el caso estándar: la ruta en disco es la parte después de /storage/
+            return substr($path, $storagePos + strlen($storageSegment));
+
+
+        }
+
+         Log::warning("getStoragePathFromUrl: No se encontró el segmento '/storage/' en la ruta de la URL: {$path} (Original URL: {$url})");
+        return null; // '/storage/' segment not found
     }
 
     public function updatePartial(Request $request, $id)

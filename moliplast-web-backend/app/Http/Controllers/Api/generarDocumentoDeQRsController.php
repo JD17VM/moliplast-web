@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
-use App\Models\Categoria;
 use PhpOffice\PhpWord\TemplateProcessor;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class generarDocumentoDeQRsController extends Controller
 {
@@ -244,8 +246,8 @@ class generarDocumentoDeQRsController extends Controller
                         try {
                             $templateProcessor2->setImageValue($placeholder, [
                                 'path' => $rutaImagenLocal,
-                                'width' => '2.6cm',
-                                'height' => '2.6cm',
+                                'width' => '4cm',
+                                'height' => '4cm',
                                 'ratio' => true
                             ]);
                         } catch (\Exception $e) {
@@ -278,6 +280,212 @@ class generarDocumentoDeQRsController extends Controller
             \Log::error("Error en segunda pasada: " . $e->getMessage());
             return response()->json([
                 'message' => 'Error al procesar imágenes',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    public function generarDocumentoDeQRsPorIds(Request $request)
+    {
+        ini_set('max_execution_time', 300);
+        
+        // Ruta a la plantilla
+        $templatePath = public_path('plantilla_documentos_qr_para_imprimir_9.docx');
+
+        if (!file_exists($templatePath)) {
+            Log::error("Plantilla no encontrada: $templatePath");
+            return response()->json([
+                'message' => 'Plantilla no encontrada',
+                'status' => 404
+            ], 404);
+        }
+
+        // Validar los IDs de productos
+        $validator = Validator::make($request->all(), [
+            'ids_productos' => 'required|array|min:1',
+            'ids_productos.*' => 'integer|exists:productos,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos de entrada inválidos',
+                'errors' => $validator->errors(),
+                'status' => 400
+            ], 400);
+        }
+
+        // Obtener productos ordenados por ID
+        $productos = Producto::whereIn('id', $request->input('ids_productos'))
+            ->where('estatus', true)
+            ->select('id', 'codigo', 'nombre', 'enlace_imagen_qr')
+            ->orderBy('id')
+            ->get();
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron productos activos con los IDs proporcionados',
+                'status' => 404
+            ], 404);
+        }
+
+        Log::info('Generando documento con ' . count($productos) . ' productos seleccionados');
+
+        // Convertir a array para manipulación
+        $productosArray = $productos->toArray();
+        $productosModificados = [];
+        
+        // Recorremos los productos y modificamos según sea necesario
+        for ($i = 0; $i < count($productosArray); $i++) {
+            $productosModificados[] = $productosArray[$i];
+            
+            // Si este es el décimo producto (índice 9), duplicarlo inmediatamente después
+            if ($i === 9 && isset($productosArray[$i])) {
+                $productoDecimo = $productosArray[$i];
+                $productosModificados[] = $productoDecimo; // Duplicar el producto #10
+                Log::debug("Duplicando producto #10 (ID: {$productoDecimo['id']}) en la posición 11");
+            }
+        }
+
+        // Primera pasada: clonar bloques
+        $gruposProductos = array_chunk($productosModificados, 9);
+        $replacements = [];
+        $globalIndex = 0; // Índice global para imágenes
+
+        foreach ($gruposProductos as $grupoIndex => $grupo) {
+            $datosGrupo = [];
+            $esDecimoProducto = false; // Variable para rastrear si es el décimo producto original
+        
+            for ($i = 1; $i <= 9; $i++) {
+                $productoIndex = $i - 1;
+        
+                if (isset($grupo[$productoIndex])) {
+                    $producto = $grupo[$productoIndex];
+                    $datosGrupo['descripcion_producto_' . $i] = str_pad($this->limpiarTexto($producto['codigo']), 6, '0', STR_PAD_LEFT);
+                    $datosGrupo['nombre_producto_' . $i] = $this->limpiarTexto($producto['nombre']);
+        
+                    // Detectar si este es el décimo producto original (antes de la duplicación en $productosModificados)
+                    if ($globalIndex === 9) {
+                        $datosGrupo['imagen_producto_' . $i] = ''; // No mostrar la imagen del décimo producto
+                        $esDecimoProducto = true;
+                        Log::debug("Omitiendo imagen para el primer slot del producto #10 (ID: {$producto['id']})");
+                    } else {
+                        $datosGrupo['imagen_producto_' . $i] = '${imagen_producto_' . $globalIndex . '}';
+                    }
+        
+                    // Debug para los productos relevantes
+                    if ($globalIndex === 8) {
+                        Log::debug("Procesando producto #9 (ID: {$producto['id']})", [
+                            'grupo' => $grupoIndex + 1,
+                            'posicion' => $i,
+                            'global_index' => $globalIndex
+                        ]);
+                    } else if ($globalIndex === 9) {
+                        Log::debug("Procesando primer slot del producto #10 (ID: {$producto['id']})", [
+                            'grupo' => $grupoIndex + 1,
+                            'posicion' => $i,
+                            'global_index' => $globalIndex
+                        ]);
+                    } else if ($globalIndex === 10) {
+                        Log::debug("Procesando segundo slot del producto #10 (ID: {$producto['id']})", [
+                            'grupo' => $grupoIndex + 1,
+                            'posicion' => $i,
+                            'global_index' => $globalIndex
+                        ]);
+                    }
+        
+                    $globalIndex++;
+                } else {
+                    $datosGrupo['descripcion_producto_' . $i] = '';
+                    $datosGrupo['nombre_producto_' . $i] = '';
+                    $datosGrupo['imagen_producto_' . $i] = '';
+                }
+            }
+        
+            $replacements[] = $datosGrupo;
+        }
+
+        // Procesar plantilla
+        $templateProcessor = new TemplateProcessor($templatePath);
+        $templateProcessor->cloneBlock('PRODUCTO', 0, true, false, $replacements);
+
+        // Directorio temporal
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $tempOutputPath = $tempDir . '/documento_temp_' . time() . '.docx';
+        $templateProcessor->saveAs($tempOutputPath);
+
+        try {
+            // Segunda pasada: insertar imágenes
+            $templateProcessor2 = new TemplateProcessor($tempOutputPath);
+            $globalIndex = 0;
+
+            foreach ($productosModificados as $index => $producto) {
+                $placeholder = 'imagen_producto_' . $globalIndex;
+                
+                // Si es el primer slot del producto #10 (índice 9), saltamos la inserción de la imagen
+                if ($globalIndex === 9) {
+                        Log::debug("Saltando imagen para el primer slot del producto #10 (ID: {$producto['id']})", [
+                        'global_index' => $globalIndex,
+                        'placeholder' => $placeholder
+                    ]);
+                    $templateProcessor2->setValue($placeholder, ''); // Vacía el marcador
+                    $globalIndex++;
+                    continue;
+                }
+                
+                // Debug para el producto #9 y el segundo slot del #10
+                if ($globalIndex === 8) {
+                    Log::debug("Insertando imagen para producto #9 (ID: {$producto['id']})", [
+                        'global_index' => $globalIndex,
+                        'placeholder' => $placeholder
+                    ]);
+                } else if ($globalIndex === 10) {
+                    Log::debug("Insertando imagen para segundo slot del producto #10 (ID: {$producto['id']})", [
+                        'global_index' => $globalIndex,
+                        'placeholder' => $placeholder
+                    ]);
+                }
+
+                if (filter_var($producto['enlace_imagen_qr'], FILTER_VALIDATE_URL)) {
+                    $rutaRelativa = str_replace('https://moliplast.com/api/storage/app/public/', '', $producto['enlace_imagen_qr']);
+                    $rutaImagenLocal = storage_path('app/public/' . $rutaRelativa);
+
+                    if (file_exists($rutaImagenLocal)) {
+                        try {
+                            $templateProcessor2->setImageValue($placeholder, [
+                                'path' => $rutaImagenLocal,
+                                'width' => '3.8cm',
+                                'height' => '3.8cm',
+                                'ratio' => true
+                            ]);
+                        } catch (\Exception $e) {
+                            Log::error("Error insertando imagen ID {$producto['id']}: " . $e->getMessage());
+                        }
+                    } else {
+                        Log::warning("Imagen no encontrada para ID {$producto['id']}: $rutaImagenLocal");
+                    }
+                } else {
+                    Log::warning("URL de imagen inválida para ID {$producto['id']}: {$producto['enlace_imagen_qr']}");
+                }
+                
+                $globalIndex++;
+            }
+
+            // Guardar documento final
+            $finalOutputPath = $tempDir . '/documento_final_' . time() . '.docx';
+            $templateProcessor2->saveAs($finalOutputPath);
+
+            return response()->download($finalOutputPath, 'documento_qrs_seleccionados.docx')
+                ->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            Log::error("Error al generar documento: " . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al generar el documento',
                 'error' => $e->getMessage(),
                 'status' => 500
             ], 500);
