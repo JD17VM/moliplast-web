@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../assets/styles/estilos_administradores.module.scss';
 import { fetchData, deleteResource } from '../utils/api.js';
-
+import { getFullUrl } from "../utils/utils.js"
+import imageHelper from '../utils/imageHelper';
 import { TableData, TableDataActions } from './widgets/Table';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
@@ -531,12 +532,12 @@ const AdminProductos = () => {
         // Asegúrate de que las URLs se construyan correctamente si son relativas.
         const buildImageUrl = (url) => url ? (url.startsWith('http') ? url : `${BASE_URL_API}${url}`) : '';
 
-        setImagen1Preview(buildImageUrl(producto.imagen_1));
-        setImagen2Preview(buildImageUrl(producto.imagen_2));
-        setImagen3Preview(buildImageUrl(producto.imagen_3));
-        setImagen4Preview(buildImageUrl(producto.imagen_4));
-        setImagenQRPreview(buildImageUrl(producto.enlace_imagen_qr));
-        setFichaTecnicaPreview(buildImageUrl(producto.enlace_ficha_tecnica)); // Mostrar URL o nombre si aplica
+        setImagen1Preview(producto.imagen_1);
+        setImagen2Preview(producto.imagen_2);
+        setImagen3Preview(producto.imagen_3);
+        setImagen4Preview(producto.imagen_4);
+        setImagenQRPreview(producto.enlace_imagen_qr); 
+        setFichaTecnicaPreview(producto.enlace_ficha_tecnica); // Mostrar URL o nombre si aplica
     };
 
     // Cancelar la edición
@@ -818,7 +819,7 @@ const AdminProductos = () => {
                                     producto.id_subcategoria ? getSubcategoriaName(producto.id_subcategoria) : '',
                                     producto.id_subsubcategoria ? getSubsubcategoriaName(producto.id_subsubcategoria) : '',
                                 ]}/>
-                                <TableData image_src={producto.imagen_1}>{producto.nombre}</TableData>
+                                <TableData image_src={getFullUrl(producto.imagen_1)}>{producto.nombre}</TableData> 
                                 <TableData>{producto.destacados ? '✓' : '✗'}</TableData>
                                 <TableDataActions item={producto} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading} handleEditarFila={handleEditarFilaEstilo} />
                                 <TableData image_src={producto.enlace_imagen_qr}>{producto.nombre}</TableData>

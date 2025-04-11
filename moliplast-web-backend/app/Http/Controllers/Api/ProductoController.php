@@ -1040,13 +1040,14 @@ class ProductoController extends Controller
                      // Store the new file
                      $filePath = $request->file($field)->store($folder, 'public'); // Especificar disco 'public'
                      // Get the URL for the stored file
-                     $producto->$field = url(Storage::disk('public')->url($filePath)); // Usar Storage::disk('public')->url
+                     //$producto->$field = url(Storage::disk('public')->url($filePath)); // Usar Storage::disk('public')->url
+                     //$producto->$field = url(Storage::url($filePath)); // Use Storage::url helper
+                     $producto->$field = url('storage/app/public/' . $filePath);
 
                      Log::info("Nuevo archivo subido para campo {$field}: {$producto->$field}");
                  }
                  // If neither delete flag is true nor a new file is uploaded, the existing value is kept.
             }
-
 
             // Actualizar otros campos no-archivo
             $producto->id_categoria = $request->id_categoria ?? $producto->id_categoria;
