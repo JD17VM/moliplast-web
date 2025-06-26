@@ -183,13 +183,7 @@ const AdminServicios = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {servicios.length === 0 ? (
-                            <tr>
-                                <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                    No hay servicios disponibles
-                                </td>
-                            </tr>
-                        ) : (
+                        {Array.isArray(servicios) && servicios.length > 0 ? (
                             servicios.map((servicio) => (
                                 <tr key={servicio.id}>
                                     <TableData>{servicio.titulo}</TableData>
@@ -202,6 +196,12 @@ const AdminServicios = () => {
                                     <TableDataActions item={servicio} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
                                 </tr>
                             ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" style={{ textAlign: 'center' }}>
+                                    {loading ? "Cargando catálogos..." : "No hay catálogos disponibles"}
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>
