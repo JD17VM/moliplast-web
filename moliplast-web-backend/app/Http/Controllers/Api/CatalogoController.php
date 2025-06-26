@@ -17,13 +17,6 @@ class CatalogoController extends Controller
         // Solo obtener catálogos con estatus true
         $catalogos = Catalogo::where('estatus', true)->get();
 
-        if ($catalogos->isEmpty()){
-            return response()->json([
-                'message' => 'No hay catalogos registrados',
-                'status' => 200
-            ], 200);
-        }
-
         return response()->json($catalogos, 200);
     }
 
@@ -31,13 +24,6 @@ class CatalogoController extends Controller
     {
         // Solo obtener catálogos con estatus true
         $catalogos = Catalogo::all(); // Obtener todos los catálogos
-
-        if ($catalogos->isEmpty()){
-            return response()->json([
-                'message' => 'No hay catalogos registrados',
-                'status' => 200
-            ], 200);
-        }
 
         return response()->json($catalogos, 200);
     }

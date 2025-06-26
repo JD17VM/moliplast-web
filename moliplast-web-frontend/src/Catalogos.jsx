@@ -19,14 +19,7 @@ const Catalogos = () => {
         setError('');
         try {
             const response = await fetch(`${BASE_URL_API}/api/catalogos`);
-            
-            if (response.status === 200) {
-                console.log('No hay catálogos disponibles');
-                setCatalogos([]);
-                setLoading(false);
-                return;
-            }
-            
+    
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

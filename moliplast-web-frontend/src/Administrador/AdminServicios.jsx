@@ -199,7 +199,7 @@ const AdminServicios = () => {
                         ) : (
                             <tr>
                                 <td colSpan="4" style={{ textAlign: 'center' }}>
-                                    {loading ? "Cargando catálogos..." : "No hay catálogos disponibles"}
+                                    {loading ? "Cargando servicios..." : "No hay servicios disponibles"}
                                 </td>
                             </tr>
                         )}

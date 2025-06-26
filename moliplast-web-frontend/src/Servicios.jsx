@@ -32,13 +32,7 @@ const Servicios = () => {
         try {
             const response = await fetch(`${BASE_URL_API}/api/servicios`);
             
-            if (response.status === 200) {
-                console.log('No hay servicios disponibles');
-                setServicios([]);
-                setLoading(false);
-                return;
-            }
-            
+            // Esta única comprobación maneja TODOS los errores HTTP (404, 500, 401, etc.)  
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

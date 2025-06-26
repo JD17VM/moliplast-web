@@ -16,26 +16,14 @@ class ServicioController extends Controller
     {
         $servicios = Servicio::where('estatus', true)->get();
 
-        if ($servicios->isEmpty()){
-            return response()->json([
-                'message' => 'No hay servicios registrados',
-                'status' => 200
-            ], 200);
-        }
-
+        // No necesitas la comprobación `isEmpty()`.
+        // Laravel convertirá la colección (incluso si está vacía) a un JSON array.
         return response()->json($servicios, 200);
     }
 
     public function indexAll()
     {
         $servicios = Servicio::all();
-
-        if ($servicios->isEmpty()){
-            return response()->json([
-                'message' => 'No hay servicios registrados',
-                'status' => 200
-            ], 200);
-        }
 
         return response()->json($servicios, 200);
     }
