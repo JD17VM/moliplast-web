@@ -200,21 +200,21 @@ const AdminCatalogos = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {catalogos.length === 0 ? (
+                            {Array.isArray(catalogos) && catalogos.length > 0 ? (
+                                catalogos.map((catalogo) => (
+                                    <tr key={catalogo.id}>
+                                        <TableData>{catalogo.nombre}</TableData>
+                                        <TableData a_href={getFullUrl(catalogo.enlace_documento)}>Ver documento</TableData>
+                                        <TableData image_src={catalogo.enlace_imagen_portada}>{catalogo.nombre}</TableData>
+                                        <TableDataActions item={catalogo} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
+                                    </tr>
+                                ))
+                            ) : (
                                 <tr>
-                                    <td colSpan="4" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
-                                        No hay catálogos disponibles
+                                    <td colSpan="4" style={{ textAlign: 'center' }}>
+                                        {loading ? "Cargando catálogos..." : "No hay catálogos disponibles"}
                                     </td>
                                 </tr>
-                            ) : (
-                            catalogos.map((catalogo) => (
-                                <tr key={catalogo.id}>
-                                    <TableData>{catalogo.nombre}</TableData>
-                                    <TableData a_href={getFullUrl(catalogo.enlace_documento)}>Ver documento</TableData>
-                                    <TableData image_src={catalogo.enlace_imagen_portada}>{catalogo.nombre}</TableData>
-                                    <TableDataActions item={catalogo} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
-                                </tr>
-                            ))
                             )}
                         </tbody>
                     </table>

@@ -4,7 +4,7 @@ import { Icono_Facebook_Colores, Icono_Whatsapp_Colores } from '../assets/imgs/i
 
 import { convertirATitulo } from "../utils/utils.js"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 //import dataPaginas from '../data/data_paginas'
 import { MdEmail } from "react-icons/md";
@@ -74,6 +74,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                 { nombre: "Subsubcategorias", enlace: "/administrador/subsubcategorias" },
             ]
         },
+        { nombre: "Generar QRs", enlace: "/administrador/generador-qrs" },
     ];
 
     const location = useLocation();
@@ -144,7 +145,8 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
         setResults([]);
     }, [location.pathname])
 
-    const debouncedSearch = debounce((searchQuery) => {
+    const debouncedSearch = useMemo(() => 
+    debounce((searchQuery) => {
         if (searchQuery.length > 2) {
             axios.get(`${BASE_URL_API}/api/products/search?query=${searchQuery}`)
                 .then(response => {
@@ -156,12 +158,23 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
         } else {
             setResults([]);
         }
-    }, 300);
+    }, 300), 
+    [] // Array de dependencias vacío para crear la función solo una vez
+    );
+
+    // Usar useCallback para memorizar el manejador de cambios
+    const handleQueryChange = useCallback((e) => {
+        const newQuery = e.target.value;
+        setQuery(newQuery);
+        debouncedSearch(newQuery);
+    }, [debouncedSearch]);
 
     useEffect(() => {
-        debouncedSearch(query);
-        return () => debouncedSearch.cancel();
-    }, [query]);
+        // Limpiar la función de debounce cuando el componente se desmonte
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
     return (
         <>
@@ -269,7 +282,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                             placeholder="Buscar productos"
                             Icono={FaSearch}
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                            onChange={handleQueryChange}
                             autocomplete="off"
                             onSearch={handleSearch} // Pasar la función handleSearch
                         />
