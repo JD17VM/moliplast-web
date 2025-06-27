@@ -26,18 +26,18 @@ const Producto = () => {
 
     const location = useLocation(); // Obtiene la ubicación actual
 
+    const searchParams = new URLSearchParams(location.search);
+    const isSoftlink = searchParams.get('source') === 'softlink';
+
     // Cargar datos del producto
     useEffect(() => {
         setProducto(null);
         setImagenActual(null);
         
         const fetchProducto = async () => {
-            let url = `${BASE_URL_API}/api/productos/${id}`; // URL por defecto
-
-            // Verifica si el parámetro source=softlink está presente
-            const searchParams = new URLSearchParams(location.search);
-            if (searchParams.get('source') === 'softlink') {
-                url = `${BASE_URL_API}/api/productos-softlink/${id}`; // URL alternativa
+            let url = `${BASE_URL_API}/api/productos/${id}`;
+            if (isSoftlink) {
+                url = `${BASE_URL_API}/api/productos-softlink/${id}`;
             }
             try {
                 const response = await fetch(url);
@@ -57,10 +57,16 @@ const Producto = () => {
         };
 
         fetchProducto();
-    }, [id, location.search]);
+    }, [id, location.search, isSoftlink]);
 
     // Cargar productos relacionados
     useEffect(() => {
+
+        if (isSoftlink) {
+            setProductosRelacionados([]); // Limpia el estado por si había datos de una navegación anterior
+            return; // Sale del useEffect y no ejecuta la llamada a la API
+        }
+
         const loadProductosRelacionados = async () => {
             setLoading(true);
             setError('');
@@ -90,7 +96,7 @@ const Producto = () => {
         };
 
         loadProductosRelacionados();
-    }, [id]);
+    }, [id, isSoftlink]);
 
     const handleClick = (imagen, numButton) => {
         setImagenActual(imagen);
@@ -178,10 +184,14 @@ const Producto = () => {
                     )}
                 </div>
             </div>
-            <div className={styles.descripcion_extra}>
-                <InterpreteMarkdownHTML texto_markdown={producto.texto_markdown}/>
-            </div>
-            <SeccionProductosImportantes titulo='Productos Relacionados' data={productosRelacionados}/>
+            {producto.texto_markdown && ( //Correccion extra cuando no hay descripcion extra
+                <div className={styles.descripcion_extra}>
+                    <InterpreteMarkdownHTML texto_markdown={producto.texto_markdown}/>
+                </div>
+            )}
+            {!isSoftlink && (
+                <SeccionProductosImportantes titulo='Productos Relacionados' data={productosRelacionados}/>
+            )}
         </>
     );
 };
