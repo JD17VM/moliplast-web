@@ -17,6 +17,41 @@ use App\Models\Subsubcategoria;
 
 class ProductoController extends Controller
 {
+    // --- VERSIÓN CORREGIDA Y OPTIMIZADA ---
+    public function getCategoriaParaCache($id_categoria)
+    {
+        // 1. Obtén todos los productos de la categoría de la BD local
+        $productos = Producto::where('id_categoria', $id_categoria)
+                            ->where('estatus', true)
+                            ->select('id', 'nombre', 'descripcion', 'imagen_1', 'id_categoria', 'codigo')
+                            ->get();
+
+        if ($productos->isEmpty()){
+            return response()->json([], 200);
+        }
+
+        // 2. Extrae todos los códigos de producto y formatéalos
+        $codigosExternos = $productos->map(function ($producto) {
+            return str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+        })->toArray();
+
+        // 3. Haz UNA SOLA CONSULTA a la BD externa para obtener todos los precios
+        $precios = DB::connection('externa')
+                    ->table('precios')
+                    ->whereIn('cod_prod', $codigosExternos) // 'whereIn' es la clave
+                    ->pluck('precio_venta', 'cod_prod'); // Obtiene un array asociativo [cod_prod => precio_venta]
+
+        // 4. Asigna los precios a cada producto en un solo bucle (esto es rápido, no hay consultas)
+        foreach ($productos as $producto) {
+            $codigoExterno = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+            // Usa el array de precios que ya obtuvimos. Si no existe, ponle null.
+            $producto->precio_externo = $precios[$codigoExterno] ?? null;
+            unset($producto->codigo); 
+        }
+
+        return response()->json($productos, 200);
+    }
+
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50

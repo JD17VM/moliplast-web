@@ -119,3 +119,5 @@ Route::post('/generar-documento-qrs-imprimir/productos-seleccionados', [GenerarD
 
 Route::get('/generar-documento-catalogo-uno/categoria/{categoriaId}', [generarDocumentoCatalogoPorCategoriaController::class, 'generarDocumentoCatalogoPorCategoriaUnProductoPorIteracion']);
 Route::get('/generar-documento-catalogo/categoria/{categoriaId}', [generarDocumentoCatalogoPorCategoriaController::class, 'generarDocumentoCatalogoPorCategoriaDosProductosPorIteracion']);
+
+Route::get('/productos-para-cache/categoria/{id_categoria}', [ProductoController::class, 'getCategoriaParaCache']);

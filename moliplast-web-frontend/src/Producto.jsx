@@ -13,15 +13,16 @@ import MetaData from './widgets/Metadata'
 import { getFullUrl } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
+const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
 
 const Producto = () => {
     const [botonActivo, setBotonActivo] = useState(1);
     const [producto, setProducto] = useState(null);
     const [imagenActual, setImagenActual] = useState(null); // Inicializa con null o una imagen de carga
     const { id } = useParams();
-    
+
     const [productosRelacionados, setProductosRelacionados] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     const location = useLocation(); // Obtiene la ubicación actual
@@ -29,93 +30,108 @@ const Producto = () => {
     const searchParams = new URLSearchParams(location.search);
     const isSoftlink = searchParams.get('source') === 'softlink';
 
-    // Cargar datos del producto
     useEffect(() => {
+        setLoading(true);
         setProducto(null);
         setImagenActual(null);
-        
+
         const fetchProducto = async () => {
-            let url = `${BASE_URL_API}/api/productos/${id}`;
             if (isSoftlink) {
-                url = `${BASE_URL_API}/api/productos-softlink/${id}`;
-            }
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Error al obtener los datos del producto');
-                }
-                const data = await response.json();
-                setProducto(data);
+                setProductosRelacionados([]);
+                try {
+                    const productoActualRes = await fetch(`${BASE_URL_API}/api/productos-softlink/${id}`);
+                    if (!productoActualRes.ok) throw new Error('Producto no encontrado');
+                    const productoActual = await productoActualRes.json();
 
-                // Actualiza la imagen actual cuando el producto se carga
-                if (data.imagen_1) {
-                    setImagenActual(data.imagen_1.startsWith('http') ? data.imagen_1 : `${BASE_URL_API}${data.imagen_1}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        };
+                    const categoryId = productoActual.id_categoria;
+                    const cacheKey = `cache_cat_${categoryId}`;
+                    const cacheGuardado = localStorage.getItem(cacheKey);
 
-        fetchProducto();
-    }, [id, location.search, isSoftlink]);
+                    if (cacheGuardado) {
+                        const datosCache = JSON.parse(cacheGuardado);
+                        if ((Date.now() - datosCache.timestamp) < TRES_HORAS_EN_MS) {
+                            const productoDeCache = datosCache.productos.find(p => p.id == id);
+                            if (productoDeCache) {
+                                setProducto(productoDeCache);
+                                setLoading(false);
+                                return;
+                            }
+                        }
+                    }
 
-    // Cargar productos relacionados
-    useEffect(() => {
-
-        if (isSoftlink) {
-            setProductosRelacionados([]); // Limpia el estado por si había datos de una navegación anterior
-            return; // Sale del useEffect y no ejecuta la llamada a la API
-        }
-
-        const loadProductosRelacionados = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const response = await fetch(`${BASE_URL_API}/api/productos-relacionados/${id}`);
-                
-                if (response.status === 404) {
-                    console.log('No hay ProductosRelacionados disponibles');
-                    setProductosRelacionados([]);
+                    setProducto(productoActual);
+                    const categoriaCompletaRes = await fetch(`${BASE_URL_API}/api/productos-para-cache/categoria/${categoryId}`);
+                    if (categoriaCompletaRes.ok) {
+                        const productosCategoria = await categoriaCompletaRes.json();
+                        const datosParaCache = { timestamp: Date.now(), productos: productosCategoria };
+                        localStorage.setItem(cacheKey, JSON.stringify(datosParaCache));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    setProducto({ error: "Producto no encontrado" });
+                } finally {
                     setLoading(false);
-                    return;
                 }
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                setProductosRelacionados(data);
-            } catch (error) {
+            } else {
+                try {
+                    const [productoRes, relacionadosRes] = await Promise.all([
+                        fetch(`${BASE_URL_API}/api/productos/${id}`),
+                        fetch(`${BASE_URL_API}/api/productos-relacionados/${id}`)
+                    ]);
+
+                    if (!productoRes.ok) throw new Error('Error al obtener los datos del producto');
+                    const productoData = await productoRes.json();
+                    setProducto(productoData);
+
+                    if (relacionadosRes.ok) {
+                        const relacionadosData = await relacionadosRes.json();
+                        setProductosRelacionados(relacionadosData);
+                    } else {
+                        setProductosRelacionados([]);
+                    }
+                } catch (error) {
                 console.error('Error fetching data:', error);
                 setError('Error al cargar los ProductosRelacionados. Por favor, intenta nuevamente.');
                 setProductosRelacionados([]);
             } finally {
                 setLoading(false);
+                }
             }
         };
 
-        loadProductosRelacionados();
+        fetchProducto();
     }, [id, isSoftlink]);
+
+    useEffect(() => {
+        if (producto && producto.imagen_1) {
+            setImagenActual(getFullUrl(producto.imagen_1));
+            setBotonActivo(1);
+        } else {
+            setImagenActual(null);
+        }
+    }, [producto]);
 
     const handleClick = (imagen, numButton) => {
         setImagenActual(imagen);
         setBotonActivo(numButton);
     };
 
-    if (!producto) {
+    if (loading || !producto) {
         return (
-        <>
+            <>
             <MetaData title="Producto" canonical={`/productos/producto/${id}`}/>
-            <div>Cargando...</div>
-        </>
+                <div>Cargando...</div>
+            </>
         );
     }
-    let precioTruncado = 0; // Declarar con let
 
-    if (producto && producto.precio_externo) {
-        precioTruncado = (Math.floor(producto.precio_externo * 100) / 100).toFixed(2); // Reasignar valor
+    if (producto.error) {
+        return <div>{producto.error}</div>;
     }
+
+    let precioTruncado = producto.precio_externo
+        ? (Math.floor(producto.precio_externo * 100) / 100).toFixed(2)
+        : null;
 
     return (
         <>
@@ -123,44 +139,22 @@ const Producto = () => {
             <div className={styles.contenedor_producto}>
                 <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>
-                        <button
-                            onClick={() => handleClick(getFullUrl(producto.imagen_1), 1)}
-                            className={botonActivo === 1 ? styles.activo : ''}
-                        >
-                            <img src={getFullUrl(producto.imagen_1) || imageHelper.defaultImg} alt="" />
-                        </button>
-                        
-                        {producto.imagen_2 && (
-                            <button
-                                onClick={() => handleClick(getFullUrl(producto.imagen_2), 2)}
-                                className={botonActivo === 2 ? styles.activo : ''}
-                            >
-                                <img src={getFullUrl(producto.imagen_2)} alt="" />
-                            </button>
-                        )}
-
-                        {producto.imagen_3 && (
-                            <button
-                                onClick={() => handleClick(getFullUrl(producto.imagen_3), 3)}
-                                className={botonActivo === 3 ? styles.activo : ''}
-                            >
-                                <img src={getFullUrl(producto.imagen_3)} alt="" />
-                            </button>
-                        )}
-
-                        {producto.imagen_4 && (
-                            <button
-                                onClick={() => handleClick(getFullUrl(producto.imagen_4), 4)}
-                                className={botonActivo === 4 ? styles.activo : ''}
-                            >
-                                <img src={getFullUrl(producto.imagen_4)} alt="" />
-                            </button>
-                        )}
+                        {[producto.imagen_1, producto.imagen_2, producto.imagen_3, producto.imagen_4].map((img, index) => (
+                            img && (
+                                <button
+                                    key={index}
+                                    onClick={() => handleClick(getFullUrl(img), index + 1)}
+                                    className={botonActivo === index + 1 ? styles.activo : ''}
+                                >
+                                    <img src={getFullUrl(img)} alt="" />
+                                </button>
+                            )
+                        ))}
                     </div>
                     <div className={styles.cont_imagen}>
                         {imagenActual ? (
                             <img src={imagenActual} alt="" />
-                            ) : (
+                        ) : (
                             <img src={imageHelper.defaultImg} alt="" />
                         )}
                     </div>
@@ -174,13 +168,13 @@ const Producto = () => {
                                 Ficha Técnica
                             </BtnIconoTexto>
                         )}
-                        
+
                         <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
                             Comprar por Whatsapp
                         </BtnIconoTexto>
                     </div>
-                    {producto.precio_externo && (
-                        <p className={styles.precio}>S/ {precioTruncado}</p>  
+                    {isSoftlink && precioTruncado && (
+                        <p className={styles.precio}>S/ {precioTruncado}</p>
                     )}
                 </div>
             </div>
