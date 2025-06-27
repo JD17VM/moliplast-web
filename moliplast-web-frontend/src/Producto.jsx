@@ -28,6 +28,9 @@ const Producto = () => {
 
     // Cargar datos del producto
     useEffect(() => {
+        setProducto(null);
+        setImagenActual(null);
+        
         const fetchProducto = async () => {
             let url = `${BASE_URL_API}/api/productos/${id}`; // URL por defecto
 
