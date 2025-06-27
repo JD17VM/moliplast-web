@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
+use App\Models\Categoria;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
