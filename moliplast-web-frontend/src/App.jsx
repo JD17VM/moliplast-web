@@ -1,5 +1,6 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { useBarcodeScanner } from './hooks/useBarcodeScanner';
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -33,6 +34,8 @@ import ScrollToTop from './utils/ScrollToTop'; // Importa el componente ScrollTo
 
 const data = dataPaginas.data
 
+const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
+
 function App() {
 
   useEffect(() => {
@@ -47,9 +50,40 @@ function App() {
     setIsAdmin(true);
   };
 
+  // El hook useNavigate solo puede ser llamado dentro de un componente que está
+    // dentro de BrowserRouter. Por eso creamos este pequeño componente intermedio.
+    const BarcodeHandler = () => {
+      const navigate = useNavigate();
+
+      const handleBarcodeScan = async (codigo) => {
+          console.log('Código de barras global escaneado:', codigo);
+          try {
+              // Hacemos una llamada a la API para obtener el ID del producto a partir del código
+              const response = await fetch(`${BASE_URL_API}/api/producto-por-codigo/${codigo}`);
+              if (!response.ok) {
+                  console.error("Producto no encontrado con el código:", codigo);
+                  return; // No hacemos nada si el código no es válido
+              }
+              const data = await response.json();
+              
+              // Navegamos a la página del producto
+              navigate(`/productos/producto/${data.id}?source=softlink`);
+
+          } catch (error) {
+              console.error("Error al buscar producto por código:", error);
+          }
+      };
+
+      // Usamos nuestro hook personalizado y le pasamos la función que debe ejecutar
+      useBarcodeScanner(handleBarcodeScan);
+
+      return null; // Este componente no renderiza nada visualmente
+  };
+
   return (
     <BrowserRouter>
       <Navegador isAdmin={isAdmin} setIsAdmin={setIsAdmin}/>
+      <BarcodeHandler />
 
       <ScrollToTop>
       <Routes>
