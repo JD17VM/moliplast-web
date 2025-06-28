@@ -8,6 +8,8 @@ import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
 import { useParams, useLocation } from 'react-router-dom';
 
+import ProductoSkeleton from "./skeletons/ProductoSkeleton"
+
 import MetaData from './widgets/Metadata'
 
 import { getFullUrl } from "./utils/utils.js"
@@ -119,8 +121,8 @@ const Producto = () => {
     if (loading || !producto) {
         return (
             <>
-            <MetaData title="Producto" canonical={`/productos/producto/${id}`}/>
-                <div>Cargando...</div>
+                <MetaData title="Producto" canonical={`/productos/producto/${id}`}/>
+                <ProductoSkeleton/>
             </>
         );
     }

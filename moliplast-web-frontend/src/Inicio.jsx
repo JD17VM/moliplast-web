@@ -11,6 +11,9 @@ import { convertirATitulo } from "./utils/utils.js"
 
 import SliderProductos from './widgets/SliderProductos';
 
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
 import MetaData from './widgets/Metadata';
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
@@ -91,9 +94,33 @@ const LineaDeProductos = () => {
     return (
         <ContenedorSeccion titulo="Línea de Productos" color_fondo="blanco">
             <div className={styles.contenedor_linea_productos} data-aos="fade-up">
-                {categorias.map((categoria,index) => (
-                    <TipoProducto imagen={getFullUrl(categoria.enlace_imagen) || imageHelper.defaultImg} texto={categoria.nombre} key={index}/>
-                ))}   
+                {loading ? (
+                    <>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                        <Skeleton height={100} width={180}/>
+                    </>
+                ) : (
+                    categorias.map((categoria,index) => (
+                    <TipoProducto
+                        imagen={getFullUrl(categoria.enlace_imagen) || imageHelper.defaultImg}
+                        texto={categoria.nombre}
+                        key={index} // Considera usar categoria.id si está disponible para una mejor key
+                    />
+                    ))
+                )} 
             </div>
         </ContenedorSeccion>
     )
