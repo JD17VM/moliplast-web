@@ -3,6 +3,9 @@ import styles from './assets/styles/estilos_servicios.module.scss';
 import { getFullUrl } from "./utils/utils.js"
 import MetaData from './widgets/Metadata'
 
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const Servicio = ({ titulo, descripcion, imagen }) => {
@@ -16,6 +19,19 @@ const Servicio = ({ titulo, descripcion, imagen }) => {
         </article>
     );
 };
+
+const ServicioSkeleton = () => {
+    return (
+        <article>
+            <div>
+                <h2><Skeleton height={40} width={300}/></h2>
+                <p><Skeleton height={90} width={300}/></p>
+            </div>
+            <Skeleton height={150} width={150}/>
+        </article>
+    );
+};
+
 
 const Servicios = () => {
     const [servicios, setServicios] = useState([]);
@@ -61,7 +77,12 @@ const Servicios = () => {
             )}
             
             {loading ? (
-                <p>Cargando servicios...</p>
+                <>
+                    <ServicioSkeleton/>
+                    <ServicioSkeleton/>
+                    <ServicioSkeleton/>
+                    <ServicioSkeleton/>
+                </>
             ) : (
                 servicios.length === 0 ? (
                     <p>No hay servicios disponibles</p>

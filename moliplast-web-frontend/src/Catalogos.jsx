@@ -3,6 +3,9 @@ import styles from './assets/styles/estilos_catalogos.module.scss';
 import { getFullUrl } from "./utils/utils.js"
 import MetaData from './widgets/Metadata'
 
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 const Catalogos = () => {
@@ -46,11 +49,15 @@ const Catalogos = () => {
                     {error}
                 </div>
             )}
-            
+            <div className={styles.cont_catalogos}>
             {loading ? (
-                <p>Cargando catálogos...</p>
+                <>
+                    <a> <Skeleton height="100%"/> </a>
+                    <a> <Skeleton height="100%"/> </a>
+                    <a> <Skeleton height="100%"/> </a>
+                </>
             ) : (
-                <div className={styles.cont_catalogos}>
+                <>
                     {catalogos.length === 0 ? (
                         <p>No hay catálogos disponibles</p>
                     ) : (
@@ -69,8 +76,9 @@ const Catalogos = () => {
                             </a>
                         ))
                     )}
-                </div>
+                </>
             )}
+            </div>
         </div>
         </>
     );
