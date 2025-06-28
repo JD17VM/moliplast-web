@@ -123,3 +123,5 @@ Route::get('/generar-documento-catalogo/categoria/{categoriaId}', [generarDocume
 Route::get('/productos-para-cache/categoria/{id_categoria}', [ProductoController::class, 'getCategoriaParaCache']);
 
 Route::get('/producto-por-codigo/{codigo}', [ProductoController::class, 'showByCodigo']);
+
+Route::post('/productos/bulk-image-upload', [ProductoController::class, 'bulkImageUpload']);

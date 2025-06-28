@@ -1113,7 +1113,7 @@ class ProductoController extends Controller
                  // If neither delete flag is true nor a new file is uploaded, the existing value is kept.
             }
 
-            
+
             // Actualizar otros campos no-archivo
             $producto->id_categoria = $request->id_categoria ?? $producto->id_categoria;
             $producto->id_subcategoria = $request->id_subcategoria ?? $producto->id_subcategoria;
@@ -1383,4 +1383,119 @@ class ProductoController extends Controller
 
         return response()->json(['message' => 'Producto eliminado'], 200);
     }
+
+    /**
+     * Permite subir y asociar imágenes masivamente a productos seleccionados.
+     * Actualiza solo las imágenes provistas, conservando las no provistas.
+     */
+    public function bulkImageUpload(Request $request)
+    {
+        Log::info('Iniciando carga masiva de imágenes', ['data' => $request->all()]);
+
+        // 1. Validación de la solicitud
+        $validator = Validator::make($request->all(), [
+            // product_ids: requerido y debe ser un JSON string que decodifique a un array de enteros
+            'product_ids' => 'required|json',
+            // Las imágenes son opcionales individualmente, pero al menos una debe existir para proceder.
+            // max:2048 (2MB) es un tamaño razonable, ajusta si es necesario.
+            'imagen_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Errores de validación en carga masiva de imágenes:', ['errors' => $validator->errors()->toArray()]);
+            return response()->json([
+                'message' => 'Error en la validación de los datos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        // Decodificar los IDs de productos. Aseguramos que sea un array.
+        $productIds = json_decode($request->input('product_ids'), true);
+
+        if (empty($productIds) || !is_array($productIds)) {
+            Log::warning('No se proporcionaron IDs de productos válidos para la carga masiva.');
+            return response()->json(['message' => 'Por favor, selecciona al menos un producto.'], 400);
+        }
+
+        // 2. Procesar las imágenes que SÍ se subieron en esta petición
+        $uploadedImagePaths = [];
+        $imageFields = ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4'];
+        $pathsToDeleteIfTransactionFails = []; // Para limpiar si algo sale mal
+
+        foreach ($imageFields as $field) {
+            if ($request->hasFile($field) && $request->file($field)->isValid()) {
+                $file = $request->file($field);
+                $path = $file->store('productos', 'public'); // Guarda en storage/app/public/productos
+                // Almacena la URL pública para la base de datos
+                $url = url('storage/app/public/' . $path); // Tu formato de URL actual
+                $uploadedImagePaths[$field] = $url;
+                $pathsToDeleteIfTransactionFails[] = $path; // Guardar la ruta interna para posible eliminación
+                Log::info("Archivo {$field} subido: {$url}");
+            }
+        }
+
+        // Verificar si al menos una imagen fue subida para la operación masiva
+        if (empty($uploadedImagePaths)) {
+            Log::warning('No se subieron imágenes para la operación masiva.');
+            return response()->json(['message' => 'Por favor, selecciona al menos una imagen para subir.'], 400);
+        }
+
+        // 3. Iniciar una transacción de base de datos para asegurar atomicidad
+        DB::beginTransaction();
+        try {
+            // Recorrer los IDs de productos y actualizar cada uno
+            foreach ($productIds as $id) {
+                // Solo busca productos con estatus true
+                $producto = Producto::where('id', $id)->where('estatus', true)->first();
+
+                if (!$producto) {
+                    Log::warning("Producto con ID {$id} no encontrado o inactivo para la carga masiva. Se omitirá.");
+                    continue; // Saltar al siguiente producto si no se encuentra
+                }
+
+                // Actualizar solo los campos de imagen que fueron subidos en esta solicitud
+                foreach ($uploadedImagePaths as $field => $newImageUrl) {
+                    // Si el producto ya tenía una imagen en este campo, borrar la antigua
+                    if ($producto->{$field}) {
+                        $oldFilePath = $this->getStoragePathFromUrl($producto->{$field});
+                        if ($oldFilePath && Storage::disk('public')->exists($oldFilePath)) {
+                            Storage::disk('public')->delete($oldFilePath);
+                            Log::info("Antigua imagen eliminada para producto {$producto->id}, campo {$field}: {$oldFilePath}");
+                        } else {
+                            Log::warning("No se encontró la antigua imagen para eliminar para producto {$producto->id}, campo {$field}. URL: {$producto->{$field}}");
+                        }
+                    }
+                    // Asignar la nueva URL de la imagen
+                    $producto->{$field} = $newImageUrl;
+                    Log::info("Producto {$producto->id}, campo {$field} actualizado con nueva URL: {$newImageUrl}");
+                }
+                $producto->save(); // Guardar los cambios del producto
+            }
+
+            DB::commit(); // Confirmar la transacción si todo fue exitoso
+            Log::info('Carga masiva de imágenes completada exitosamente.');
+            return response()->json(['message' => 'Imágenes subidas y asociadas exitosamente a los productos seleccionados.'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción si ocurre un error
+            Log::error('Error en carga masiva de imágenes (transacción revertida): ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'product_ids' => $productIds,
+                'uploaded_paths' => $uploadedImagePaths
+            ]);
+
+            // Eliminar los archivos que se subieron si la transacción falló para evitar archivos huérfanos
+            foreach ($pathsToDeleteIfTransactionFails as $path) {
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                    Log::info("Archivo temporal eliminado debido a fallo de transacción: {$path}");
+                }
+            }
+            return response()->json(['message' => 'Error al asociar imágenes masivamente. ' . $e->getMessage()], 500);
+        }
+    }
+
 }

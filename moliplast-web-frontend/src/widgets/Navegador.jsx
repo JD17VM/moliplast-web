@@ -75,6 +75,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
             ]
         },
         { nombre: "Generar QRs", enlace: "/administrador/generador-qrs" },
+        { nombre: "Carga Masiva de Imagenes", enlace: "/administrador/carga-masiva-imagenes" },
     ];
 
     const location = useLocation();
