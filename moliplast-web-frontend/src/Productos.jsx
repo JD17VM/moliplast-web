@@ -6,6 +6,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
+import ProductosSkeleton from "./skeletons/ProductosSkeleton"
+
 import { getFullUrl } from "./utils/utils.js"
 
 import MetaData from './widgets/Metadata'
@@ -193,10 +195,7 @@ const Productos = () => {
 
     if (!categoriaData) {
         return (
-        <>
-            <MetaData title={`${categoria}`} canonical={`/productos/${categoria}`}/>
-            <div>Cargando...</div>
-        </>
+            <ProductosSkeleton/>
         );
     }
 
