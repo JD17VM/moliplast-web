@@ -17,6 +17,35 @@ use App\Models\Subsubcategoria;
 
 class ProductoController extends Controller
 {
+
+    public function showByCodigo($codigo)
+    {
+        // Buscamos el producto por su código en la BD local
+        // Asumimos que la columna se llama 'codigo'
+        $codigoNumerico = (int) $codigo;
+        $producto = Producto::where('codigo', $codigoNumerico)->where('estatus', true)->first();
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado con ese código de barras'], 404);
+        }
+
+        // Ahora hacemos la misma lógica que showSoftlink para obtener el precio
+        $codigoExterno = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+        $precioExterno = DB::connection('externa')
+            ->table('precios')
+            ->where('cod_prod', $codigoExterno)
+            ->value('precio_venta');
+
+        if ($precioExterno !== null) {
+            $producto->precio_externo = $precioExterno;
+        } else {
+            $producto->precio_externo = null;
+        }
+
+        // Devolvemos el producto completo con su precio
+        return response()->json($producto, 200);
+    }
+    
     // --- VERSIÓN CORREGIDA Y OPTIMIZADA ---
     public function getCategoriaParaCache($id_categoria)
     {
@@ -1084,6 +1113,7 @@ class ProductoController extends Controller
                  // If neither delete flag is true nor a new file is uploaded, the existing value is kept.
             }
 
+            
             // Actualizar otros campos no-archivo
             $producto->id_categoria = $request->id_categoria ?? $producto->id_categoria;
             $producto->id_subcategoria = $request->id_subcategoria ?? $producto->id_subcategoria;

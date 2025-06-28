@@ -121,3 +121,5 @@ Route::get('/generar-documento-catalogo-uno/categoria/{categoriaId}', [generarDo
 Route::get('/generar-documento-catalogo/categoria/{categoriaId}', [generarDocumentoCatalogoPorCategoriaController::class, 'generarDocumentoCatalogoPorCategoriaDosProductosPorIteracion']);
 
 Route::get('/productos-para-cache/categoria/{id_categoria}', [ProductoController::class, 'getCategoriaParaCache']);
+
+Route::get('/producto-por-codigo/{codigo}', [ProductoController::class, 'showByCodigo']);
