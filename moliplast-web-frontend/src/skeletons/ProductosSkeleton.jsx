@@ -7,7 +7,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 import MetaData from '../widgets/Metadata'
 
-const ProductosSkeleton = () => {
+export const  ProductosSkeleton = () => {
 
     const { categoria, subcategoria, subsubcategoria } = useParams();
 
@@ -51,4 +51,22 @@ const ProductosSkeleton = () => {
     );
 };
 
-export default ProductosSkeleton;
+export const ProductosSkeletonSubcategoria = () => {
+
+    return (
+        <>
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+            <CartaProductoSkeleton />
+        </>
+    );
+};
