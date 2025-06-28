@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-// Este hook escucha la entrada de teclado y trata de detectar un escaneo de código de barras.
-export const useBarcodeScanner = (onScan) => {
+export const useScannerInput = (onScan) => {
     const chars = useRef([]);
     const timerId = useRef(null);
 
@@ -14,17 +13,17 @@ export const useBarcodeScanner = (onScan) => {
                 return;
             }
 
-            // Si se presiona 'Enter' y tenemos caracteres acumulados, es un escaneo.
             if (event.key === 'Enter' && chars.current.length > 0) {
-                event.preventDefault(); // Evita que 'Enter' envíe un formulario
-                const scannedCode = chars.current.join('');
-                onScan(scannedCode); // Llama a la función que nos pasaron con el código
-                chars.current = []; // Limpia el buffer para el siguiente escaneo
+                event.preventDefault();
+                const scannedContent = chars.current.join('');
+                onScan(scannedContent.trim()); // <-- APLICAR .trim() AQUÍ TAMBIÉN POR SEGURIDAD
+                chars.current = [];
+                clearTimeout(timerId.current);
+                timerId.current = null;
                 return;
             }
 
-            // Ignoramos teclas especiales que no son parte de un código de barras
-            if (event.key.length > 1) {
+            if (event.key.length > 1 && event.key !== 'Enter') {
                 return;
             }
 
@@ -36,11 +35,11 @@ export const useBarcodeScanner = (onScan) => {
                 clearTimeout(timerId.current);
             }
 
-            // Creamos un nuevo timer. Si no se presiona otra tecla en 100ms,
-            // asumimos que no fue un escáner y limpiamos el buffer.
+            // Aumentamos el tiempo de espera. 200ms o 300ms suelen ser más seguros.
             timerId.current = setTimeout(() => {
                 chars.current = [];
-            }, 100);
+                timerId.current = null;
+            }, 200); // <-- AUMENTAR EL TIEMPO AQUÍ (ej. 200ms)
         };
 
         // Añadimos el listener al documento completo
