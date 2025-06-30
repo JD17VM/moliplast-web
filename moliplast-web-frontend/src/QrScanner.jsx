@@ -1,73 +1,119 @@
-import { useEffect, useState, useRef } from 'react';
-// 1. Importa Html5QrcodeScanType junto con el resto
-import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
+import styles from './assets/styles/estilos_scannerqr.module.scss';
 
 const QrScanner = (props) => {
   const [scanResult, setScanResult] = useState(null);
-  
-  // Usamos useRef para mantener la instancia del scanner
-  const scannerRef = useRef(null);
+  const [scannerStatus, setScannerStatus] = useState('STOPPED');
 
-  useEffect(() => {
-    // ---- INICIO DE LA LÓGICA DEL SCANNER ----
+  const qrCodeRef = useRef(null);
+  const readerId = "qr-reader";
 
-    // Creamos la instancia del scanner y la guardamos en la referencia
-    scannerRef.current = new Html5QrcodeScanner('qr-reader', {
-      qrbox: {
-        width: 250,
-        height: 250,
-      },
-      fps: 5,
-        // 2. Añade esta línea para especificar que SOLO quieres usar la cámara
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-    }, false);
+  const startScanner = useCallback(() => {
+    // Evita iniciar si ya está activo o si el ref no está listo
+    if (scannerStatus !== 'STOPPED' || !qrCodeRef.current) return;
 
-    // Función que se llama cuando el escaneo es exitoso
-    const onScanSuccess = (decodedText, decodedResult) => {
-      // La clave está aquí: simplemente actualizamos el estado con el nuevo resultado.
-      // React es lo suficientemente inteligente como para no volver a renderizar si el valor es el mismo.
-      // Pero para mayor claridad y control, podemos hacer la comprobación nosotros mismos.
-      setScanResult((prevResult) => {
-        // Solo actualizamos si el resultado es diferente al anterior
-        if (prevResult !== decodedText) {
-          console.log("Nuevo QR detectado:", decodedText);
-          return decodedText;
+    qrCodeRef.current.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          // Calculamos el 80% del lado más corto
+          const size = Math.floor(minEdge * 0.8);
+          
+          // 2. SOLUCIÓN para el error 'minimum size':
+          // Nos aseguramos de que el qrbox nunca sea más pequeño que un mínimo práctico (ej. 120px)
+          // Esto es más seguro que el mínimo absoluto de 50px de la librería.
+          const qrboxSize = Math.max(size, 120); 
+
+          return { width: qrboxSize, height: qrboxSize };
         }
-        // Si es el mismo, no hacemos nada y retornamos el estado previo
-        return prevResult;
-      });
-    };
+      },
+      (decodedText) => {
+        setScanResult(decodedText);
+      },
+      (errorMessage) => { /* Ignorar */ }
+    )
+    .then(() => {
+      setScannerStatus('SCANNING');
+    })
+    .catch((err) => {
+      console.error("No se pudo iniciar el escáner.", err);
+      setScannerStatus('STOPPED');
+    });
+  }, [scannerStatus]);
 
-    // Función de error (sin cambios)
-    const onScanFailure = (error) => {
-      // console.warn(`Code scan error = ${error}`);
-    };
+  const handlePause = useCallback(() => {
+    if (scannerStatus === 'SCANNING') {
+      qrCodeRef.current?.pause(true);
+      setScannerStatus('PAUSED');
+    }
+  }, [scannerStatus]);
 
-    // Renderizamos el scanner
-    scannerRef.current.render(onScanSuccess, onScanFailure);
+  const handleResume = useCallback(() => {
+    if (scannerStatus === 'PAUSED') {
+      qrCodeRef.current?.resume();
+      setScannerStatus('SCANNING');
+    }
+  }, [scannerStatus]);
 
-    // ---- FUNCIÓN DE LIMPIEZA ----
-    // Se ejecuta cuando el componente se desmonta
+  const handleStop = useCallback(() => {
+    if ((scannerStatus === 'SCANNING' || scannerStatus === 'PAUSED') && qrCodeRef.current) {
+      qrCodeRef.current.stop()
+        .then(() => {
+          setScannerStatus('STOPPED');
+        })
+        .catch(err => console.error("Fallo al detener.", err));
+    }
+  }, [scannerStatus]);
+
+  // useEffect para el ciclo de vida del componente
+  useEffect(() => {
+    // 1. SOLUCIÓN para el error 'Cannot transition':
+    // El useEffect ahora solo crea la instancia y maneja la limpieza final.
+    // Ya NO inicia el escáner automáticamente. El usuario tiene el control total.
+    if (!qrCodeRef.current) {
+      qrCodeRef.current = new Html5Qrcode(readerId);
+    }
+
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(error => {
-          console.error("Fallo al limpiar el escaner.", error);
-        });
+      if (qrCodeRef.current?.isScanning) {
+        qrCodeRef.current.stop().catch(err => {});
       }
     };
-  }, []); // El array vacío asegura que este efecto se ejecute solo una vez
+  }, []);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-      {/* El div se mantiene igual, la librería renderizará una UI más simple dentro */}
-      <div id="qr-reader" style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}></div>
+    <div className={styles.qrScannerComponent}>
+      <div id={readerId} className={styles.scannerContainer}></div>
       
-      {scanResult && (
-        <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+      <div className={styles.controlsContainer}>
+        {scannerStatus === 'STOPPED' && (
+          <button onClick={startScanner} className={styles.controlButton}>
+            Iniciar Escaneo
+          </button>
+        )}
+        
+        {scannerStatus === 'SCANNING' && (
+          <>
+            <button onClick={handlePause} className={styles.controlButton}>Pausar</button>
+            <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
+          </>
+        )}
+
+        {scannerStatus === 'PAUSED' && (
+          <>
+            <button onClick={handleResume} className={styles.controlButton}>Reanudar</button>
+            <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
+          </>
+        )}
+      </div>
+
+      {scanResult && scannerStatus !== 'STOPPED' && (
+        <div className={styles.resultContainer}>
           <h3>Último Resultado Válido:</h3>
-          <p style={{ wordBreak: 'break-all' }}>
-            <a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a>
-          </p>
+          <p><a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a></p>
         </div>
       )}
     </div>
