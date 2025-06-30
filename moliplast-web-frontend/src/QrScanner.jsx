@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+// 1. Importa Html5QrcodeScanType junto con el resto
+import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 
 const QrScanner = (props) => {
   const [scanResult, setScanResult] = useState(null);
@@ -17,6 +18,8 @@ const QrScanner = (props) => {
         height: 250,
       },
       fps: 5,
+        // 2. Añade esta línea para especificar que SOLO quieres usar la cámara
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
     }, false);
 
     // Función que se llama cuando el escaneo es exitoso
@@ -56,6 +59,7 @@ const QrScanner = (props) => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      {/* El div se mantiene igual, la librería renderizará una UI más simple dentro */}
       <div id="qr-reader" style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}></div>
       
       {scanResult && (
