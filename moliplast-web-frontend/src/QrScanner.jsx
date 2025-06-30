@@ -2,12 +2,25 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import styles from './assets/styles/estilos_scannerqr.module.scss';
 
+import ProductoScannerResultado from './widgets/ProductoScannerResultado';
+
 const QrScanner = (props) => {
   const [scanResult, setScanResult] = useState(null);
   const [scannerStatus, setScannerStatus] = useState('STOPPED');
 
   const qrCodeRef = useRef(null);
   const readerId = "qr-reader";
+
+  // Lógica de escaneo: Valida ANTES de actualizar el estado.
+  const onScanSuccess = (decodedText) => {
+    const expectedPrefix = "https://moliplast.com/api/api/producto/redirect/";
+    
+    // Solo actualiza el estado si el QR tiene el formato esperado.
+    // Si no, lo ignora, y el último resultado válido se queda en pantalla.
+    if (decodedText.startsWith(expectedPrefix)) {
+      setScanResult(decodedText);
+    }
+  };
 
   const startScanner = useCallback(() => {
     // Evita iniciar si ya está activo o si el ref no está listo
@@ -66,7 +79,7 @@ const QrScanner = (props) => {
         })
         .catch(err => console.error("Fallo al detener.", err));
     }
-  }, [scannerStatus]);
+  }, [scannerStatus, onScanSuccess]);
 
   // useEffect para el ciclo de vida del componente
   useEffect(() => {
@@ -111,10 +124,13 @@ const QrScanner = (props) => {
       </div>
 
       {scanResult && scannerStatus !== 'STOPPED' && (
+        <>
         <div className={styles.resultContainer}>
-          <h3>Último Resultado Válido:</h3>
+        <h3>Último Resultado Válido:</h3>
           <p><a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a></p>
         </div>
+        <ProductoScannerResultado route={scanResult}/>
+        </>
       )}
     </div>
   );
