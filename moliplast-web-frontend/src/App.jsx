@@ -15,6 +15,7 @@ import Producto from './Producto'
 import Servicios from './Servicios'
 import Catalogos from './Catalogos'
 import Contacto from './Contacto'
+import QrScanner from './QrScanner';
 
 import ProductosSearch from './ProductosSearch'
 
@@ -112,6 +113,7 @@ function App() {
         <Route path="/productos/search/:texto" element={<ProductosSearch />} />
 
         <Route path="/servicios" element={<Servicios />}/>
+        <Route path="/qr-scanner" element={<QrScanner />}/>
 
         <Route element={<AdminRoute />}>
           <Route path="/administrador/catalogos" element={<AdminCatalogos />} />
