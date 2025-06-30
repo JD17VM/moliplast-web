@@ -1,71 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
-// Props que el componente podría recibir en el futuro, por ahora no las usamos.
 const QrScanner = (props) => {
-  // Estado para almacenar el resultado del escaneo
   const [scanResult, setScanResult] = useState(null);
+  
+  // Usamos useRef para mantener la instancia del scanner
+  const scannerRef = useRef(null);
 
   useEffect(() => {
-    // Creamos una instancia del escaner.
-    // El primer argumento es el ID del elemento donde se renderizará el escaner.
-    // El segundo es un objeto de configuración opcional.
-    // El tercero es un booleano para activar el modo verbose (logs detallados).
-    const scanner = new Html5QrcodeScanner('qr-reader', {
+    // ---- INICIO DE LA LÓGICA DEL SCANNER ----
+
+    // Creamos la instancia del scanner y la guardamos en la referencia
+    scannerRef.current = new Html5QrcodeScanner('qr-reader', {
       qrbox: {
         width: 250,
         height: 250,
       },
-      fps: 5, // Fotogramas por segundo para el escaneo.
+      fps: 5,
     }, false);
 
-    let isScanning = true;
-
     // Función que se llama cuando el escaneo es exitoso
-    function onScanSuccess(decodedText, decodedResult) {
-      // Para evitar múltiples disparos de la función, verificamos si ya estamos manejando un escaneo.
-      if (isScanning) {
-        isScanning = false; // Bloqueamos nuevos escaneos
-        
-        // Actualizamos el estado con el texto decodificado
-        setScanResult(decodedText);
-        
-        // Opcional: Detener el escáner después de una lectura exitosa
-        // scanner.clear().catch(error => {
-        //   console.error("Fallo al limpiar el escaner.", error);
-        // });
-      }
-    }
-
-    // Función que se llama si hay un error en el escaneo (opcional)
-    function onScanFailure(error) {
-      // Puedes ignorar los errores comunes como "QR code not found."
-      // console.warn(`Code scan error = ${error}`);
-    }
-
-    // Renderizamos el escaner con las funciones de callback
-    scanner.render(onScanSuccess, onScanFailure);
-
-    // Función de limpieza que se ejecuta cuando el componente se desmonta
-    return () => {
-      // Nos aseguramos de limpiar el escaner para liberar la cámara
-      scanner.clear().catch(error => {
-        console.error("Fallo al limpiar el escaner.", error);
+    const onScanSuccess = (decodedText, decodedResult) => {
+      // La clave está aquí: simplemente actualizamos el estado con el nuevo resultado.
+      // React es lo suficientemente inteligente como para no volver a renderizar si el valor es el mismo.
+      // Pero para mayor claridad y control, podemos hacer la comprobación nosotros mismos.
+      setScanResult((prevResult) => {
+        // Solo actualizamos si el resultado es diferente al anterior
+        if (prevResult !== decodedText) {
+          console.log("Nuevo QR detectado:", decodedText);
+          return decodedText;
+        }
+        // Si es el mismo, no hacemos nada y retornamos el estado previo
+        return prevResult;
       });
     };
-  }, []); // El array vacío asegura que este efecto se ejecute solo una vez (al montar el componente)
+
+    // Función de error (sin cambios)
+    const onScanFailure = (error) => {
+      // console.warn(`Code scan error = ${error}`);
+    };
+
+    // Renderizamos el scanner
+    scannerRef.current.render(onScanSuccess, onScanFailure);
+
+    // ---- FUNCIÓN DE LIMPIEZA ----
+    // Se ejecuta cuando el componente se desmonta
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(error => {
+          console.error("Fallo al limpiar el escaner.", error);
+        });
+      }
+    };
+  }, []); // El array vacío asegura que este efecto se ejecute solo una vez
 
   return (
     <div style={{ textAlign: 'center', marginTop: '20px' }}>
-      {/* Elemento contenedor donde se renderizará el lector de QR */}
       <div id="qr-reader" style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}></div>
       
-      {/* Mostramos el resultado del escaneo si existe */}
       {scanResult && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Resultado del Escaneo:</h3>
-          {/* Mostramos el texto como un enlace clickeable para verificar */}
-          <p>
+        <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+          <h3>Último Resultado Válido:</h3>
+          <p style={{ wordBreak: 'break-all' }}>
             <a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a>
           </p>
         </div>
