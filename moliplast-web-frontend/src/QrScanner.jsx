@@ -4,19 +4,15 @@ import styles from './assets/styles/estilos_scannerqr.module.scss';
 
 import ProductoScannerResultado from './widgets/ProductoScannerResultado';
 
-const QrScanner = (props) => {
+const QrScanner = () => {
   const [scanResult, setScanResult] = useState(null);
   const [scannerStatus, setScannerStatus] = useState('STOPPED');
 
   const qrCodeRef = useRef(null);
   const readerId = "qr-reader";
 
-  // Lógica de escaneo: Valida ANTES de actualizar el estado.
-  const onScanSuccess = (decodedText) => {
+  const onScanSuccess = (decodedText) => {  // Lógica de escaneo: Valida ANTES de actualizar el estado.
     const expectedPrefix = "https://moliplast.com/api/api/producto/redirect/";
-    
-    // Solo actualiza el estado si el QR tiene el formato esperado.
-    // Si no, lo ignora, y el último resultado válido se queda en pantalla.
     if (decodedText.startsWith(expectedPrefix)) {
       setScanResult(decodedText);
     }
@@ -81,7 +77,6 @@ const QrScanner = (props) => {
     }
   }, [scannerStatus, onScanSuccess]);
 
-  // useEffect para el ciclo de vida del componente
   useEffect(() => {
     // 1. SOLUCIÓN para el error 'Cannot transition':
     // El useEffect ahora solo crea la instancia y maneja la limpieza final.
@@ -127,13 +122,7 @@ const QrScanner = (props) => {
       </div>
 
       {scanResult && scannerStatus !== 'STOPPED' && (
-        <>
-        {/*<div>
-        <h3>Último Resultado Válido:</h3>
-          <p><a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a></p>
-      </div>*/}
         <ProductoScannerResultado route={scanResult}/>
-        </>
       )}
     </div>
   );
