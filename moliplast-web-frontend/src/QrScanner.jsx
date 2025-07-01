@@ -98,9 +98,12 @@ const QrScanner = (props) => {
   }, []);
 
   return (
+    
     <div className={styles.qrScannerComponent}>
       <div id={readerId} className={styles.scannerContainer}></div>
-      
+      {scannerStatus === 'STOPPED' && (
+        <div className={styles.qr_loading}></div>
+      )}
       <div className={styles.controlsContainer}>
         {scannerStatus === 'STOPPED' && (
           <button onClick={startScanner} className={styles.controlButton}>
@@ -125,10 +128,10 @@ const QrScanner = (props) => {
 
       {scanResult && scannerStatus !== 'STOPPED' && (
         <>
-        <div className={styles.resultContainer}>
+        {/*<div>
         <h3>Último Resultado Válido:</h3>
           <p><a href={scanResult} target="_blank" rel="noopener noreferrer">{scanResult}</a></p>
-        </div>
+      </div>*/}
         <ProductoScannerResultado route={scanResult}/>
         </>
       )}
