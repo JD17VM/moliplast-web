@@ -1,11 +1,6 @@
 const dataPaginas = {
     data: [
         { 
-            nombre: "Productos", 
-            enlace: "/productos",
-
-        },
-        { 
             nombre: "Servicios", 
             enlace: "/servicios",
         },
@@ -14,8 +9,8 @@ const dataPaginas = {
             enlace: "/catalogos"
         },
         { 
-            nombre: "Contacto", 
-            enlace: "/contacto"
+            nombre: "QR Scanner", 
+            enlace: "/qr-scanner"
         }
         
     ]
