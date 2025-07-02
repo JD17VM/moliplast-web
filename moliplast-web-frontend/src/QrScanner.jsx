@@ -11,41 +11,39 @@ const QrScanner = () => {
   const qrCodeRef = useRef(null);
   const readerId = "qr-reader";
 
-  const onScanSuccess = (decodedText) => {  // Lógica de escaneo: Valida ANTES de actualizar el estado.
+  // Función que se llama cuando el escaneo es exitoso
+  const onScanSuccess = useCallback((decodedText) => {
     const expectedPrefix = "https://moliplast.com/api/api/producto/redirect/";
     if (decodedText.startsWith(expectedPrefix)) {
       setScanResult(decodedText);
+      // Opcional: Detener el escáner automáticamente después de un escaneo exitoso
+      // handleStop(); 
     }
-  };
+  }, []); // El array vacío asegura que esta función no se recree innecesariamente
 
   const startScanner = useCallback(() => {
     // Evita iniciar si ya está activo o si el ref no está listo
     if (scannerStatus !== 'STOPPED' || !qrCodeRef.current) return;
 
+    const config = {
+      fps: 10,
+      qrbox: (viewfinderWidth, viewfinderHeight) => {
+        const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          // Calculamos el 80% del lado más corto
+        const size = Math.floor(minEdge * 0.8);
+        const qrboxSize = Math.max(size, 150);
+        return { width: qrboxSize, height: qrboxSize };
+      },
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true,
+      },
+      aspectRatio: 1.0
+    };
+
     qrCodeRef.current.start(
       { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: (viewfinderWidth, viewfinderHeight) => {
-          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          // Calculamos el 80% del lado más corto
-          const size = Math.floor(minEdge * 0.8);
-          
-          // 2. SOLUCIÓN para el error 'minimum size':
-          // Nos aseguramos de que el qrbox nunca sea más pequeño que un mínimo práctico (ej. 120px)
-          // Esto es más seguro que el mínimo absoluto de 50px de la librería.
-          const qrboxSize = Math.max(size, 120); 
-
-          return { width: qrboxSize, height: qrboxSize };
-        },
-        experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true,
-        },
-        aspectRatio: 1.0 
-      },
-      (decodedText) => {
-        setScanResult(decodedText);
-      },
+      config,
+      onScanSuccess, // Pasamos la función de callback
       (errorMessage) => { /* Ignorar */ }
     )
     .then(() => {
@@ -55,53 +53,64 @@ const QrScanner = () => {
       console.error("No se pudo iniciar el escáner.", err);
       setScannerStatus('STOPPED');
     });
-  }, [scannerStatus]);
+  }, [scannerStatus, onScanSuccess]);
 
   const handlePause = useCallback(() => {
-    if (scannerStatus === 'SCANNING') {
-      qrCodeRef.current?.pause(true);
+    if (scannerStatus === 'SCANNING' && qrCodeRef.current?.isScanning) {
+      qrCodeRef.current.pause(true);
       setScannerStatus('PAUSED');
     }
   }, [scannerStatus]);
 
   const handleResume = useCallback(() => {
-    if (scannerStatus === 'PAUSED') {
-      qrCodeRef.current?.resume();
+    if (scannerStatus === 'PAUSED' && qrCodeRef.current) {
+      qrCodeRef.current.resume();
       setScannerStatus('SCANNING');
     }
   }, [scannerStatus]);
 
   const handleStop = useCallback(() => {
-    if ((scannerStatus === 'SCANNING' || scannerStatus === 'PAUSED') && qrCodeRef.current) {
+    if ((scannerStatus === 'SCANNING' || scannerStatus === 'PAUSED') && qrCodeRef.current?.isScanning) {
       qrCodeRef.current.stop()
         .then(() => {
           setScannerStatus('STOPPED');
+          setScanResult(null); // Limpiamos el resultado anterior al detener
         })
         .catch(err => console.error("Fallo al detener.", err));
     }
-  }, [scannerStatus, onScanSuccess]);
+  }, [scannerStatus]);
 
+  // useEffect para crear y limpiar la instancia del escáner
   useEffect(() => {
-    // 1. SOLUCIÓN para el error 'Cannot transition':
-    // El useEffect ahora solo crea la instancia y maneja la limpieza final.
-    // Ya NO inicia el escáner automáticamente. El usuario tiene el control total.
+    // Si la instancia no existe, la creamos al montar el componente.
+    // Pasamos 'verbose: false' para evitar logs excesivos en la consola.
     if (!qrCodeRef.current) {
-      qrCodeRef.current = new Html5Qrcode(readerId);
+      qrCodeRef.current = new Html5Qrcode(readerId, { verbose: false });
     }
 
+    // --- FUNCIÓN DE LIMPIEZA ---
+    // Se ejecuta cuando el componente se desmonta (ej. el usuario cambia de ruta).
+    // Esto es CRUCIAL para apagar la cámara y evitar errores.
     return () => {
       if (qrCodeRef.current?.isScanning) {
-        qrCodeRef.current.stop().catch(err => {});
+        qrCodeRef.current.stop()
+          .catch(err => {
+            console.error("Error al limpiar el escáner al desmontar el componente.", err);
+          });
       }
     };
-  }, []);
+  }, []); // El array vacío asegura que esto solo se ejecute al montar y desmontar
 
   return (
     
     <div className={styles.qrScannerComponent}>
       <div id={readerId} className={styles.scannerContainer}></div>
-      {scannerStatus === 'STOPPED' && (
-        <div className={styles.qr_loading}></div>
+      
+      {/* Muestra un indicador de carga mientras el escáner no está activo */}
+      {scannerStatus === 'STOPPED' && !scanResult && (
+        <div className={styles.qr_loading}>
+            <p>Apunte la cámara al código QR</p>
+        </div>
       )}
       <div className={styles.controlsContainer}>
         {scannerStatus === 'STOPPED' && (
@@ -125,7 +134,8 @@ const QrScanner = () => {
         )}
       </div>
 
-      {scanResult && scannerStatus !== 'STOPPED' && (
+      {/* Muestra el resultado solo si hay un scanResult */}
+      {scanResult && (
         <ProductoScannerResultado route={scanResult}/>
       )}
     </div>

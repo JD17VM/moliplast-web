@@ -1,8 +1,13 @@
 .qrScannerComponent{
 
+    /*:global(#qr-reader){
+        width: 200px;
+        height: 200px;
+    }*/
+
     .qr_loading{
         width: 100vw;
-        aspect-ratio: 4/5;
+        aspect-ratio: 1/1;
         background-color: rgb(0, 0, 0);
         
     }
