@@ -21,3 +21,8 @@ export function scrollToTop() {
       behavior: 'smooth' // Agrega un desplazamiento suave
     });
 }
+
+export function completarConCeros(numero) {
+    let numeroComoCadena = String(numero);
+    return numeroComoCadena.padStart(6, '0');
+  }

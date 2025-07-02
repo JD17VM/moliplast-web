@@ -12,7 +12,7 @@ import ProductoSkeleton from "./skeletons/ProductoSkeleton"
 
 import MetaData from './widgets/Metadata'
 
-import { getFullUrl } from "./utils/utils.js"
+import { getFullUrl, completarConCeros } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
@@ -162,9 +162,12 @@ const Producto = () => {
                     </div>
                 </div>
                 <div className={styles.contenedor_datos}>
-                    <h1>{producto.nombre}</h1>
-                    <p>{producto.descripcion}</p>
                     <div>
+                        <p className={styles.codigo}>SKU: {completarConCeros(producto.codigo)}</p>
+                        <h1>{producto.nombre}</h1>
+                    </div>
+                    <p>{producto.descripcion}</p>
+                    <div className={styles.contenedor_botones}>
                         {producto.enlace_ficha_tecnica && (
                             <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
                                 Ficha Técnica

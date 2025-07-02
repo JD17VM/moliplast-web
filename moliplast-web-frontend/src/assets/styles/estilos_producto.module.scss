@@ -63,9 +63,18 @@ $padding_lateral: 2rem;
         row-gap: 26px;
         max-width: 1000px;
 
-        & > h1{
-            font-size: var(--fuente_tamanio_titulo_1);
-            font-weight: var(--fuente_bold);
+        & > div:first-of-type{
+            & > p{
+                color:var(--color_gris_0);
+                text-align: end;
+                font-size: var(--fuente_tamanio_titulo_3);
+                margin-bottom: 5px;
+            }
+
+            & > h1{
+                font-size: var(--fuente_tamanio_titulo_1);
+                font-weight: var(--fuente_bold);
+            }
         }
 
         & > p{
@@ -78,7 +87,7 @@ $padding_lateral: 2rem;
             color: var(--color_azul_1);
         }
 
-        & > div{
+        & > div.contenedor_botones{
             display: flex;
             column-gap: 2rem;
         }
@@ -98,6 +107,14 @@ $padding_lateral: 2rem;
 
         & > .contenedor_imagenes{
             justify-content: center;
+        }
+
+        & > .contenedor_datos{
+            & > div:first-of-type{
+                & > p{
+                    text-align:start;
+                }
+            }
         }
     }
 }
@@ -123,7 +140,7 @@ $padding_lateral: 2rem;
 
         & > .contenedor_datos{
 
-            & > div{
+            & > div.contenedor_botones{
                 width: 100%;
                 align-items: center;
                 //background-color: red;
