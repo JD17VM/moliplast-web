@@ -37,7 +37,11 @@ const QrScanner = () => {
           const qrboxSize = Math.max(size, 120); 
 
           return { width: qrboxSize, height: qrboxSize };
-        }
+        },
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true,
+        },
+        aspectRatio: 1.0 
       },
       (decodedText) => {
         setScanResult(decodedText);
