@@ -1501,7 +1501,7 @@ class ProductoController extends Controller
     public function getAllProductIdsAndCategoryIds()
     {
         $productos = Producto::where('estatus', true)
-                            ->select('id', 'id_categoria AS id_c') // Selecciona solo las columnas necesarias
+                            ->select('id', 'id_categoria') // Selecciona solo las columnas necesarias
                             ->get();
 
         if ($productos->isEmpty()){
