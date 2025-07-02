@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { syncMasterIndex } from './utils/sync';
 import { useScannerInput } from './hooks/useBarcodeScanner';
 
 import AOS from "aos";
@@ -39,6 +40,10 @@ const data = dataPaginas.data
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 function App() {
+
+  useEffect(() => {
+    syncMasterIndex();
+  }, []);
 
   useEffect(() => {
     AOS.init();

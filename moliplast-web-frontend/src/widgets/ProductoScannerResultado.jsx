@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/estilos_scannerqr.module.scss';
+import { db } from '../utils/db'; // Importamos la configuración de Dexie actualizada
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
@@ -22,48 +23,54 @@ const ProductoScannerResultado = ({ route }) => {
         setLoading(false);
         return;
       }
-      const id = route.split('/').pop();
+      const id = parseInt(route.split('/').pop(), 10);
 
-      // --- Inicio de la Lógica de "Softlink" para obtener el PRECIO ---
       try {
-        // PASO A: Hacemos una primera llamada para obtener la info básica, sobre todo el ID de la categoría.
-        // Usaremos el endpoint que tu código de ejemplo usa para esto.
-        const productoInfoRes = await fetch(`${BASE_URL_API}/api/productos-softlink/${id}`);
-        if (!productoInfoRes.ok) throw new Error('Producto no encontrado en el sistema.');
-        
-        const productoInfo = await productoInfoRes.json();
-        const categoryId = productoInfo.id_categoria;
-        const cacheKey = `cache_cat_${categoryId}`;
+        // --- INICIO DE LA LÓGICA CON ÍNDICE MAESTRO ---
 
-        // PASO B: Revisamos si tenemos datos válidos en la caché de esa categoría.
-        const cacheGuardado = localStorage.getItem(cacheKey);
-        if (cacheGuardado) {
-          const datosCache = JSON.parse(cacheGuardado);
-          if ((Date.now() - datosCache.timestamp) < TRES_HORAS_EN_MS) {
-            const productoDeCache = datosCache.productos.find(p => p.id == id);
-            if (productoDeCache) {
-              console.log("¡Éxito! Producto con precio encontrado en la CACHÉ.");
-              setProducto(productoDeCache); // Este producto ya tiene el precio
-              setLoading(false);
-              return; // Proceso terminado
-            }
+        // PASO A: Búsqueda LOCAL en el índice maestro para obtener la categoría.
+        // Esta operación es instantánea y no requiere conexión a internet.
+        const indexEntry = await db.productIndex.get(id);
+
+        if (!indexEntry) {
+          // Si el producto no está en nuestro índice, puede ser un QR nuevo o el índice está desactualizado.
+          throw new Error('Producto no encontrado en el índice local. Intente sincronizar la aplicación.');
+        }
+        
+        const categoryId = indexEntry.id_categoria;
+
+        // PASO B: Revisamos si la categoría completa está en caché y no ha expirado
+        const cacheCategoria = await db.categoriesCache.get(categoryId);
+        if (cacheCategoria && (Date.now() - cacheCategoria.timestamp) < TRES_HORAS_EN_MS) {
+          // Si la caché es válida, buscamos el producto completo directamente en la BD
+          const productoDeCache = await db.products.get(id); 
+
+          if (productoDeCache) {
+            console.log("✅ ¡Éxito! Producto encontrado en la CACHÉ de IndexedDB.");
+            setProducto(productoDeCache);
+            setLoading(false);
+            return; // Proceso terminado
           }
         }
-
-        // PASO C: Si no hay caché, descargamos la categoría completa (que sí contiene el precio).
-        console.log("Caché no encontrada o expirada. Descargando categoría para obtener precios...");
+        
+        // PASO C: Si la caché no existe o expiró, descargamos la categoría completa (única llamada a la red)
+        console.log("Caché de categoría no encontrada o expirada. Descargando desde la red...");
         const categoriaCompletaRes = await fetch(`${BASE_URL_API}/api/productos-para-cache/categoria/${categoryId}`);
         if (!categoriaCompletaRes.ok) throw new Error('No se pudo obtener la información de precios.');
         
         const productosCategoria = await categoriaCompletaRes.json();
         
-        // Buscamos nuestro producto en esta nueva lista para tener todos los datos.
-        const productoFinal = productosCategoria.find(p => p.id == id);
-        setProducto(productoFinal || productoInfo); // Usamos el producto de la lista, que tiene precio
+        // PASO D: Guardamos los nuevos datos en IndexedDB
+        await db.transaction('rw', db.products, db.categoriesCache, async () => {
+          await db.categoriesCache.put({ id: categoryId, timestamp: Date.now() });
+          await db.products.bulkPut(productosCategoria);
+        });
 
-        // PASO D: Guardamos la nueva lista en la caché para la próxima vez.
-        const datosParaCache = { timestamp: Date.now(), productos: productosCategoria };
-        localStorage.setItem(cacheKey, JSON.stringify(datosParaCache));
+        // Buscamos nuestro producto en la lista recién descargada para mostrarlo
+        const productoFinal = productosCategoria.find(p => p.id === id);
+        if (!productoFinal) throw new Error('El producto no se encontró en los datos de la categoría descargada.');
+        
+        setProducto(productoFinal);
 
       } catch (err) {
         console.error('Error al obtener datos del producto:', err);
