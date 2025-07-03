@@ -3,6 +3,8 @@ import styles from '../assets/styles/estilos_scannerqr.module.scss';
 import { db } from '../utils/db'; // Importamos la configuración de Dexie actualizada
 import { useSync } from '../utils/SyncContext'; 
 
+import { completarConCeros } from "../utils/utils.js"
+
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
 
@@ -110,7 +112,7 @@ const ProductoScannerResultado = ({ route }) => {
                 <p>No Precio</p>
             )}
 
-            <p className={styles.codigo}>SKU: {producto.codigo}</p>
+            <p className={styles.codigo}>SKU: {completarConCeros(producto.codigo)}</p>
         </div>
         <h1>{producto.nombre}</h1>
       

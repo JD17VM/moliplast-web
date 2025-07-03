@@ -130,7 +130,7 @@ const QrScanner = () => {
           </div> 
             <div className={styles.contenedor_botones}>
               {scannerStatus === 'SCANNING' && (
-              <BtnIconoTexto onClick={handlePause} Icono={FaCirclePause} centrado>
+              <BtnIconoTexto onClick={handlePause} Icono={FaCirclePause} centrado colorPrincipal ='#065f24' colorActivo = '#4ab56d'>
                 Pausar
               </BtnIconoTexto>
               )}
@@ -141,7 +141,7 @@ const QrScanner = () => {
                 </BtnIconoTexto>
               )}
 
-              <BtnIconoTexto onClick={handleStop} Icono={BsCameraVideoOffFill} centrado>
+              <BtnIconoTexto onClick={handleStop} Icono={BsCameraVideoOffFill} centrado colorPrincipal ='#ab0f0f' colorActivo = '#de5e5e'>
                 Salir
               </BtnIconoTexto>
             </div>
