@@ -3,6 +3,10 @@ import { Html5Qrcode } from 'html5-qrcode';
 import styles from './assets/styles/estilos_scannerqr.module.scss';
 
 import ProductoScannerResultado from './widgets/ProductoScannerResultado';
+import {BtnIconoTexto} from './widgets/Botones'
+import { IoQrCode } from "react-icons/io5";
+import { BsCameraVideoFill, BsCameraVideoOffFill } from "react-icons/bs";
+import { FaCirclePause } from "react-icons/fa6";
 
 const QrScanner = () => {
   const [scanResult, setScanResult] = useState(null);
@@ -104,39 +108,79 @@ const QrScanner = () => {
   return (
     
     <div className={styles.qrScannerComponent}>
-      <div id={readerId} className={styles.scannerContainer}></div>
-      
-      {/* Muestra un indicador de carga mientras el escáner no está activo */}
-      {scannerStatus === 'STOPPED' && !scanResult && (
-        <div className={styles.qr_loading}>
-            <p>Apunte la cámara al código QR</p>
-        </div>
-      )}
-      <div className={styles.controlsContainer}>
-        {scannerStatus === 'STOPPED' && (
-          <button onClick={startScanner} className={styles.controlButton}>
-            Iniciar Escaneo
-          </button>
-        )}
-        
-        {scannerStatus === 'SCANNING' && (
-          <>
-            <button onClick={handlePause} className={styles.controlButton}>Pausar</button>
-            <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
-          </>
-        )}
+      <div className={styles.contenedor_scanner}>
+        <div id={readerId} className={styles.scanner}></div>
 
-        {scannerStatus === 'PAUSED' && (
-          <>
-            <button onClick={handleResume} className={styles.controlButton}>Reanudar</button>
-            <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
-          </>
+      {/* Muestra un indicador de carga mientras el escáner no está activo */}
+        {scannerStatus === 'STOPPED' && !scanResult && (
+        <>
+          <div className={styles.qr_loading}>
+              <p>Apunte la cámara al código QR</p>
+          </div>
+        </>
         )}
+        <div className={styles.controlsContainer}>
+          
+          
+          {scannerStatus === 'SCANNING' && (
+            <>
+              <button onClick={handlePause} className={styles.controlButton}>Pausar</button>
+              <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
+            </>
+          )}
+
+          {scannerStatus === 'PAUSED' && (
+            <>
+              <button onClick={handleResume} className={styles.controlButton}>Reanudar</button>
+              <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Muestra el resultado solo si hay un scanResult */}
-      {scanResult && (
-        <ProductoScannerResultado route={scanResult}/>
+        {(scannerStatus === 'PAUSED' || scannerStatus === 'SCANNING') && (
+          <div className={styles.contenedor_info}>
+            <div>
+            {scanResult && (
+                <ProductoScannerResultado route={scanResult}/>
+            )}
+          </div> 
+            <div className={styles.contenedor_botones}>
+              {scannerStatus === 'SCANNING' && (
+              <BtnIconoTexto onClick={handlePause} Icono={FaCirclePause} centrado>
+                Pausar
+              </BtnIconoTexto>
+              )}
+
+              {scannerStatus === 'PAUSED' && (
+                <BtnIconoTexto onClick={handleResume} Icono={BsCameraVideoFill} centrado>
+                  Continuar
+                </BtnIconoTexto>
+              )}
+
+              <BtnIconoTexto onClick={handleStop} Icono={BsCameraVideoOffFill} centrado>
+                Salir
+              </BtnIconoTexto>
+            </div>
+          </div>
+        )}
+      
+
+      {scannerStatus === 'STOPPED' && (
+        <div className={styles.contenedor_info}>
+          <div>
+            <p className={styles.info_pasos}>
+            1. Presiona "Iniciar Escaneo".<br/>
+            2. Permite el acceso a tu cámara.<br/>
+            3. Apunta al código QR de los productos.
+            </p>
+          </div>  
+          <div className={styles.contenedor_botones}>
+            <BtnIconoTexto Icono={IoQrCode} onClick={startScanner} centrado>
+              Iniciar Escaneo
+            </BtnIconoTexto>
+          </div>
+        </div>
       )}
     </div>
   );
