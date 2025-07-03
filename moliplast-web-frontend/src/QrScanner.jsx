@@ -115,27 +115,10 @@ const QrScanner = () => {
         {scannerStatus === 'STOPPED' && !scanResult && (
         <>
           <div className={styles.qr_loading}>
-              <p>Apunte la cámara al código QR</p>
+            <img src="qr_scanner_demo.png" alt="" />
           </div>
         </>
         )}
-        <div className={styles.controlsContainer}>
-          
-          
-          {scannerStatus === 'SCANNING' && (
-            <>
-              <button onClick={handlePause} className={styles.controlButton}>Pausar</button>
-              <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
-            </>
-          )}
-
-          {scannerStatus === 'PAUSED' && (
-            <>
-              <button onClick={handleResume} className={styles.controlButton}>Reanudar</button>
-              <button onClick={handleStop} className={`${styles.controlButton} ${styles.stopButton}`}>Detener</button>
-            </>
-          )}
-        </div>
       </div>
 
         {(scannerStatus === 'PAUSED' || scannerStatus === 'SCANNING') && (
@@ -170,9 +153,9 @@ const QrScanner = () => {
         <div className={styles.contenedor_info}>
           <div>
             <p className={styles.info_pasos}>
-            1. Presiona "Iniciar Escaneo".<br/>
-            2. Permite el acceso a tu cámara.<br/>
-            3. Apunta al código QR de los productos.
+            <br/>1. Presiona "Iniciar Escaneo".
+            <br/>2. Permite el acceso a tu cámara.
+            <br/>3. Apunta al código QR de los productos.
             </p>
           </div>  
           <div className={styles.contenedor_botones}>
