@@ -15,7 +15,6 @@ import MetaData from './widgets/Metadata'
 import { getFullUrl, completarConCeros } from "./utils/utils.js"
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
-const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
 
 const Producto = () => {
     const [botonActivo, setBotonActivo] = useState(1);
@@ -44,30 +43,7 @@ const Producto = () => {
                     const productoActualRes = await fetch(`${BASE_URL_API}/api/productos-softlink/${id}`);
                     if (!productoActualRes.ok) throw new Error('Producto no encontrado');
                     const productoActual = await productoActualRes.json();
-
-                    const categoryId = productoActual.id_categoria;
-                    const cacheKey = `cache_cat_${categoryId}`;
-                    const cacheGuardado = localStorage.getItem(cacheKey);
-
-                    if (cacheGuardado) {
-                        const datosCache = JSON.parse(cacheGuardado);
-                        if ((Date.now() - datosCache.timestamp) < TRES_HORAS_EN_MS) {
-                            const productoDeCache = datosCache.productos.find(p => p.id == id);
-                            if (productoDeCache) {
-                                setProducto(productoDeCache);
-                                setLoading(false);
-                                return;
-                            }
-                        }
-                    }
-
                     setProducto(productoActual);
-                    const categoriaCompletaRes = await fetch(`${BASE_URL_API}/api/productos-para-cache/categoria/${categoryId}`);
-                    if (categoriaCompletaRes.ok) {
-                        const productosCategoria = await categoriaCompletaRes.json();
-                        const datosParaCache = { timestamp: Date.now(), productos: productosCategoria };
-                        localStorage.setItem(cacheKey, JSON.stringify(datosParaCache));
-                    }
                 } catch (error) {
                     console.error('Error:', error);
                     setProducto({ error: "Producto no encontrado" });
