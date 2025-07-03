@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { SyncProvider } from './utils/SyncContext';
 import { syncMasterIndex } from './utils/sync';
 import { useScannerInput } from './hooks/useBarcodeScanner';
 
@@ -41,8 +42,26 @@ const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 
 function App() {
 
+  const [syncState, setSyncState] = useState({
+    isSyncing: true,
+    isSynced: false
+  });
+
   useEffect(() => {
-    syncMasterIndex();
+    const initializeApp = async () => {
+      try {
+        // Ahora si syncMasterIndex falla, el CATCH de aquí se activará
+        await syncMasterIndex(); 
+        console.log("Sincronización inicial completada.");
+        setSyncState({ isSyncing: false, isSynced: true });
+      } catch (error) {
+        // Y el estado se establecerá correctamente para reflejar el fallo
+        console.error("Falló la sincronización inicial:", error);
+        setSyncState({ isSyncing: false, isSynced: false }); 
+      }
+    };
+    
+    initializeApp();
   }, []);
 
   useEffect(() => {
@@ -101,6 +120,7 @@ function App() {
 
 
   return (
+    <SyncProvider value={syncState}> 
     <BrowserRouter>
       <Navegador isAdmin={isAdmin} setIsAdmin={setIsAdmin}/>
       <ScannerHandler />
@@ -136,6 +156,7 @@ function App() {
       </ScrollToTop>
       <Footer data={data} onAdminLogin={handleAdminLogin}/>
     </BrowserRouter>
+    </SyncProvider>
   )
 }
 

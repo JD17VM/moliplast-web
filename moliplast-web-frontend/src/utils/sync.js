@@ -8,30 +8,30 @@ const SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000;
  * Revisa si el índice maestro necesita ser sincronizado y lo descarga si es necesario.
  * Esta función debería llamarse al iniciar la aplicación.
  */
+// utils/sync.js
 export const syncMasterIndex = async () => {
-  const lastSync = localStorage.getItem('masterIndexLastSync');
-  if (lastSync && (Date.now() - parseInt(lastSync, 10)) < SYNC_INTERVAL_MS) {
-    console.log("El índice maestro ya está sincronizado.");
-    return;
-  }
-
-  console.log("Sincronizando el índice maestro de productos...");
+  // ... código anterior ...
   try {
-    // Este es el nuevo endpoint que debes crear en tu backend
+    // ... tu lógica de fetch ...
     const response = await fetch(`${BASE_URL_API}/api/id-productos-categorias`);
     if (!response.ok) throw new Error('No se pudo descargar el índice maestro.');
+    
+    const masterIndexData = await response.json();
+    
+    console.log('✅ Datos recibidos del índice maestro:', masterIndexData);
+    if (!masterIndexData || masterIndexData.length === 0) {
+      console.error('El índice maestro está vacío o es inválido.');
+      return; 
+    }
 
-    const masterIndexData = await response.json(); // Ej: [{id: 1, id_categoria: 2}, ...]
-
-    // Usamos bulkPut para insertar/actualizar eficientemente todos los registros
     await db.productIndex.bulkPut(masterIndexData);
-
-    // Actualizamos la fecha de la última sincronización
     localStorage.setItem('masterIndexLastSync', Date.now().toString());
     console.log(`Índice maestro sincronizado con ${masterIndexData.length} productos.`);
 
   } catch (error) {
     console.error("Error al sincronizar el índice maestro:", error);
+    // ¡Añade esta línea para notificar a App.jsx del fallo!
+    throw error;
   }
 };
 

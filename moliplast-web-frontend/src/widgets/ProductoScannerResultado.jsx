@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/estilos_scannerqr.module.scss';
 import { db } from '../utils/db'; // Importamos la configuración de Dexie actualizada
+import { useSync } from '../utils/SyncContext'; 
 
 const BASE_URL_API = import.meta.env.VITE_BASE_URL_API;
 const TRES_HORAS_EN_MS = 3 * 60 * 60 * 1000;
@@ -10,7 +11,15 @@ const ProductoScannerResultado = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const { isSyncing, isSynced } = useSync();
+
   useEffect(() => {
+    // Si la sincronización aún está en proceso, no hacemos nada todavía.
+    if (isSyncing) {
+      setLoading(true); // Mantenemos el estado de carga
+      return; 
+    }
+
     const fetchProductoConPrecio = async () => {
       setLoading(true);
       setError('');
@@ -81,9 +90,11 @@ const ProductoScannerResultado = ({ route }) => {
     };
 
     fetchProductoConPrecio();
+  // Agregamos isSyncing como dependencia para que el efecto se re-ejecute cuando cambie.
+  }, [route, isSyncing, isSynced]);
 
-  }, [route]);
-
+  // Mensaje de carga mejorado mientras se sincroniza
+  if (isSyncing) return <div className={styles.resultContainer}>Sincronizando datos de la aplicación...</div>;
   if (loading) return <div className={styles.resultContainer}>Buscando producto y precio...</div>;
   if (error) return <div className={styles.resultContainer}><h3 className={styles.errorText}>Error</h3><p>{error}</p></div>;
   if (!producto) return null;
@@ -99,7 +110,7 @@ const ProductoScannerResultado = ({ route }) => {
                 <p>No Precio</p>
             )}
 
-            <p className={styles.codigo}>{producto.codigo}</p>
+            <p className={styles.codigo}>SKU: {producto.codigo}</p>
         </div>
         <h1>{producto.nombre}</h1>
       
