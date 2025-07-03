@@ -166,19 +166,26 @@ const Producto = () => {
                         <p className={styles.codigo}>SKU: {completarConCeros(producto.codigo)}</p>
                         <h1>{producto.nombre}</h1>
                     </div>
-                    <p>{producto.descripcion}</p>
-                    <div className={styles.contenedor_botones}>
-                        {producto.enlace_ficha_tecnica && (
-                            <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
-                                Ficha Técnica
-                            </BtnIconoTexto>
-                        )}
-                        {!isSoftlink && (
-                            <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
-                                Comprar por Whatsapp
-                            </BtnIconoTexto>
-                        )}
-                    </div>
+                    
+                    {producto.descripcion && (
+                        <p>{producto.descripcion}</p>
+                    )}
+
+                    {(producto.enlace_ficha_tecnica || !isSoftlink) && (
+                        <div className={styles.contenedor_botones}>
+                            {producto.enlace_ficha_tecnica && (
+                                <BtnIconoTexto Icono={MdPictureAsPdf} enlace={getFullUrl(producto.enlace_ficha_tecnica)}>
+                                    Ficha Técnica
+                                </BtnIconoTexto>
+                            )}
+                            {!isSoftlink && (
+                                <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
+                                    Comprar por Whatsapp
+                                </BtnIconoTexto>
+                            )}
+                        </div>
+                    )}
+                    
                     {isSoftlink && precioTruncado && (
                         <p className={styles.precio}>S/ {precioTruncado}</p>
                     )}
