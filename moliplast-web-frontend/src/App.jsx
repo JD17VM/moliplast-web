@@ -88,7 +88,7 @@ function App() {
             const data = await response.json();
             
             // Para rutas internas de la SPA, seguimos usando navigate de react-router-dom
-            navigate(`/productos/producto/${data.id}?source=barcode`); 
+            navigate(`/productos/producto/${data.id}?source=softlink`); 
         } catch (error) {
             console.error("Error al buscar producto por código:", error);
         }
