@@ -212,7 +212,7 @@ const AdminCategorias = () => {
                                     </td>
                                     <TableData image_src={categoria.enlace_imagen}>{categoria.nombre}</TableData>
                                     <TableDataActions item={categoria} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
-                                    <TableData><a href={`https://www.moliplast.com/api/api/generar-documento-qrs-imprimir/categoria/${categoria.id}`}>Generar doc QRs</a></TableData>
+                                    <TableData><a href={`#`}>Generar doc QRs</a></TableData>
                                     <TableData><a href={`https://www.moliplast.com/api/api/generar-documento-catalogo/categoria/${categoria.id}`}>Generar Catalogo</a></TableData>
                                 </tr>
                             ))
