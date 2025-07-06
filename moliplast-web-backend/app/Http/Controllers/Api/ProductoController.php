@@ -1025,12 +1025,12 @@ class ProductoController extends Controller
                 'destacados' => 'boolean',
                 'enlace_imagen_qr' => 'nullable|image|mimes:jpeg,png,jpg,gif',
                 'codigo' => 'nullable|string|max:9',
-                'delete_imagen_1' => 'nullable|in:0,1',
-                'delete_imagen_2' => 'nullable|in:0,1',
-                'delete_imagen_3' => 'nullable|in:0,1',
-                'delete_imagen_4' => 'nullable|in:0,1',
-                'delete_enlace_ficha_tecnica' => 'nullable|in:0,1',
-                'delete_enlace_imagen_qr' => 'nullable|in:0,1',
+                'delete_imagen_1' => 'nullable|boolean',
+                'delete_imagen_2' => 'nullable|boolean',
+                'delete_imagen_3' => 'nullable|boolean',
+                'delete_imagen_4' => 'nullable|boolean',
+                'delete_enlace_ficha_tecnica' => 'nullable|boolean',
+                'delete_enlace_imagen_qr' => 'nullable|boolean', // CORREGIDO: Añadido flag de borrado para QR
             ]);
 
             if ($validator->fails()) {
@@ -1041,76 +1041,51 @@ class ProductoController extends Controller
                 ], 400);
             }
 
-            $fileFields = [
-                'imagen_1',
-                'imagen_2',
-                'imagen_3',
-                'imagen_4',
-                'enlace_ficha_tecnica',
-                'enlace_imagen_qr',
-            ];
+            $imageFields = ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4'];
 
-            foreach ($fileFields as $field) {
-                 $deleteFlag = 'delete_' . $field;
+            // 1. MANEJO DE IMÁGENES CON BORRADO SEGURO
+            foreach ($imageFields as $field) {
+                $deleteFlag = 'delete_' . $field;
+                if ($request->hasFile($field)) {
+                    if ($producto->{$field}) {
+                        $this->deleteImageIfNotShared($producto->{$field});
+                    }
+                    $path = $request->file($field)->store('productos', 'public');
+                    $producto->{$field} = url('storage/app/public/' . $path); // CORREGIDO: URL con tu formato
+                } elseif ($request->boolean($deleteFlag)) {
+                    if ($producto->{$field}) {
+                        $this->deleteImageIfNotShared($producto->{$field});
+                    }
+                    $producto->{$field} = null;
+                }
+            }
 
-                 // Check if the file is marked for deletion (flag sent as '1') AND no new file is uploaded
-                 if ($request->has($deleteFlag) && $request->input($deleteFlag) == '1' && !$request->hasFile($field)) {
-                     Log::info("Procesando eliminación para el campo {$field} en producto ID {$id}. Delete flag es '1' y no hay nuevo archivo.");
-                     if ($producto->$field) {
-                         Log::info("Producto tiene URL existente para {$field}: {$producto->$field}. Intentando obtener ruta de storage.");
-                         // ** USAR LA FUNCIÓN HELPER MEJORADA **
-                         $filePath = $this->getStoragePathFromUrl($producto->$field);
-                         Log::info("Ruta de storage obtenida para {$field}: " . ($filePath ?? 'null'));
+            // 2. MANEJO DE FICHA TÉCNICA (Borrado directo)
+            if ($request->hasFile('enlace_ficha_tecnica')) {
+                if ($producto->enlace_ficha_tecnica) {
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_ficha_tecnica));
+                }
+                $path = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
+                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $path);
+            } elseif ($request->boolean('delete_enlace_ficha_tecnica')) {
+                if ($producto->enlace_ficha_tecnica) {
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_ficha_tecnica));
+                }
+                $producto->enlace_ficha_tecnica = null;
+            }
 
-                         if ($filePath && Storage::disk('public')->exists($filePath)) { // Especificar disco 'public'
-                             Log::info("Archivo encontrado en storage: {$filePath}. Procediendo a eliminar.");
-                             Storage::disk('public')->delete($filePath); // Especificar disco 'public'
-                              Log::info("Archivo eliminado del storage para campo {$field}: {$filePath}");
-                         } else {
-                              Log::warning("Intento de eliminar archivo no encontrado en storage para campo {$field}: {$filePath}. URL original en DB: {$producto->$field}");
-                         }
-                     } else {
-                          Log::info("Campo {$field} ya está vacío en la DB para producto ID {$id}. No hay archivo para eliminar.");
-                     }
-                     // Set the database field to NULL regardless of whether a physical file was found/deleted
-                     $producto->$field = null;
-                     Log::info("Campo {$field} establecido a NULL en el modelo para producto ID {$id}.");
-
-                 }
-                 // Check if a new file is being uploaded
-                 elseif ($request->hasFile($field) && $request->file($field)->isValid()) {
-                      Log::info("Procesando subida de nuevo archivo para campo {$field} en producto ID {$id}.");
-                     // If there was an old file, delete it before saving the new one
-                     if ($producto->$field) {
-                          Log::info("Producto tiene URL existente para {$field}: {$producto->$field}. Intentando eliminar archivo anterior.");
-                          // ** USAR LA FUNCIÓN HELPER MEJORADA **
-                          $oldFilePath = $this->getStoragePathFromUrl($producto->$field);
-                           Log::info("Ruta de storage obtenida para archivo anterior {$field}: " . ($oldFilePath ?? 'null'));
-                           if ($oldFilePath && Storage::disk('public')->exists($oldFilePath)) { // Especificar disco 'public'
-                              Log::info("Archivo anterior encontrado: {$oldFilePath}. Procediendo a eliminar.");
-                              Storage::disk('public')->delete($oldFilePath); // Especificar disco 'public'
-                              Log::info("Archivo anterior eliminado del storage para campo {$field}: {$oldFilePath}");
-                          } else {
-                               Log::warning("Intento de eliminar archivo anterior no encontrado en storage para campo {$field}: {$oldFilePath}. URL original en DB: {$producto->$field}");
-                          }
-                     } else {
-                           Log::info("Campo {$field} estaba vacío en la DB. No hay archivo anterior para eliminar.");
-                     }
-                     // Determine storage folder
-                     $folder = 'productos';
-                     if ($field === 'enlace_ficha_tecnica') $folder = 'fichas_tecnicas';
-                     if ($field === 'enlace_imagen_qr') $folder = 'qr_images'; // Si permites subir QR manualmente
-
-                     // Store the new file
-                     $filePath = $request->file($field)->store($folder, 'public'); // Especificar disco 'public'
-                     // Get the URL for the stored file
-                     //$producto->$field = url(Storage::disk('public')->url($filePath)); // Usar Storage::disk('public')->url
-                     //$producto->$field = url(Storage::url($filePath)); // Use Storage::url helper
-                     $producto->$field = url('storage/app/public/' . $filePath);
-
-                     Log::info("Nuevo archivo subido para campo {$field}: {$producto->$field}");
-                 }
-                 // If neither delete flag is true nor a new file is uploaded, the existing value is kept.
+            // 3. MANEJO DE IMAGEN QR (Borrado directo) - SECCIÓN CORREGIDA
+            if ($request->hasFile('enlace_imagen_qr')) {
+                if ($producto->enlace_imagen_qr) {
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_imagen_qr));
+                }
+                $path = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
+                $producto->enlace_imagen_qr = url('storage/app/public/' . $path);
+            } elseif ($request->boolean('delete_enlace_imagen_qr')) {
+                if ($producto->enlace_imagen_qr) {
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_imagen_qr));
+                }
+                $producto->enlace_imagen_qr = null;
             }
 
 
@@ -1130,11 +1105,7 @@ class ProductoController extends Controller
             return response()->json($producto, 200);
 
         } catch (\Exception $e) {
-            Log::error('Error en actualizar producto', [
-                'id' => $id,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error en actualizar producto', ['id' => $id, 'message' => $e->getMessage()]);
             return response()->json(['message' => 'Error inesperado al actualizar producto: ' . $e->getMessage()], 500);
         }
     }
@@ -1238,90 +1209,41 @@ class ProductoController extends Controller
                 ], 400);
             }
 
-            if ($request->has('id_categoria')) {
-                $producto->id_categoria = $request->id_categoria;
-            }
-
-            if ($request->has('id_subcategoria')) {
-                $producto->id_subcategoria = $request->id_subcategoria;
-            }
-
-            if ($request->has('id_subsubcategoria')) {
-                $producto->id_subsubcategoria = $request->id_subsubcategoria;
-            }
-
-            if ($request->has('nombre')) {
-                $producto->nombre = $request->nombre;
-            }
-
-            if ($request->has('descripcion')) {
-                $producto->descripcion = $request->descripcion;
-            }
-
-            if ($request->hasFile('imagen_1') && $request->file('imagen_1')->isValid()) {
-                if ($producto->imagen_1) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_1);
-                    Storage::delete($oldImagePath);
+            // Actualizar campos de texto si existen en la petición
+            foreach (['nombre', 'descripcion', 'texto_markdown', 'codigo', 'id_categoria', 'id_subcategoria', 'id_subsubcategoria', 'destacados'] as $field) {
+                if ($request->has($field)) {
+                    $producto->{$field} = $request->input($field);
                 }
-                $imagen1Path = $request->file('imagen_1')->store('productos', 'public');
-                $producto->imagen_1 = url('storage/app/public/' . $imagen1Path);
             }
 
-            if ($request->hasFile('imagen_2') && $request->file('imagen_2')->isValid()) {
-                if ($producto->imagen_2) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_2);
-                    Storage::delete($oldImagePath);
+            // Actualizar archivos de imagen de forma segura si se envían
+            $imageFields = ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4'];
+            foreach ($imageFields as $field) {
+                if ($request->hasFile($field)) {
+                    if ($producto->{$field}) {
+                        $this->deleteImageIfNotShared($producto->{$field});
+                    }
+                    $path = $request->file($field)->store('productos', 'public');
+                    $producto->{$field} = url('storage/app/public/' . $path);
                 }
-                $imagen2Path = $request->file('imagen_2')->store('productos', 'public');
-                $producto->imagen_2 = url('storage/app/public/' . $imagen2Path);
             }
 
-            if ($request->hasFile('imagen_3') && $request->file('imagen_3')->isValid()) {
-                if ($producto->imagen_3) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_3);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen3Path = $request->file('imagen_3')->store('productos', 'public');
-                $producto->imagen_3 = url('storage/app/public/' . $imagen3Path);
-            }
-
-            if ($request->hasFile('imagen_4') && $request->file('imagen_4')->isValid()) {
-                if ($producto->imagen_4) {
-                    $oldImagePath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->imagen_4);
-                    Storage::delete($oldImagePath);
-                }
-                $imagen4Path = $request->file('imagen_4')->store('productos', 'public');
-                $producto->imagen_4 = url('storage/app/public/' . $imagen4Path);
-            }
-
-            if ($request->hasFile('enlace_ficha_tecnica') && $request->file('enlace_ficha_tecnica')->isValid()) {
+            // Actualizar ficha técnica (borrado directo)
+            if ($request->hasFile('enlace_ficha_tecnica')) {
                 if ($producto->enlace_ficha_tecnica) {
-                    $oldFichaPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_ficha_tecnica);
-                    Storage::delete($oldFichaPath);
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_ficha_tecnica));
                 }
-                $fichaTecnicaPath = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
-                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $fichaTecnicaPath);
+                $path = $request->file('enlace_ficha_tecnica')->store('fichas_tecnicas', 'public');
+                $producto->enlace_ficha_tecnica = url('storage/app/public/' . $path);
             }
 
-            if ($request->hasFile('enlace_imagen_qr') && $request->file('enlace_imagen_qr')->isValid()) {
+            // CORREGIDO: Actualizar imagen QR (borrado directo)
+            if ($request->hasFile('enlace_imagen_qr')) {
                 if ($producto->enlace_imagen_qr) {
-                    $oldQrPath = 'public/' . str_replace(url('storage/app/public/'), '', $producto->enlace_imagen_qr);
-                    Storage::delete($oldQrPath);
+                    Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_imagen_qr));
                 }
-                $qrImagePath = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
-                $producto->enlace_imagen_qr = url('storage/app/public/' . $qrImagePath);
-            }
-
-            if ($request->has('texto_markdown')) {
-                $producto->texto_markdown = $request->texto_markdown;
-            }
-
-            if ($request->has('codigo')) {
-                $producto->codigo = $request->codigo;
-            }
-
-            if ($request->has('destacados')) {
-                $producto->destacados = $request->destacados;
+                $path = $request->file('enlace_imagen_qr')->store('qr_images', 'public');
+                $producto->enlace_imagen_qr = url('storage/app/public/' . $path);
             }
 
             $producto->save();
@@ -1329,11 +1251,7 @@ class ProductoController extends Controller
             Log::info('Producto actualizado parcialmente con éxito', ['id' => $producto->id]);
             return response()->json($producto, 200);
         } catch (\Exception $e) {
-            Log::error('Error en actualización parcial', [
-                'id' => $id,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error en actualización parcial', ['id' => $id, 'message' => $e->getMessage()]);
             return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
     }
@@ -1347,35 +1265,21 @@ class ProductoController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
-        // Eliminar las imágenes y el archivo de ficha técnica
-        if ($producto->imagen_1) {
-            $imagen1Path = str_replace('/storage/', 'public/', $producto->imagen_1);
-            Storage::delete($imagen1Path);
+        // 1. Borrado seguro para las imágenes que pueden ser compartidas
+        $imageFields = ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4'];
+        foreach ($imageFields as $field) {
+            if ($producto->{$field}) {
+                $this->deleteImageIfNotShared($producto->{$field}); // MODIFICADO: Llama a la función de borrado seguro
+            }
         }
 
-        if ($producto->imagen_2) {
-            $imagen2Path = str_replace('/storage/', 'public/', $producto->imagen_2);
-            Storage::delete($imagen2Path);
-        }
-
-        if ($producto->imagen_3) {
-            $imagen3Path = str_replace('/storage/', 'public/', $producto->imagen_3);
-            Storage::delete($imagen3Path);
-        }
-
-        if ($producto->imagen_4) {
-            $imagen4Path = str_replace('/storage/', 'public/', $producto->imagen_4);
-            Storage::delete($imagen4Path);
-        }
-
+        // 2. Borrado directo para archivos que no son compartidos
         if ($producto->enlace_ficha_tecnica) {
-            $fichaTecnicaPath = str_replace('/storage/', 'public/', $producto->enlace_ficha_tecnica);
-            Storage::delete($fichaTecnicaPath);
+            Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_ficha_tecnica));
         }
 
         if ($producto->enlace_imagen_qr) {
-            $qrImagePath = str_replace('/storage/', 'public/', $producto->enlace_imagen_qr);
-            Storage::delete($qrImagePath);
+            Storage::disk('public')->delete($this->getStoragePathFromUrl($producto->enlace_imagen_qr));
         }
 
         $producto->estatus = false;
@@ -1460,13 +1364,7 @@ class ProductoController extends Controller
                 foreach ($uploadedImagePaths as $field => $newImageUrl) {
                     // Si el producto ya tenía una imagen en este campo, borrar la antigua
                     if ($producto->{$field}) {
-                        $oldFilePath = $this->getStoragePathFromUrl($producto->{$field});
-                        if ($oldFilePath && Storage::disk('public')->exists($oldFilePath)) {
-                            Storage::disk('public')->delete($oldFilePath);
-                            Log::info("Antigua imagen eliminada para producto {$producto->id}, campo {$field}: {$oldFilePath}");
-                        } else {
-                            Log::warning("No se encontró la antigua imagen para eliminar para producto {$producto->id}, campo {$field}. URL: {$producto->{$field}}");
-                        }
+                        $this->deleteImageIfNotShared($producto->{$field}); // Borrado seguro
                     }
                     // Asignar la nueva URL de la imagen
                     $producto->{$field} = $newImageUrl;
@@ -1481,11 +1379,7 @@ class ProductoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack(); // Revertir la transacción si ocurre un error
-            Log::error('Error en carga masiva de imágenes (transacción revertida): ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'product_ids' => $productIds,
-                'uploaded_paths' => $uploadedImagePaths
-            ]);
+            Log::error('Error en carga masiva de imágenes (transacción revertida): ' . $e->getMessage());
 
             // Eliminar los archivos que se subieron si la transacción falló para evitar archivos huérfanos
             foreach ($pathsToDeleteIfTransactionFails as $path) {
@@ -1514,4 +1408,28 @@ class ProductoController extends Controller
         return response()->json($productos, 200);
     }
 
+    protected function deleteImageIfNotShared(?string $imageUrl): void
+    {
+        if (!$imageUrl) { // Si no hay URL, no hace nada.
+            return;
+        }
+
+        // Cuenta cuántas veces se usa esta URL en todos los campos de imagen de todos los productos.
+        $count = Producto::where('imagen_1', $imageUrl)
+            ->orWhere('imagen_2', $imageUrl)
+            ->orWhere('imagen_3', $imageUrl)
+            ->orWhere('imagen_4', $imageUrl)
+            ->count();
+
+        // Si el conteo es 1 o menos, significa que solo este registro la usa (o ya ninguno), por lo que es seguro borrar el archivo.
+        if ($count <= 1) {
+            $filePath = $this->getStoragePathFromUrl($imageUrl);
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+                Log::info("Archivo físico eliminado (no compartido): {$filePath}");
+            }
+        } else {
+            Log::info("El archivo con URL {$imageUrl} está siendo usado por {$count} productos. No se eliminará el archivo físico.");
+        }
+    }
 }
