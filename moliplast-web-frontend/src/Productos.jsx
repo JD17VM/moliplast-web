@@ -216,7 +216,7 @@ const Productos = () => {
                             Todos
                         </CheckBox>
                     </li>
-                    {categoriaData && categoriaData.subcategorias && categoriaData.subcategorias.length > 0 ? (
+                    {categoriaData && categoriaData.subcategorias && categoriaData.subcategorias.length > 0 && (
                         categoriaData.subcategorias.map(subcategoriaItem => (
                             <li key={subcategoriaItem.id}>
                                 <CheckBox
@@ -243,8 +243,6 @@ const Productos = () => {
                                 )}
                             </li>
                         ))
-                    ) : (
-                        <li>No hay subcategorías disponibles</li>
                     )}
                 </ul>
                 <button onClick={handleClickPanel}><IoIosCloseCircle /></button>
