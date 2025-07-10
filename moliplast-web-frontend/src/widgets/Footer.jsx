@@ -77,6 +77,7 @@ const Footer = ({data, onAdminLogin}) => {
     }, [location.pathname])
 
     return (
+        <>
         <footer>
             <div className={styles.cont_logo_blanco}>
                 <img src={imageHelper.logo_moliplast_blanco} alt="logo moliplast blanco" />
@@ -152,6 +153,10 @@ const Footer = ({data, onAdminLogin}) => {
             </Seccion_Hover_Footer>
 
         </footer>
+        <div className={styles.desarrolladoPor}>
+                Desarrollado por JPAWAJ - 959956000
+        </div>
+        </>
     );
 }
 

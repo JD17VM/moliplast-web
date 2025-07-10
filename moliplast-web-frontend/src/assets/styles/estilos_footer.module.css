@@ -89,6 +89,16 @@ const Seccion_Hover_Footer = styled.div`
     background-color: rgb(39, 39, 39);
 }
 
+
+.desarrolladoPor{
+    background-color: rgb(9, 9, 9);
+    height: 45px;
+    color: rgb(111, 111, 111);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 @media only screen and (max-width: 1200px){
     footer{
         column-gap: 2rem;
