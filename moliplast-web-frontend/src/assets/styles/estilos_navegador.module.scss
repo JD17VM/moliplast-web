@@ -181,6 +181,10 @@
                         }
                     }
                 }
+
+                /*&.qr_scanner_enlace {
+                    display: none;
+                }*/
             }
 
             
@@ -392,6 +396,29 @@
     height: calc(var(--height_header) + var(--height_nav));
 }
 
+@media only screen and (max-width: 1200px){
+    header{
+        .cont_redes_sociales{
+            >a{ 
+                &.qr_scanner_enlace {
+                    $largo_ancho_logo: 60px;
+                    display: flex;
+                    bottom: 2 * $largo_ancho_logo + 10px + 10px + 10px;
+                    svg {
+                        :global(.fil0) {
+                            fill: red !important;
+                        }
+                        
+                        :global(.fil1) {
+                            fill: white !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @media only screen and (max-width: 1000px){
 
@@ -450,7 +477,7 @@
             >a{
                 
                 position: fixed;
-                bottom:0;
+                //bottom:0;
                 right: 10px;
                 $largo_ancho_logo: 60px;
                 width: $largo_ancho_logo;

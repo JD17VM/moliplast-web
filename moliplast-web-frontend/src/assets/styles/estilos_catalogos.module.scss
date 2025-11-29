@@ -11,21 +11,29 @@
         font-weight: var(--fuente_semibold);
         align-self: flex-start;
     }
+}
 
-    & > .cont_catalogos{
+.cont_categoria_catalogo{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    > div{
+        width: 100%;
+        padding: 20px 0;
         //background-color: red;
         display: flex;
-        width: 100%;
-        column-gap: 2rem;
-        row-gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
+        column-gap: 1.2rem;
+        overflow-x: auto; /* 👈 Cambiar a overflow-x: auto */
+        overflow-y: hidden;
 
         & > a{
             display: block;
-            //background-color: green;
+            background-color: rgb(212, 212, 212);
             width: 280px;
+            min-width: 280px; /* 👈 CRÍTICO: evita que se encojan */
             aspect-ratio: 65 / 92;
+            flex-shrink: 0;
+
             box-shadow: 3px 3px 5px 0px rgba(165, 165, 165, 0.75);
 
             transition: transform 0.2s ease-in-out;
@@ -43,7 +51,6 @@
                 object-position: center;
             }
         }
-        
     }
 }
 

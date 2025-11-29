@@ -11,8 +11,10 @@ const AdminCatalogos = () => {
     const documentoInputRef = useRef(null);
     const imagenInputRef = useRef(null);
     const [catalogos, setCatalogos] = useState([]);
+    const [categorias, setCategorias] = useState([]); // 👈 AÑADIDO
     const [newCatalogo, setNewCatalogo] = useState({
         nombre: '',
+        id_categoria: '', // 👈 AÑADIDO
         enlace_documento: null,
         enlace_imagen_portada: null,
     });
@@ -27,8 +29,14 @@ const AdminCatalogos = () => {
         await fetchData(`${BASE_URL_API}/api/catalogos`, setCatalogos, setLoading, setError);
     };
 
+    // 👈 AÑADIDO - Cargar categorías
+    const loadCategorias = async () => {
+        await fetchData(`${BASE_URL_API}/api/categorias`, setCategorias, setLoading, setError);
+    };
+
     useEffect(() => {
         loadCatalogos();
+        loadCategorias(); // 👈 AÑADIDO
     }, []);
 
     const handleInputChange = (e) => {
@@ -44,6 +52,11 @@ const AdminCatalogos = () => {
         const formData = new FormData();
         formData.append('nombre', newCatalogo.nombre);
         
+        // 👈 AÑADIDO - Agregar id_categoria si existe
+        if (newCatalogo.id_categoria) {
+            formData.append('id_categoria', newCatalogo.id_categoria);
+        }
+        
         // Solo adjuntar los archivos si han sido seleccionados
         if (newCatalogo.enlace_documento) {
             formData.append('enlace_documento', newCatalogo.enlace_documento);
@@ -58,8 +71,8 @@ const AdminCatalogos = () => {
             
             if (editingCatalogo) {
                 url = `${BASE_URL_API}/api/catalogos/${editingCatalogo.id}`;
-                method = 'POST'; // Laravel acepta `POST` para actualizaciones con archivos
-                formData.append('_method', 'PUT'); // Necesario para simular PUT en FormData
+                method = 'POST';
+                formData.append('_method', 'PUT');
             } else {
                 url = `${BASE_URL_API}/api/catalogos`;
                 method = 'POST';
@@ -80,7 +93,7 @@ const AdminCatalogos = () => {
             console.log(editingCatalogo ? 'Catálogo actualizado:' : 'Catálogo guardado:', data);
     
             // Limpiar el formulario
-            setNewCatalogo({ nombre: '', enlace_documento: null, enlace_imagen_portada: null });
+            setNewCatalogo({ nombre: '', id_categoria: '', enlace_documento: null, enlace_imagen_portada: null }); // 👈 MODIFICADO
             setDocumentoPreview('');
             setImagenPreview('');
             setEditingCatalogo(null);
@@ -115,6 +128,7 @@ const AdminCatalogos = () => {
         // Al editar, guardamos las URLs originales para mostrarlas, pero no establecemos archivos
         setNewCatalogo({
             nombre: catalogo.nombre,
+            id_categoria: catalogo.id_categoria || '', // 👈 AÑADIDO
             enlace_documento: null,
             enlace_imagen_portada: null
         });
@@ -153,7 +167,7 @@ const AdminCatalogos = () => {
 
     const handleCancelEdit = () => {
         setEditingCatalogo(null); 
-        setNewCatalogo({ nombre: '', enlace_documento: null, enlace_imagen_portada: null });
+        setNewCatalogo({ nombre: '', id_categoria: '', enlace_documento: null, enlace_imagen_portada: null }); // 👈 MODIFICADO
         setDocumentoPreview('');
         setImagenPreview('');
         
@@ -167,6 +181,13 @@ const AdminCatalogos = () => {
         
         setError('');
         setSuccess('');
+    };
+
+    // 👈 AÑADIDO - Función para obtener el nombre de la categoría
+    const getCategoryName = (categoryId) => {
+        if (!categoryId) return 'Sin categoría';
+        const category = categorias.find(cat => cat.id === categoryId);
+        return category ? category.nombre : 'Desconocida';
     };
 
     return (
@@ -194,6 +215,7 @@ const AdminCatalogos = () => {
                         <thead className="table-dark">
                             <tr>
                                 <th scope="col" style={{width: "150px"}}>Nombre</th>
+                                <th scope="col" style={{width: "100px"}}>Categoría</th> {/* 👈 AÑADIDO */}
                                 <th scope="col" style={{width: "80px"}}>Documento</th>
                                 <th scope="col" style={{width: "80px"}}>Imagen Portada</th>
                                 <th scope="col" style={{width: "60px"}}>Acciones</th>
@@ -204,6 +226,7 @@ const AdminCatalogos = () => {
                                 catalogos.map((catalogo) => (
                                     <tr key={catalogo.id}>
                                         <TableData>{catalogo.nombre}</TableData>
+                                        <TableData>{getCategoryName(catalogo.id_categoria)}</TableData> {/* 👈 AÑADIDO */}
                                         <TableData a_href={getFullUrl(catalogo.enlace_documento)}>Ver documento</TableData>
                                         <TableData image_src={catalogo.enlace_imagen_portada}>{catalogo.nombre}</TableData>
                                         <TableDataActions item={catalogo} handleEdit={handleEdit} handleDelete={handleDelete} loading={loading}/>
@@ -211,7 +234,7 @@ const AdminCatalogos = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" style={{ textAlign: 'center' }}>
+                                    <td colSpan="5" style={{ textAlign: 'center' }}> {/* 👈 MODIFICADO colspan */}
                                         {loading ? "Cargando catálogos..." : "No hay catálogos disponibles"}
                                     </td>
                                 </tr>
@@ -235,12 +258,33 @@ const AdminCatalogos = () => {
                                     onChange={handleInputChange} 
                                     required 
                                     disabled={loading}
-
                                     className="form-control"
-                                    placeholder="Username" 
-                                    aria-label="Username" 
+                                    placeholder="Nombre del catálogo" 
+                                    aria-label="Nombre" 
                                     aria-describedby="basic-addon1"
                                 />
+                            </div>
+                        </div>
+
+                        {/* 👈 AÑADIDO - Selector de categoría */}
+                        <div className="col-12">
+                            <div className="input-group">
+                                <label className="input-group-text">Categoría</label>
+                                <select
+                                    id="id_categoria"
+                                    name="id_categoria"
+                                    value={newCatalogo.id_categoria}
+                                    onChange={handleInputChange}
+                                    disabled={loading}
+                                    className="form-select"
+                                >
+                                    <option value="">Sin categoría (opcional)</option>
+                                    {categorias.map((categoria) => (
+                                        <option key={categoria.id} value={categoria.id}>
+                                            {categoria.nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

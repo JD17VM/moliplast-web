@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from '../assets/styles/estilos_navegador.module.scss'
-import { Icono_Facebook_Colores, Icono_Whatsapp_Colores } from '../assets/imgs/iconos/svg/Redes_Sociales';
+import { Icono_Facebook_Colores, Icono_Whatsapp_Colores, IconoQR } from '../assets/imgs/iconos/svg/Redes_Sociales';
 
 import { convertirATitulo } from "../utils/utils.js"
 
@@ -80,6 +80,8 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
 
     const location = useLocation();
     const [data, setData] = useState(isAdmin ? dataAdmin : dataPaginas.data);
+    const searchParams = new URLSearchParams(location.search);
+    const isSoftlink = searchParams.get('source') === 'softlink';
 
     // Definiendo dataAdmin antes de usarlo.
     

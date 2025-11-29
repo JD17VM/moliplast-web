@@ -224,3 +224,50 @@ export const Icono_Whatsapp_Colores = ({ color = 'currentColor' }) => {
         </svg>
     );
 };
+
+export const IconoQR = ({ colorFondo = '#8a1e1e', colorIcono = 'black' }) => {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            width="100%"
+            height="100%"
+            version="1.1"
+            style={{
+                shapeRendering: 'geometricPrecision',
+                textRendering: 'geometricPrecision',
+                imageRendering: 'optimizeQuality',
+                fillRule: 'evenodd',
+                clipRule: 'evenodd',
+            }}
+            viewBox="0 0 61.66 61.66"
+        >
+            <defs>
+                <style type="text/css">
+                    {`
+                        .fil1 {fill:${colorIcono}}
+                        .fil0 {fill:${colorFondo}}
+                    `}
+                </style>
+            </defs>
+            <g id="Capa_x0020_1">
+                <metadata id="CorelCorpID_0Corel-Layer" />
+                <circle className="fil0" cx="30.83" cy="30.83" r="30.83" />
+                <g id="_1562789642240">
+                    <path className="fil1" d="M37.33 24.33l13 0 0 -13 -13 0 0 13zm4.33 -4.33l4.33 0 0 -4.34 -4.32 0 -0.01 4.34z" />
+                    <path className="fil1" d="M11.33 24.33l13 0 0 -13 -13 0 0 13zm4.33 -4.33l4.33 0 0.01 -4.34 -4.33 0 -0.01 4.34z" />
+                    <path className="fil1" d="M11.33 50.33l13 0 0 -13 -13 0 0 13zm4.33 -4.34l4.35 0 -0.01 -4.33 -4.3 0 -0.04 4.33z" />
+                    <polygon className="fil1" points="31.66,50.33 31.7,45.31 41.69,45.31 41.67,35.42 41.58,35.42 36.68,35.39 36.67,40.37 26.73,40.37 26.72,50.33 " />
+                    <polygon className="fil1" points="23.33,32.95 28.7,32.99 28.7,38.33 34,38.33 34,27.66 23.33,27.66 " />
+                    <polygon className="fil1" points="45.96,45.96 50.33,45.96 50.33,37.33 46.06,37.35 45.98,37.35 " />
+                    <polygon className="fil1" points="27.05,24.33 34.61,24.33 34.61,13.48 27.05,13.48 " />
+                    <polygon className="fil1" points="40.14,37.35 45.98,37.35 45.95,31.39 40.16,31.39 " />
+                    <polygon className="fil1" points="11.33,34.5 21.3,34.5 21.96,34.44 21.96,27.24 12.58,27.16 11.33,27.16 " />
+                    <polygon className="fil1" points="45.26,32.96 50.33,32.96 50.33,27.97 45.3,27.98 " />
+                    <polygon className="fil1" points="40.73,50.33 45.96,50.33 45.96,44.97 40.73,44.97 " />
+                    <polygon className="fil1" points="35.24,32.96 40.31,32.96 40.27,28.02 35.24,27.97 " />
+                </g>
+            </g>
+        </svg>
+    );
+}
