@@ -72,20 +72,37 @@ class generarDocumentoDeQRsController extends Controller
                 $rutaRelativa = str_replace('https://moliplast.com/api/storage/app/public/', '', $urlImagen);
                 $rutaImagenLocal = storage_path('app/public/' . $rutaRelativa);
 
+                // === INSERTAR IMAGEN (SOPORTA SVG → PNG) ===
+                $rutaPngTemp = null;
+                $rutaFinal = $rutaImagenLocal;
+                
                 if (file_exists($rutaImagenLocal)) {
+                    $ext = strtolower(pathinfo($rutaImagenLocal, PATHINFO_EXTENSION));
+                
+                    if ($ext === 'svg') {
+                        // Llamar al nuevo servicio de conversión
+                        $rutaPngTemp = $this->convertirSvgAPng($rutaImagenLocal);
+                        if ($rutaPngTemp && file_exists($rutaPngTemp)) { // La función ya loguea errores si falla
+                            $rutaFinal = $rutaPngTemp;
+                        }
+                    }
+                
                     try {
                         $templateProcessor2->setImageValue($placeholder, [
-                            'path' => $rutaImagenLocal,
-                            'width' => '2.3cm',
-                            'height' => '2.3cm',
+                            'path' => $rutaFinal,
+                            'width' => '4cm',
+                            'height' => '4cm',
                             'ratio' => true
                         ]);
-                        \Log::info("Imagen insertada: $rutaImagenLocal (Producto: {$producto->nombre})");
                     } catch (\Exception $e) {
-                        \Log::error("Error insertando imagen en segunda pasada ({$producto->nombre}): " . $e->getMessage());
+                        \Log::error("Error insertando imagen: " . $e->getMessage());
+                    }
+                
+                    if ($rutaPngTemp && file_exists($rutaPngTemp)) {
+                        @unlink($rutaPngTemp);
                     }
                 } else {
-                    \Log::warning("No se encontró la imagen local: $rutaImagenLocal");
+                    \Log::warning("Imagen no encontrada: $rutaImagenLocal");
                 }
             }
         }
@@ -121,8 +138,8 @@ class generarDocumentoDeQRsController extends Controller
         if ($categoriaId) {
             // Verificar si la categoría existe
             $categoria = Categoria::where('id', $categoriaId)
-                                ->where('estatus', true)
-                                ->first();
+                                    ->where('estatus', true)
+                                    ->first();
 
             if (!$categoria) {
                 return response()->json([
@@ -243,19 +260,37 @@ class generarDocumentoDeQRsController extends Controller
                     // Log específico con la información requerida, incluyendo la ruta relativa
                     \Log::info("Producto: Imagen: {$rutaRelativa}, ID: {$producto->id}, Código: {$producto->codigo}, Nombre: {$producto->nombre}, Categoría: {$producto->id_categoria}");
 
+                    // === INSERTAR IMAGEN (SOPORTA SVG → PNG) ===
+                    $rutaPngTemp = null;
+                    $rutaFinal = $rutaImagenLocal;
+                    
                     if (file_exists($rutaImagenLocal)) {
+                        $ext = strtolower(pathinfo($rutaImagenLocal, PATHINFO_EXTENSION));
+                    
+                        if ($ext === 'svg') {
+                            // Llamar al nuevo servicio de conversión
+                            $rutaPngTemp = $this->convertirSvgAPng($rutaImagenLocal);
+                            if ($rutaPngTemp && file_exists($rutaPngTemp)) {
+                                $rutaFinal = $rutaPngTemp;
+                            }
+                        }
+                    
                         try {
                             $templateProcessor2->setImageValue($placeholder, [
-                                'path' => $rutaImagenLocal,
+                                'path' => $rutaFinal,
                                 'width' => '4cm',
                                 'height' => '4cm',
                                 'ratio' => true
                             ]);
                         } catch (\Exception $e) {
-                            \Log::error("Error insertando imagen ID {$producto->id} - {$producto->nombre}: " . $e->getMessage());
+                            \Log::error("Error insertando imagen: " . $e->getMessage());
+                        }
+                    
+                        if ($rutaPngTemp && file_exists($rutaPngTemp)) {
+                            @unlink($rutaPngTemp);
                         }
                     } else {
-                        \Log::warning("Imagen no encontrada para ID {$producto->id}: $rutaImagenLocal");
+                        \Log::warning("Imagen no encontrada: $rutaImagenLocal");
                     }
                 } else {
                     \Log::warning("URL de imagen inválida para ID {$producto->id}: {$producto->enlace_imagen_qr}");
@@ -455,19 +490,41 @@ class generarDocumentoDeQRsController extends Controller
                     $rutaRelativa = str_replace('https://moliplast.com/api/storage/app/public/', '', $producto['enlace_imagen_qr']);
                     $rutaImagenLocal = storage_path('app/public/' . $rutaRelativa);
 
+                    // === INSERTAR IMAGEN (SOPORTA SVG → PNG) ===
+                    $rutaPngTemp = null;
+                    $rutaFinal = $rutaImagenLocal;
+                    
                     if (file_exists($rutaImagenLocal)) {
+                        $ext = strtolower(pathinfo($rutaImagenLocal, PATHINFO_EXTENSION));
+                    
+                        // ***** INICIO DE LA CORRECCIÓN *****
+                        // Este es el bloque que estaba mal y fue corregido
+                        if ($ext === 'svg') {
+                            // Llamar al nuevo servicio de conversión
+                            $rutaPngTemp = $this->convertirSvgAPng($rutaImagenLocal);
+                            if ($rutaPngTemp && file_exists($rutaPngTemp)) { // La función ya loguea errores si falla
+                                $rutaFinal = $rutaPngTemp;
+                            }
+                            // Se eliminó todo el código viejo de imagecreatefromstring que estaba aquí
+                        }
+                        // ***** FIN DE LA CORRECCIÓN *****
+                    
                         try {
                             $templateProcessor2->setImageValue($placeholder, [
-                                'path' => $rutaImagenLocal,
-                                'width' => '3.8cm',
-                                'height' => '3.8cm',
+                                'path' => $rutaFinal,
+                                'width' => '4cm',
+                                'height' => '4cm',
                                 'ratio' => true
                             ]);
                         } catch (\Exception $e) {
-                            Log::error("Error insertando imagen ID {$producto['id']}: " . $e->getMessage());
+                            \Log::error("Error insertando imagen: " . $e->getMessage());
+                        }
+                    
+                        if ($rutaPngTemp && file_exists($rutaPngTemp)) {
+                            @unlink($rutaPngTemp);
                         }
                     } else {
-                        Log::warning("Imagen no encontrada para ID {$producto['id']}: $rutaImagenLocal");
+                        \Log::warning("Imagen no encontrada: $rutaImagenLocal");
                     }
                 } else {
                     Log::warning("URL de imagen inválida para ID {$producto['id']}: {$producto['enlace_imagen_qr']}");
@@ -499,4 +556,56 @@ class generarDocumentoDeQRsController extends Controller
         $reemplazos = ['(', ')', '', '', 'y'];
         return str_replace($caracteresProblematicos, $reemplazos, $texto);
     }
+    
+    /**
+     * Llama a un script externo para convertir SVG a PNG usando Imagick.
+     * (ESTA FUNCIÓN FALTABA)
+     */
+    private function convertirSvgAPng($rutaSvg)
+    {
+        try {
+            // URL del script en la raíz (donde Imagick funciona)
+            $url = 'https://moliplast.com/convertir-svg.php';
+            
+            $data = json_encode(['svg_path' => $rutaSvg]);
+            
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data)
+            ]);
+            // Importante: Como la llamada es a localhost (mismo servidor), 
+            // puede que necesites desactivar la verificación SSL para esta llamada interna
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 200) {
+                $result = json_decode($response, true);
+                
+                if (isset($result['success']) && $result['success'] === true && !empty($result['png_path'])) {
+                    if (file_exists($result['png_path'])) {
+                        \Log::info("SVG convertido (via servicio) a PNG: " . $result['png_path']);
+                        return $result['png_path']; // Devuelve la ruta del PNG temporal
+                    }
+                }
+            }
+            
+            // Loguear el error si la conversión falló
+            \Log::error("Error en servicio de conversión SVG. HTTP Code: {$httpCode}. Response: {$response}");
+            return null;
+            
+        } catch (\Exception $e) {
+            \Log::error("Excepción llamando al servicio de conversión: " . $e->getMessage());
+            return null;
+        }
+    }
+
 }

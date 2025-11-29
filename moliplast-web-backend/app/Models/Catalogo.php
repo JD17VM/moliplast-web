@@ -12,6 +12,7 @@ class Catalogo extends Model
 
 
     protected $fillable = [
+        'id_categoria',
         'enlace_documento',
         'nombre',
         'enlace_imagen_portada',
@@ -21,6 +22,12 @@ class Catalogo extends Model
     protected $casts = [
         'estatus' => 'boolean', // Convierte el valor a booleano (true/false)
     ];
+
+    // Relación con Categoria
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'id_categoria');
+    }
 
     use HasFactory;
 }

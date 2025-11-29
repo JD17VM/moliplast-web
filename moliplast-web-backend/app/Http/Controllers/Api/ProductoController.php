@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
+// === GENERAR QR CON GD (SIN IMAGICK) ===
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Renderer\GDLibRenderer;
+use BaconQrCode\Writer;
+// ===  ===
+
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\Subcategoria;
@@ -75,7 +82,7 @@ class ProductoController extends Controller
             $codigoExterno = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
             // Usa el array de precios que ya obtuvimos. Si no existe, ponle null.
             $producto->precio_externo = $precios[$codigoExterno] ?? null;
-            unset($producto->codigo); 
+            //unset($producto->codigo); 
         }
 
         return response()->json($productos, 200);
@@ -968,13 +975,29 @@ class ProductoController extends Controller
         ]);
 
         // Generar código QR con el ID del producto
-        $urlRedirect = url('api/producto/redirect/' . $producto->id);
+        //ANTIGUO
+        /*$urlRedirect = url('api/producto/redirect/' . $producto->id);
         $qrCode = QrCode::format('png')->size(300)->generate($urlRedirect);
         $qrCodeName = 'qr-' . $producto->id . '.png';
         Storage::disk('public')->put('qr_codes/' . $qrCodeName, $qrCode);
         $qrImageUrl = url('storage/app/public/qr_codes/' . $qrCodeName);
 
         // Actualizar el producto con la URL del QR
+        $producto->update(['enlace_imagen_qr' => $qrImageUrl]);*/
+
+
+        // === GENERAR QR COMO SVG (SIN IMAGICK NI GD) ===
+        $urlRedirect = url('api/producto/redirect/' . $producto->id);
+        
+        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+            ->size(300)
+            ->generate($urlRedirect);
+        
+        $qrCodeName = 'qr-' . $producto->id . '.svg';
+        Storage::disk('public')->put('qr_codes/' . $qrCodeName, $qrSvg);
+        
+        $qrImageUrl = url('storage/app/public/qr_codes/' . $qrCodeName);
+        
         $producto->update(['enlace_imagen_qr' => $qrImageUrl]);
 
         if (!$producto) {

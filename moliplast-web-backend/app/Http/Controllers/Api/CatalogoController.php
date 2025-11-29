@@ -12,7 +12,7 @@ use App\Models\Catalogo;
 
 class CatalogoController extends Controller
 {
-    public function index()
+        public function index()
     {
         // Solo obtener catálogos con estatus true
         $catalogos = Catalogo::where('estatus', true)->get();
@@ -55,6 +55,7 @@ class CatalogoController extends Controller
     {
         // Validación
         $validator = Validator::make($request->all(), [
+            'id_categoria' => 'nullable|exists:categorias,id', // 👈 AÑADIR
             'enlace_documento' => 'required|file|mimes:pdf,doc,docx',
             'nombre' => 'required|string|max:50',
             'enlace_imagen_portada' => 'required|image|mimes:jpeg,png,jpg,gif',
@@ -77,6 +78,7 @@ class CatalogoController extends Controller
 
         // Crear el catálogo
         $catalogo = Catalogo::create([
+            'id_categoria' => $request->id_categoria, // 👈 AÑADIR
             'enlace_documento' => $documentUrl,
             'nombre' => $request->nombre,
             'enlace_imagen_portada' => $imageUrl,
@@ -104,6 +106,7 @@ class CatalogoController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
+                'id_categoria' => 'nullable|exists:categorias,id', // 👈 AÑADIR
                 'enlace_documento' => 'nullable|file|mimes:pdf,doc,docx',
                 'nombre' => 'required|string|max:50',
                 'enlace_imagen_portada' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -152,6 +155,10 @@ class CatalogoController extends Controller
             }
 
             $catalogo->nombre = $request->nombre;
+            // Solo actualizar id_categoria si viene en el request
+            if ($request->has('id_categoria')) {
+                $catalogo->id_categoria = $request->id_categoria;
+            }
             $catalogo->save();
 
             Log::info('Catálogo actualizado exitosamente', ['id' => $catalogo->id]);
@@ -181,6 +188,7 @@ class CatalogoController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
+                'id_categoria' => 'nullable|exists:categorias,id', // 👈 AÑADIR
                 'enlace_documento' => 'nullable|file|mimes:pdf,doc,docx',
                 'nombre' => 'nullable|string|max:50',
                 'enlace_imagen_portada' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -196,6 +204,10 @@ class CatalogoController extends Controller
 
             if ($request->has('nombre')) {
                 $catalogo->nombre = $request->nombre;
+            }
+            
+            if ($request->has('id_categoria')) { // 👈 AÑADIR
+                $catalogo->id_categoria = $request->id_categoria;
             }
 
             if ($request->hasFile('enlace_documento') && $request->file('enlace_documento')->isValid()) {
