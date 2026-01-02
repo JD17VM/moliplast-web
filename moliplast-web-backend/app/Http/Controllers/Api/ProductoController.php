@@ -1514,6 +1514,28 @@ class ProductoController extends Controller
     }
 
     /**
+     * Obtiene productos que son "Maestros" (Grupos), es decir, tienen variantes.
+     * Útil para el selector de "Editar Grupo".
+     */
+    public function getMaestros(Request $request)
+    {
+        $query = $request->input('query');
+
+        $maestros = Producto::whereNull('producto_maestro_id')
+            ->has('variantes') // Solo aquellos que tienen hijos
+            ->where('estatus', true)
+            ->when($query, function ($q) use ($query) {
+                return $q->where('nombre', 'like', '%' . $query . '%');
+            })
+            ->select('id', 'nombre', 'codigo', 'atributos_division')
+            ->orderBy('nombre', 'asc')
+            ->limit(20)
+            ->get();
+
+        return response()->json($maestros);
+    }
+
+    /**
      * Agrupa productos existentes bajo un nuevo "Producto Padre".
      * Recibe los IDs de los hijos y la configuración de atributos.
      */

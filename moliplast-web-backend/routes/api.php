@@ -73,6 +73,7 @@ Route::delete('/subsubcategorias/{id}',[SubsubcategoriaController::class, 'destr
 
 Route::get('/productos',[ProductoController::class, 'index']); // X X
 Route::get('/productos-all',[ProductoController::class, 'indexAll']); // X X
+Route::get('/productos/maestros', [ProductoController::class, 'getMaestros']);
 Route::get('/productos/{id}',[ProductoController::class, 'show']); // X X
 Route::get('/productos-softlink/{id}',[ProductoController::class, 'showSoftlink']); // X X
 Route::get('/productos-all/{id}',[ProductoController::class, 'showAll']); // X
@@ -132,3 +133,5 @@ Route::get('/producto-por-codigo/{codigo}', [ProductoController::class, 'showByC
 Route::post('/productos/bulk-image-upload', [ProductoController::class, 'bulkImageUpload']);
 
 Route::get('/id-productos-categorias', [ProductoController::class, 'getAllProductIdsAndCategoryIds']);
+
+Route::get('/productos/maestros', [ProductoController::class, 'getMaestros']);

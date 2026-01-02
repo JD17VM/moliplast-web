@@ -79,22 +79,23 @@ const AdminAgruparProductos = () => {
     // Cargar lista de productos que ya son MAESTROS (para editarlos)
     const loadListaMaestros = async () => {
         try {
-            // Nota: Aquí deberíamos tener un endpoint que traiga solo productos con variantes. 
-            // Por ahora usaremos el endpoint general y filtraremos o asumiremos que el usuario busca.
-            // Para optimizar, idealmente crea: Route::get('/productos/maestros', ...)
-            // Simulamos trayendo la primera página y filtrando en front (Temporal) o buscamos por nombre si hay un input.
-            // MEJOR ESTRATEGIA: Un buscador específico para padres.
+            const res = await fetch(`${BASE_URL_API}/api/productos/maestros`);
+            if (!res.ok) throw new Error("Error al cargar lista de maestros (Revisa routes/api.php)");
+            const data = await res.json();
+            setListaMaestros(Array.isArray(data) ? data : []);
         } catch (e) { console.error(e); }
     };
 
     // Función auxiliar para buscar Maestros por nombre (para el selector de edición)
     const searchMaestros = async (query) => {
-        if (!query) return;
         try {
-            const res = await fetch(`${BASE_URL_API}/api/products/complete-search?query=${encodeURIComponent(query)}`);
+            const url = query 
+                ? `${BASE_URL_API}/api/productos/maestros?query=${encodeURIComponent(query)}`
+                : `${BASE_URL_API}/api/productos/maestros`;
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Error al buscar maestros");
             const data = await res.json();
-            // Filtramos solo los que son padres (tienen variantes o master_id null y attributos)
-            // Como tu search devuelve todo, filtramos visualmente o en lógica
             setListaMaestros(Array.isArray(data) ? data : []);
         } catch (e) { console.error(e); }
     };
@@ -108,7 +109,13 @@ const AdminAgruparProductos = () => {
             
             setMaestroSeleccionadoId(maestro.id);
             setNombreGrupo(maestro.nombre);
-            setAtributos(maestro.atributos_division || []);
+            
+            // Parsear atributos_division si viene como string
+            let attrs = maestro.atributos_division;
+            if (typeof attrs === 'string') {
+                try { attrs = JSON.parse(attrs); } catch (e) { attrs = []; }
+            }
+            setAtributos(Array.isArray(attrs) ? attrs : []);
             
             // Cargar hijos
             setSelectedProducts(maestro.variantes || []);
@@ -117,7 +124,11 @@ const AdminAgruparProductos = () => {
             const config = {};
             if (maestro.variantes) {
                 maestro.variantes.forEach(v => {
-                    config[v.id] = v.atributos_json || {};
+                    let vAttrs = v.atributos_json;
+                    if (typeof vAttrs === 'string') {
+                        try { vAttrs = JSON.parse(vAttrs); } catch (e) { vAttrs = {}; }
+                    }
+                    config[v.id] = vAttrs || {};
                 });
             }
             setConfiguracionHijos(config);
@@ -260,7 +271,7 @@ const AdminAgruparProductos = () => {
                         placeholder="Escribe el nombre del grupo (Ej: Camiseta Polo)..."
                         onChange={(e) => searchMaestros(e.target.value)}
                     />
-                    {listaMaestros.length > 0 && (
+                    {listaMaestros.length > 0 ? (
                         <ul className="list-group mt-2 text-start" style={{maxHeight: 200, overflowY: 'auto'}}>
                             {listaMaestros.map(m => (
                                 <button 
@@ -273,6 +284,10 @@ const AdminAgruparProductos = () => {
                                 </button>
                             ))}
                         </ul>
+                    ) : (
+                        <div className="alert alert-warning mt-3">
+                            No se encontraron grupos. Asegúrate de haber creado alguno o revisa que la ruta <b>/api/productos/maestros</b> esté registrada en el backend.
+                        </div>
                     )}
                 </div>
             )}
