@@ -197,7 +197,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                         <div>
                             <IoCall />
                             <p>Contáctanos</p>
-                            <p>054 462917 | +51&nbsp;959&nbsp;600&nbsp;464</p>
+                            <p>+51&nbsp;959&nbsp;600&nbsp;464 | 987&nbsp;790&nbsp;419 <br/> 054-462917</p>
                         </div>
 
                         <div>
@@ -206,6 +206,7 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
                             <ul>
                                 <li>ventas1@moliplast.com</li>
                                 <li>ventas09@moliplast.com</li>
+                                <li>jose1112ramos@gmail.com</li>
                             </ul>
                         </div>
                     </div>
