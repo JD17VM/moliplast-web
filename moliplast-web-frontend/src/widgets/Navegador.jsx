@@ -63,7 +63,13 @@ const Navegador = ({ isAdmin, setIsAdmin }) => {
     };
 
     const dataAdmin = [
-        { nombre: "Admin Productos", enlace: "/administrador/productos" },
+        {
+            nombre: "Admin Productos",
+            subsecciones: [
+                { nombre: "Productos", enlace: "/administrador/productos" },
+                { nombre: "Agrupar", enlace: "/administrador/agrupar-productos" }
+            ]
+        },
         { nombre: "Admin Catalogos", enlace: "/administrador/catalogos" },
         { nombre: "Admin Servicios", enlace: "/administrador/servicios" },
         {

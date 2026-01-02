@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
+    use HasFactory;
+
     protected $table = 'productos';
 
     protected $fillable = [
@@ -25,11 +27,18 @@ class Producto extends Model
         'enlace_imagen_qr',
         'estatus',
         'codigo',
+
+        'producto_maestro_id', // El ID del papá (si es hijo)
+        'nombre_variante',     // El nombre del hijo (ej: "Rojo - Talla M")
+        'atributos_division',  // Reglas del papá (ej: ["Talla", "Color"])
+        'atributos_json',      // Selección del hijo (ej: {"Talla": "M"})
     ];
 
     protected $casts = [
         'destacados' => 'boolean',
-        'estatus' => 'boolean',
+        'estatus'    => 'boolean',
+        'atributos_division' => 'array',
+        'atributos_json'     => 'array',
     ];
 
     public function categoria()
@@ -47,5 +56,18 @@ class Producto extends Model
         return $this->belongsTo(Subsubcategoria::class);
     }
 
-    use HasFactory;
+    public function variantes()
+    {
+        return $this->hasMany(Producto::class, 'producto_maestro_id');
+    }
+
+    public function maestro()
+    {
+        return $this->belongsTo(Producto::class, 'producto_maestro_id');
+    }
+
+    public function scopeSoloPadres($query)
+    {
+        return $query->whereNull('producto_maestro_id');
+    }
 }

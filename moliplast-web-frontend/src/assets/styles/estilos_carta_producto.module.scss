@@ -10,6 +10,11 @@
         $scale: 1.05;
         -webkit-transform:scale($scale);
         transform:scale($scale);
+        box-shadow: 7px 7px 19px -6px rgba(0,0,0,0.3);
+
+        p{
+            font-weight: 600;
+        }
     }
 
     & > .cont_imagen_producto{

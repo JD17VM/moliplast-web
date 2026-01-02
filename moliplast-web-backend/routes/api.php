@@ -81,8 +81,13 @@ Route::put('/productos/{id}',[ProductoController::class, 'update']); // X
 Route::patch('/productos/{id}',[ProductoController::class, 'updatePartial']); // X
 Route::delete('/productos/{id}',[ProductoController::class, 'destroy']); // X
 
+Route::post('/productos/agrupar', [ProductoController::class, 'agruparProductos']);
+Route::get('/productos/{id}/completo', [ProductoController::class, 'show']);
 Route::get('/productos-destacados',[ProductoController::class, 'productosDestacados']); // X
 Route::get('/productos-relacionados/{id}',[ProductoController::class, 'getProductosRelacionados']); // X
+
+Route::put('/productos/{id}/asignar-maestro', [ProductoController::class, 'asignarMaestro']);
+Route::put('/productos/agrupar/{id}', [ProductoController::class, 'actualizarGrupo']);
 
 Route::get('/products/search', [ProductoController::class, 'search']);
 Route::get('/products/complete-search', [ProductoController::class, 'completeSearch']);

@@ -93,7 +93,9 @@ class ProductoController extends Controller
         $perPage = $request->input('per_page', 50); // Número de productos por página, por defecto 50
         $page = $request->input('page', 1); // Página actual, por defecto 1
         // Solo obtener productos con estatus true
-        $productos = Producto::where('estatus', true)
+        // Usamos el scopeSoloPadres() que creamos en el modelo
+        $productos = Producto::soloPadres()
+                                ->where('estatus', true)
                                 ->orderBy('nombre', 'asc')
                                 ->paginate($perPage, ['*'], 'page', $page);
 
@@ -239,6 +241,7 @@ class ProductoController extends Controller
             'id',
             'codigo',
             'nombre',
+            'producto_maestro_id',
             'id_categoria',
             'id_subcategoria',
             'id_subsubcategoria',
@@ -412,8 +415,13 @@ class ProductoController extends Controller
 
     public function show($id)
     {
-        // Solo obtener producto con estatus true
-        $producto = Producto::where('id', $id)->where('estatus', true)->first();
+        // Cargamos el producto. 
+        // Si es Padre, cargamos la relación 'variantes'
+        // Si es Hijo, cargamos la relación 'maestro' (opcional, por si quieres volver al padre)
+        $producto = Producto::with(['variantes', 'maestro'])
+                            ->where('id', $id)
+                            ->where('estatus', true)
+                            ->first();
 
         if (!$producto) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
@@ -424,27 +432,48 @@ class ProductoController extends Controller
 
     public function showSoftlink($id)
     {
-        // Obtener producto de la base de datos local
-        $producto = Producto::where('id', $id)->where('estatus', true)->first();
+        // 1. Cargar producto CON sus variantes
+        $producto = Producto::with('variantes')
+                        ->where('id', $id)
+                        ->where('estatus', true)
+                        ->first();
 
         if (!$producto) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
-        // Formatear el código para la consulta a la base de datos externa
-        $codigoExterno = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+        // 2. Recolectar TODOS los códigos (Padre + Hijos) para hacer UNA sola consulta
+        $codigos = [];
+        
+        // Código del padre
+        if ($producto->codigo) {
+            $codigos[] = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+        }
 
-        // Consulta a la base de datos externa para obtener el precio
-        $precioExterno = DB::connection('externa')
-            ->table('precios') // Reemplaza 'precios' con el nombre de tu tabla de precios
-            ->where('cod_prod', $codigoExterno)
-            ->value('precio_venta'); // Reemplaza 'precio' con el nombre de la columna de precio
+        // Códigos de los hijos
+        foreach ($producto->variantes as $variante) {
+            if ($variante->codigo) {
+                $codigos[] = str_pad($variante->codigo, 6, '0', STR_PAD_LEFT);
+            }
+        }
 
-        // Agregar el precio al objeto del producto
-        if ($precioExterno !== null) {
-            $producto->precio_externo = $precioExterno;
-        } else {
-            $producto->precio_externo = null; // O un valor predeterminado si no se encuentra el precio
+        // 3. Consultar precios externos masivamente
+        $precios = [];
+        if (!empty($codigos)) {
+            $precios = DB::connection('externa')
+                ->table('precios')
+                ->whereIn('cod_prod', $codigos)
+                ->pluck('precio_venta', 'cod_prod'); // Devuelve array ['008726' => 55.50]
+        }
+
+        // 4. Asignar precio al Padre
+        $codigoPadre = str_pad($producto->codigo, 6, '0', STR_PAD_LEFT);
+        $producto->precio_externo = $precios[$codigoPadre] ?? null;
+
+        // 5. Asignar precio a cada Hijo (Variante) <--- ESTO ES LO QUE TE FALTABA
+        foreach ($producto->variantes as $variante) {
+            $codigoHijo = str_pad($variante->codigo, 6, '0', STR_PAD_LEFT);
+            $variante->precio_externo = $precios[$codigoHijo] ?? null;
         }
 
         return response()->json($producto, 200);
@@ -735,7 +764,9 @@ class ProductoController extends Controller
         $page = $request->input('page', 1); // Página actual, por defecto 1
 
         // Obtener todos los productos con estatus true y seleccionar solo los campos necesarios
-        $productos = Producto::where('estatus', true)
+        // MODIFICADO: Agregamos soloPadres()
+        $productos = Producto::soloPadres() 
+                            ->where('estatus', true)
                             ->select('id', 'nombre', 'imagen_1')
                             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -768,9 +799,11 @@ class ProductoController extends Controller
         }
 
         // Obtener productos de la categoría
-        $productos = Producto::where('id_categoria', $categoria->id)
+        $productos = Producto::soloPadres() 
+                            ->where('id_categoria', $categoria->id)
                             ->where('estatus', true)
                             ->select('id', 'nombre', 'imagen_1')
+                            ->orderBy('nombre', 'asc')
                             ->paginate($perPage, ['*'], 'page', $page);
 
         if ($productos->isEmpty()) {
@@ -814,10 +847,12 @@ class ProductoController extends Controller
         }
 
         // Obtener productos de la subcategoría con paginación
-        $productos = Producto::where('id_categoria', $categoria->id)
+        $productos = Producto::soloPadres()
+                            ->where('id_categoria', $categoria->id)
                             ->where('id_subcategoria', $subcategoria->id)
                             ->where('estatus', true)
                             ->select('id', 'nombre', 'imagen_1')
+                            ->orderBy('nombre', 'asc')
                             ->paginate($perPage, ['*'], 'page', $page);
 
         if ($productos->isEmpty()) {
@@ -874,11 +909,13 @@ class ProductoController extends Controller
         }
 
         // Obtener productos de la subsubcategoría con paginación
-        $productos = Producto::where('id_categoria', $categoria->id)
+        $productos = Producto::soloPadres()
+                            ->where('id_categoria', $categoria->id)
                             ->where('id_subcategoria', $subcategoria->id)
                             ->where('id_subsubcategoria', $subsubcategoria->id)
                             ->where('estatus', true)
                             ->select('id', 'nombre', 'imagen_1')
+                            ->orderBy('nombre', 'asc')
                             ->paginate($perPage, ['*'], 'page', $page);
 
         if ($productos->isEmpty()) {
@@ -1015,8 +1052,23 @@ class ProductoController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
-        // Construir la URL del producto en el frontend
-        $frontendUrl = 'https://www.moliplast.com/productos/producto/' . $producto->id . '?source=softlink'; // Ajusta según tu frontend
+        // URL base de tu frontend
+        $baseFrontendUrl = 'https://www.moliplast.com/productos/producto/';
+
+        // Lógica de Redirección Inteligente
+        if ($producto->producto_maestro_id) {
+            // CASO 1: ES UN HIJO (VARIANTE)
+            // Redirigimos a la página del PADRE, pero marcamos la variante específica
+            // URL resultante: .../producto/ID_PADRE?source=softlink&variant=ID_HIJO
+            $frontendUrl = $baseFrontendUrl . $producto->producto_maestro_id . 
+                           '?source=softlink&variant=' . $producto->id;
+        } else {
+            // CASO 2: ES UN PADRE O PRODUCTO SUELTO
+            // Redirigimos a su propia página
+            // URL resultante: .../producto/ID_PROPIO?source=softlink
+            $frontendUrl = $baseFrontendUrl . $producto->id . 
+                           '?source=softlink';
+        }
 
         return redirect()->away($frontendUrl);
     }
@@ -1054,6 +1106,7 @@ class ProductoController extends Controller
                 'delete_imagen_4' => 'nullable|boolean',
                 'delete_enlace_ficha_tecnica' => 'nullable|boolean',
                 'delete_enlace_imagen_qr' => 'nullable|boolean', // CORREGIDO: Añadido flag de borrado para QR
+                'producto_maestro_id' => 'nullable|exists:productos,id'
             ]);
 
             if ($validator->fails()) {
@@ -1121,6 +1174,10 @@ class ProductoController extends Controller
             $producto->texto_markdown = $request->texto_markdown ?? $producto->texto_markdown;
             $producto->destacados = $request->destacados ?? $producto->destacados;
             $producto->codigo = $request->codigo ?? $producto->codigo;
+
+            if ($request->has('producto_maestro_id')) {
+                $producto->producto_maestro_id = $request->producto_maestro_id;
+            }
 
             $producto->save();
 
@@ -1453,6 +1510,217 @@ class ProductoController extends Controller
             }
         } else {
             Log::info("El archivo con URL {$imageUrl} está siendo usado por {$count} productos. No se eliminará el archivo físico.");
+        }
+    }
+
+    /**
+     * Agrupa productos existentes bajo un nuevo "Producto Padre".
+     * Recibe los IDs de los hijos y la configuración de atributos.
+     */
+    public function agruparProductos(Request $request)
+    {
+        // 1. Validar datos
+        $validator = Validator::make($request->all(), [
+            'product_ids' => 'required|array|min:2', // Mínimo 2 productos para agrupar
+            'product_ids.*' => 'exists:productos,id',
+            'nombre_grupo' => 'required|string', // Nombre del nuevo producto padre
+            'atributos_division' => 'present|array', // Permite enviar []
+            'configuracion_hijos' => 'present|array', // Permite enviar {}
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Datos inválidos', 'errors' => $validator->errors()], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $ids = $request->product_ids;
+            
+            // 2. Obtener el "Producto Modelo" (El primero de la lista)
+            // Usaremos sus imágenes, descripción y categoría para crear al Padre.
+            $modelo = Producto::find($ids[0]);
+
+            // 3. Crear el PRODUCTO PADRE
+            $padre = Producto::create([
+                'nombre' => $request->nombre_grupo, // El nombre general (Ej: "Camiseta Polo")
+                'descripcion' => $modelo->descripcion,
+                'texto_markdown' => $modelo->texto_markdown,
+                'id_categoria' => $modelo->id_categoria,
+                'id_subcategoria' => $modelo->id_subcategoria,
+                'id_subsubcategoria' => $modelo->id_subsubcategoria,
+                'imagen_1' => $modelo->imagen_1, // Hereda imágenes del primero
+                'imagen_2' => $modelo->imagen_2,
+                'imagen_3' => $modelo->imagen_3,
+                'imagen_4' => $modelo->imagen_4,
+                'enlace_ficha_tecnica' => $modelo->enlace_ficha_tecnica,
+                'atributos_division' => $request->atributos_division, // Ej: ["Talla"]
+                'producto_maestro_id' => null, // Es un padre
+                'estatus' => true,
+                'destacados' => $modelo->destacados,
+                // IMPORTANTE: El padre NO tiene QR ni Código de barras propio usualmente
+                'enlace_imagen_qr' => null, 
+                'codigo' => null 
+            ]);
+
+            // 4. Actualizar los HIJOS
+            foreach ($ids as $id) {
+                $hijo = Producto::find($id);
+                
+                // Obtener qué atributos le tocan a este hijo (Ej: {"Talla": "M"})
+                $atributosJson = $request->configuracion_hijos[$id] ?? [];
+
+                // Generar nombre de variante (Ej: "Rojo - Talla M")
+                // Unimos los valores del JSON para hacer un nombre legible
+                $nombreVariante = !empty($atributosJson) 
+                                    ? implode(' - ', array_values($atributosJson)) 
+                                    : $hijo->nombre;
+
+                $hijo->update([
+                    'producto_maestro_id' => $padre->id, // Lo vinculamos al padre
+                    'atributos_json' => $atributosJson,  // Guardamos su especificación
+                    'nombre_variante' => $nombreVariante,
+                    // Opcional: Podrías borrar las imágenes del hijo si quieres ahorrar espacio, 
+                    // pero mejor dejarlas por si se desagrupan en el futuro.
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Productos agrupados correctamente', 
+                'padre_id' => $padre->id
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error agrupando productos: ' . $e->getMessage());
+            return response()->json(['message' => 'Error al agrupar: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // Función exclusiva para cambiar la jerarquía (Padre/Hijo)
+    public function asignarMaestro(Request $request, $id)
+    {
+        // 1. Buscamos el producto (que será el HIJO)
+        $hijo = Producto::where('id', $id)->where('estatus', true)->first();
+
+        if (!$hijo) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        // 2. Validación
+        $validator = Validator::make($request->all(), [
+            'producto_maestro_id' => 'nullable|exists:productos,id' 
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // 3. Asignamos el padre (VINCULACIÓN)
+        $hijo->producto_maestro_id = $request->producto_maestro_id;
+        $hijo->save();
+
+        // --- AQUÍ EMPIEZA LA LÓGICA QUE FALTABA ---
+        
+        // Si acabamos de asignarle un padre (no es null)
+        if ($request->producto_maestro_id) {
+            
+            // Buscamos al Padre
+            $padre = Producto::find($request->producto_maestro_id);
+
+            // A. COPIAR CATEGORÍA (Funciona para sub y sub-sub)
+            // Al copiar el ID de la categoría, el padre hereda automáticamente 
+            // el nivel de profundidad que tenga esa categoría (sub o sub-sub).
+            $padre->categoria_id = $hijo->categoria_id; 
+            
+            // B. COPIAR IMAGEN AL PADRE (Solo como portada)
+            // Esto actualiza la foto del padre, pero NO borra la del hijo.
+            // Verifica si el padre no tiene imagen, o si quieres forzar la del primer hijo
+            if (empty($padre->imagen)) { 
+                $padre->imagen = $hijo->imagen;
+            }
+
+            // C. COPIAR PRECIO O CUALQUIER OTRA CARACTERÍSTICA
+            // $padre->precio = $hijo->precio; 
+
+            $padre->save();
+        }
+        // -------------------------------------------
+
+        return response()->json([
+            'message' => 'Jerarquía actualizada y datos heredados al padre',
+            'producto_id' => $hijo->id,
+            'nuevo_padre_id' => $hijo->producto_maestro_id
+        ], 200);
+    }
+
+
+    public function actualizarGrupo(Request $request, $id)
+    {
+        // 1. Validar
+        $validator = Validator::make($request->all(), [
+            'nombre_grupo' => 'required|string',
+            'atributos_division' => 'present|array',
+            'product_ids' => 'required|array', // Lista final de hijos que deben quedar
+            'configuracion_hijos' => 'present|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Datos inválidos', 'errors' => $validator->errors()], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $padre = Producto::where('id', $id)->where('estatus', true)->first();
+            if (!$padre) throw new Exception("Producto maestro no encontrado");
+
+            // 2. Actualizar datos del PADRE
+            $padre->update([
+                'nombre' => $request->nombre_grupo,
+                'atributos_division' => $request->atributos_division,
+            ]);
+
+            // 3. Obtener los hijos actuales desde la BD
+            $hijosActuales = Producto::where('producto_maestro_id', $padre->id)->pluck('id')->toArray();
+            $nuevosHijosIds = $request->product_ids;
+
+            // 4. DETECTAR ELIMINADOS: Estaban antes, pero ya no están en la nueva lista
+            // A estos los volvemos "Huérfanos" (independientes)
+            $paraEliminar = array_diff($hijosActuales, $nuevosHijosIds);
+            if (!empty($paraEliminar)) {
+                Producto::whereIn('id', $paraEliminar)->update([
+                    'producto_maestro_id' => null,
+                    'atributos_json' => null,
+                    'nombre_variante' => null // Opcional: Volver al nombre original se hace manual o se deja null
+                ]);
+            }
+
+            // 5. ACTUALIZAR O AGREGAR HIJOS (Los que sí están en la lista)
+            foreach ($nuevosHijosIds as $hijoId) {
+                $hijo = Producto::find($hijoId);
+                if ($hijo) {
+                    $atributosJson = $request->configuracion_hijos[$hijoId] ?? [];
+                    
+                    // Nombre variante lógica
+                    $nombreVariante = !empty($atributosJson) 
+                                        ? implode(' - ', array_values($atributosJson)) 
+                                        : $hijo->nombre;
+
+                    $hijo->update([
+                        'producto_maestro_id' => $padre->id, // Asegurar vínculo
+                        'atributos_json' => $atributosJson,
+                        'nombre_variante' => $nombreVariante
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Grupo actualizado correctamente'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error actualizando grupo: ' . $e->getMessage());
+            return response()->json(['message' => 'Error al actualizar: ' . $e->getMessage()], 500);
         }
     }
 }

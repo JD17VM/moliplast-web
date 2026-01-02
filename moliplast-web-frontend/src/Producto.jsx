@@ -5,8 +5,9 @@ import { MdPictureAsPdf } from "react-icons/md";
 import { FaWhatsapp } from "react-icons/fa";
 import { BtnIconoTexto } from './widgets/Botones';
 import InterpreteMarkdownHTML from './widgets/InterpreteMarkdownHTML';
+import { TablaVariantes } from './widgets/TablaVariantes';
 import { SeccionProductosImportantes } from './widgets/ProductosImportantes';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useSearchParams } from 'react-router-dom';
 
 import ProductoSkeleton from "./skeletons/ProductoSkeleton"
 
@@ -28,8 +29,29 @@ const Producto = () => {
 
     const location = useLocation(); // Obtiene la ubicación actual
 
-    const searchParams = new URLSearchParams(location.search);
+    //const searchParams = new URLSearchParams(location.search);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const isSoftlink = searchParams.get('source') === 'softlink';
+
+    const variantId = searchParams.get('variant');
+
+    // 4. Buscamos el objeto de la variante
+    const varianteSeleccionada = producto?.variantes?.find(v => v.id == variantId);
+
+    // 5. DECISIÓN: ¿Qué mostramos? ¿El hijo (variante) o el padre?
+    // Si hay variante seleccionada, usamos esa. Si no, usamos el producto base.
+    const productoVisualizado = varianteSeleccionada || producto;
+
+    // Función segura para cambiar variante sin perder el ?source=softlink
+    const handleVariantClick = (idVariante) => {
+        setSearchParams(prev => {
+            prev.set('variant', idVariante);
+            return prev;
+        });
+    };
+
 
     useEffect(() => {
         setLoading(true);
@@ -107,13 +129,13 @@ const Producto = () => {
         return <div>{producto.error}</div>;
     }
 
-    let precioTruncado = producto.precio_externo
-        ? (Math.floor(producto.precio_externo * 100) / 100).toFixed(2)
+    let precioTruncado = productoVisualizado.precio_externo
+        ? (Math.floor(productoVisualizado.precio_externo * 100) / 100).toFixed(2)
         : null;
 
     return (
         <>
-            <MetaData title={producto.nombre} canonical={`/productos/producto/${producto.id}`}/>
+            <MetaData title={productoVisualizado.nombre} canonical={`/productos/producto/${producto.id}`}/>
             <div className={styles.contenedor_producto}>
                 <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>
@@ -139,12 +161,22 @@ const Producto = () => {
                 </div>
                 <div className={styles.contenedor_datos}>
                     <div>
-                        <p className={styles.codigo}>SKU: {completarConCeros(producto.codigo)}</p>
-                        <h1>{producto.nombre}</h1>
+                        <div>
+                            
+                            {producto.variantes && producto.variantes.length > 0 && producto.nombre !== productoVisualizado.nombre && (
+                                <p className={styles.nombre_maestro}>
+                                    {producto.nombre}
+                                </p>
+                            ) }
+                            {productoVisualizado.codigo && (
+                                <p className={styles.codigo}>SKU: {completarConCeros(productoVisualizado.codigo)}</p>
+                            )}
+                        </div>
+                        <h1>{productoVisualizado.nombre}</h1>
                     </div>
                     
-                    {producto.descripcion && (
-                        <p>{producto.descripcion}</p>
+                    {productoVisualizado.descripcion && (
+                        <p>{productoVisualizado.descripcion}</p>
                     )}
 
                     {(producto.enlace_ficha_tecnica || !isSoftlink) && (
@@ -155,7 +187,7 @@ const Producto = () => {
                                 </BtnIconoTexto>
                             )}
                             {!isSoftlink && (
-                                <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${producto.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
+                                <BtnIconoTexto Icono={FaWhatsapp} enlace={`https://wa.me/51959600464/?text=Hola%20estoy%20interesado%20en%20el%20producto%20${productoVisualizado.nombre}`} colorPrincipal="#075e54" colorActivo='#25d366'>
                                     Comprar por Whatsapp
                                 </BtnIconoTexto>
                             )}
@@ -165,6 +197,15 @@ const Producto = () => {
                     {isSoftlink && precioTruncado && (
                         <p className={styles.precio}>S/ {precioTruncado}</p>
                     )}
+
+                    {/* === AQUI INSERTAMOS EL COMPONENTE DE TABLA === */}
+                    <TablaVariantes 
+                        variantes={producto.variantes}
+                        atributos_division={producto.atributos_division}
+                        variantId={variantId}
+                        handleVariantClick={handleVariantClick}
+                    />
+
                 </div>
             </div>
             {producto.texto_markdown && ( //Correccion extra cuando no hay descripcion extra

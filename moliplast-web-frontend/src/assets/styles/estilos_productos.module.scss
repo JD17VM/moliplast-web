@@ -150,6 +150,19 @@ $padding_x_y: 45px;
             border-radius: 50%;
         }
 
+        &:hover::before{
+            $diametro_marcado_checkbox: 0.5rem;
+            content: '';
+            width:  $diametro_marcado_checkbox;
+            height: $diametro_marcado_checkbox;
+            position: absolute;
+            $posicion_centrada:calc(($diametro_checkbox - $diametro_marcado_checkbox) / 2);
+            top: $posicion_centrada;
+            left: $posicion_centrada;
+            border-radius: 50%;
+            background-color: var(--color_gris_0);
+        }
+
     }
 
     & > p{

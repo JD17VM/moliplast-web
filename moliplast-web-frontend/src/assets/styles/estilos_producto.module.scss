@@ -41,6 +41,7 @@ $padding_lateral: 2rem;
 
         & > .cont_imagen{
             width: $alto_ancho_imagen;
+            height: $alto_ancho_imagen;
             aspect-ratio: 1/1;
             //background-color: purple;
 
@@ -64,13 +65,23 @@ $padding_lateral: 2rem;
         max-width: 1000px;
 
         & > div:first-of-type{
-            & > p{
-                color:var(--color_gris_0);
-                text-align: end;
-                font-size: var(--fuente_tamanio_titulo_3);
-                margin-bottom: 5px;
-            }
 
+            div{
+                display: flex;
+                justify-content: space-between;
+                & > p{
+                    color:var(--color_gris_0);
+                    text-align: end;
+                    font-size: var(--fuente_tamanio_titulo_3);
+                    margin-bottom: 5px;
+                }
+
+                & > p.nombre_maestro{
+                    color:var(--color_gris_1);
+                    text-align: start;
+                }
+            }
+            
             & > h1{
                 font-size: var(--fuente_tamanio_titulo_1);
                 font-weight: var(--fuente_bold);

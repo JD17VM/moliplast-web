@@ -1,0 +1,56 @@
+services:
+  # --- SERVICIO 1: LARAVEL ---
+  backend:
+    build:
+      context: ./moliplast-web-backend
+      dockerfile: Dockerfile
+    image: moliplast-backend
+    container_name: moliplast-backend
+    ports:
+      - "8000:80"  # Accederás a Laravel en localhost:8000
+    volumes:
+      - ./moliplast-web-backend:/var/www/html # Conexión espejo (Hot Reload)
+    depends_on:
+      - mysql
+    networks:
+      - moliplast-net
+
+  # --- SERVICIO 2: REACT (FRONTEND) ---
+  frontend:
+    build:
+      context: ./moliplast-web-frontend
+      dockerfile: Dockerfile
+    image: moliplast-frontend
+    container_name: moliplast-frontend
+    command: npm run dev -- --host
+    ports:
+      - "5173:5173" # Accederás a React en localhost:5173
+    volumes:
+      - ./moliplast-web-frontend:/app # Conexión espejo
+      - /app/node_modules # Truco para que node_modules no se rompa entre Windows/Linux
+    networks:
+      - moliplast-net
+
+  # --- SERVICIO 3: BASE DE DATOS ---
+  mysql:
+    image: mysql:8.0
+    container_name: moliplast-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: moliplast_web_db  # <-- Nombre de tu DB
+      MYSQL_USER: sail                  # <-- Usuario de tu .env
+      MYSQL_PASSWORD: password          # <-- Contraseña de tu .env
+      MYSQL_ROOT_PASSWORD: password     # <-- Contraseña Root
+    volumes:
+      - mysql-data:/var/lib/mysql       # Para no perder datos si apagas Docker
+    networks:
+      - moliplast-net
+
+volumes:
+  mysql-data:
+
+networks:
+  moliplast-net:
+    driver: bridge

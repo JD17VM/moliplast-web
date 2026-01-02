@@ -1,0 +1,49 @@
+.cont_tabla{
+    //background-color: yellow;
+    display: flex;
+    flex-direction: column;
+    font-size: var(--fuente_tamanio_titulo_4);
+    row-gap: 1rem;
+    
+    div:global(.table-wrapper){
+        overflow-x: auto;
+    }
+
+    table{
+        border-collapse: collapse;
+        font-size: var(--fuente_tamanio_titulo_5);
+        background-color: white;
+        
+        width: 100%;
+        min-width: 600px;
+        overflow-x: scroll;
+
+        
+
+        td, th{
+            padding: 0.5rem;
+            
+        }
+    
+        &, td, th {
+            border: 1px solid black;
+        }
+
+        th{
+            font-weight: var(--fuente_semibold);
+            background-color: var(--color_azul_0);
+            color: white;
+            padding: 0.8rem 0.5rem;
+        }
+    }
+
+    em{
+        font-style: italic;
+    }
+
+    strong{
+        font-weight: var(--fuente_semibold);
+    }
+
+
+}

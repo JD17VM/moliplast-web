@@ -27,6 +27,8 @@ import AdminCategorias from './Administrador/AdminCategorias'
 import AdminSubcategorias from './Administrador/AdminSubcategorias'
 import AdminSubsubcategorias from './Administrador/AdminSubsubcategorias'
 import AdminProductos from './Administrador/AdminProductos'
+import AdminProductosMaestros from './Administrador/AdminProductosMaestros'
+import AdminAgruparProductos from './Administrador/AdminAgruparProductos'
 import AdminGeneradorQRs from './Administrador/AdminGeneradorQRs'
 import AdminBulkImageUpload from './Administrador/AdminBulkImageUpload'
 import dataPaginas from './data/data_paginas.js'
@@ -149,6 +151,8 @@ function App() {
           <Route path="/administrador/productos" element={<AdminProductos />} />
           <Route path="/administrador/generador-qrs" element={<AdminGeneradorQRs />} />
           <Route path="/administrador/carga-masiva-imagenes" element={<AdminBulkImageUpload />} />
+          <Route path="/administrador/productos-maestros" element={<AdminProductosMaestros />} />
+          <Route path="/administrador/agrupar-productos" element={<AdminAgruparProductos />} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin />} />
