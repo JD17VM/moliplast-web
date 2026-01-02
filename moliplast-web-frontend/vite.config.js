@@ -9,7 +9,10 @@ export default defineConfig({
     basicSsl() // 2. Añade el plugin
   ],
   server: {
-    host: true, // Esto hace que el servidor escuche en todas las interfaces de red disponibles
-    port: 5173, // Puedes especificar un puerto diferente si el 5173 ya está en uso
+    host: true, // Esto ya lo sueles tener para Docker
+    port: 5173, 
+    watch: {
+      usePolling: true, // <--- ESTA ES LA CLAVE
+    },
   },
 })
