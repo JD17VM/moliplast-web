@@ -249,7 +249,7 @@ const Productos = () => {
             </div>
             </div>
             <div className={styles.titulo_boton_menu}>
-                <h1>{categoria ? categoria : 'Elementos'}</h1>
+                <h1>{subsubcategoria || (subcategoria && subcategoria !== 'todos' ? subcategoria : categoria) || 'Elementos'}</h1>
                 <button onClick={handleClickPanel}>
                     <IoFilter />
                 </button>
