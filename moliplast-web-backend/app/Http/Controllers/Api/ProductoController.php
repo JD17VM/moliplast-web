@@ -1345,6 +1345,14 @@ class ProductoController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
+        // --- DESVINCULAR HIJOS (Si es un grupo) ---
+        // Antes de borrar al padre, liberamos a los hijos para que sean independientes
+        Producto::where('producto_maestro_id', $id)->update([
+            'producto_maestro_id' => null,
+            'atributos_json' => null,
+            'nombre_variante' => null // Opcional: Limpiamos el nombre de variante
+        ]);
+
         // 1. Borrado seguro para las imágenes que pueden ser compartidas
         $imageFields = ['imagen_1', 'imagen_2', 'imagen_3', 'imagen_4'];
         foreach ($imageFields as $field) {

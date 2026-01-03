@@ -236,6 +236,30 @@ const AdminAgruparProductos = () => {
         }
     };
 
+    // --- ELIMINAR GRUPO ---
+    const handleDeleteGrupo = async () => {
+        if (!maestroSeleccionadoId) return;
+        if (!window.confirm("¿Estás seguro de eliminar este grupo? Los productos hijos NO se borrarán, volverán a ser independientes.")) return;
+
+        setSubmitting(true);
+        try {
+            const res = await fetch(`${BASE_URL_API}/api/productos/${maestroSeleccionadoId}`, {
+                method: 'DELETE',
+            });
+
+            if (!res.ok) throw new Error("Error al eliminar el grupo");
+
+            setStatusMessage({ type: 'success', text: 'Grupo eliminado. Los productos ahora son independientes.' });
+            resetForm();
+            loadProductos(pagination.currentPage); // Recargar lista de productos sueltos
+            if (modoEdicion) loadListaMaestros(); // Recargar lista de grupos
+        } catch (error) {
+            setStatusMessage({ type: 'danger', text: error.message });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className={styles.contenedor_total_administrador} style={{ flexDirection: 'column' }}>
             
@@ -419,7 +443,10 @@ const AdminAgruparProductos = () => {
                         </button>
                         
                         {modoEdicion && (
-                            <button className="btn btn-secondary w-100 mt-2" onClick={resetForm}>Cancelar Edición</button>
+                            <div className="d-flex gap-2 mt-2">
+                                <button className="btn btn-danger w-50" onClick={handleDeleteGrupo} disabled={submitting}>Eliminar Grupo</button>
+                                <button className="btn btn-secondary w-50" onClick={resetForm} disabled={submitting}>Cancelar</button>
+                            </div>
                         )}
                     </div>
                 </div>

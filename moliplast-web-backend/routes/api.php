@@ -133,5 +133,3 @@ Route::get('/producto-por-codigo/{codigo}', [ProductoController::class, 'showByC
 Route::post('/productos/bulk-image-upload', [ProductoController::class, 'bulkImageUpload']);
 
 Route::get('/id-productos-categorias', [ProductoController::class, 'getAllProductIdsAndCategoryIds']);
-
-Route::get('/productos/maestros', [ProductoController::class, 'getMaestros']);
