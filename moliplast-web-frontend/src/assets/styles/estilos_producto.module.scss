@@ -102,6 +102,10 @@ $padding_lateral: 2rem;
             display: flex;
             column-gap: 2rem;
         }
+
+        & > .wrapper_tabla {
+            width: 100%;
+        }
     }
 }
 
@@ -161,6 +165,12 @@ $padding_lateral: 2rem;
             }
 
             & > p.precio{
+                align-self: center;
+            }
+
+            & > .wrapper_tabla {
+                width: 95%;
+                overflow-x: auto;
                 align-self: center;
             }
         }

@@ -44,6 +44,11 @@ const Producto = () => {
     // Si hay variante seleccionada, usamos esa. Si no, usamos el producto base.
     const productoVisualizado = varianteSeleccionada || producto;
 
+    // 6. LÓGICA DE IMÁGENES (Prioridad con Respaldo):
+    // - Si el producto visualizado (variante) tiene al menos la imagen 1, usamos SUS imágenes.
+    // - Si no tiene imágenes propias (o es null), usamos las del PADRE para que no se vea vacío.
+    const productoImagenes = (productoVisualizado && productoVisualizado.imagen_1) ? productoVisualizado : producto;
+
     // Función segura para cambiar variante sin perder el ?source=softlink
     const handleVariantClick = (idVariante) => {
         setSearchParams(prev => {
@@ -103,13 +108,14 @@ const Producto = () => {
     }, [id, isSoftlink]);
 
     useEffect(() => {
-        if (producto && producto.imagen_1) {
-            setImagenActual(getFullUrl(producto.imagen_1));
+        // Usamos 'productoImagenes' que ya tiene la lógica de fallback decidida arriba
+        if (productoImagenes && productoImagenes.imagen_1) {
+            setImagenActual(getFullUrl(productoImagenes.imagen_1));
             setBotonActivo(1);
         } else {
             setImagenActual(null);
         }
-    }, [producto]);
+    }, [producto, productoVisualizado]); // Se recalcula cuando cambian estos
 
     const handleClick = (imagen, numButton) => {
         setImagenActual(imagen);
@@ -139,7 +145,7 @@ const Producto = () => {
             <div className={styles.contenedor_producto}>
                 <div className={styles.contenedor_imagenes}>
                     <div className={styles.cont_botones}>
-                        {[producto.imagen_1, producto.imagen_2, producto.imagen_3, producto.imagen_4].map((img, index) => (
+                        {[productoImagenes.imagen_1, productoImagenes.imagen_2, productoImagenes.imagen_3, productoImagenes.imagen_4].map((img, index) => (
                             img && (
                                 <button
                                     key={index}
@@ -199,12 +205,14 @@ const Producto = () => {
                     )}
 
                     {/* === AQUI INSERTAMOS EL COMPONENTE DE TABLA === */}
-                    <TablaVariantes 
-                        variantes={producto.variantes}
-                        atributos_division={producto.atributos_division}
-                        variantId={variantId}
-                        handleVariantClick={handleVariantClick}
-                    />
+                    <div className={styles.wrapper_tabla}>
+                        <TablaVariantes 
+                            variantes={producto.variantes}
+                            atributos_division={producto.atributos_division}
+                            variantId={variantId}
+                            handleVariantClick={handleVariantClick}
+                        />
+                    </div>
 
                 </div>
             </div>
